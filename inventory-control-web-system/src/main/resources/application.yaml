@@ -1,0 +1,16 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: inventory-control-web-system
+
+# URLs de Integração de Serviços (Podem ser facilmente sobrescritas no K8s via Env Vars)
+integrations:
+  auth-service:
+    url: ${AUTH_SERVICE_URL:http://localhost:8080}
+
+# Configuração detalhada do log para depurar chamadas HTTP se necessário
+logging:
+  level:
+    com.inventory.control.web.system.infrastructure.integration.client: DEBUG
