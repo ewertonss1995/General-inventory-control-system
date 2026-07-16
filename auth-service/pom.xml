@@ -60,18 +60,24 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.microsoft.sqlserver</groupId>
-            <artifactId>mssql-jdbc</artifactId>
-            <scope>runtime</scope>
-        </dependency>
+
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId> <!-- Controle profissional de migrations -->
         </dependency>
+        
+        <!-- Extensão do Flyway para suporte ao SQL Server -->
         <dependency>
             <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-database-kubernetes</artifactId> <!-- Flyway em ambientes K8s -->
+            <artifactId>flyway-sqlserver</artifactId>
+            <version>${flyway.version}</version>
+        </dependency>
+
+        <!-- Driver de Conexão oficial do SQL Server -->
+        <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
+            <scope>runtime</scope>
         </dependency>
 
 		<!-- Utilitários -->

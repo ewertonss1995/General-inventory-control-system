@@ -1,11 +1,11 @@
-package com.application.usecase;
+package com.auth.application.usecase;
 
-import com.application.dto.RegisterRequest;
-import com.domain.exception.BusinessException;
-import com.infrastructure.persistence.jpa.entity.RoleEntity;
-import com.infrastructure.persistence.jpa.entity.UserEntity;
-import com.infrastructure.persistence.jpa.repository.RoleRepository;
-import com.infrastructure.persistence.jpa.repository.UserRepository;
+import com.auth.application.dto.RegisterRequest;
+import com.auth.domain.exception.BusinessException;
+import com.auth.infrastructure.persistence.jpa.entity.RoleEntity;
+import com.auth.infrastructure.persistence.jpa.entity.UserEntity;
+import com.auth.infrastructure.persistence.jpa.repository.RoleRepository;
+import com.auth.infrastructure.persistence.jpa.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
