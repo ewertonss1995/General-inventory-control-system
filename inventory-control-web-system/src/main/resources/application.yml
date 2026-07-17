@@ -1,0 +1,28 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: inventory-control-web-system
+
+# URLs de Integração de Serviços (Podem ser facilmente sobrescritas no K8s via Env Vars)
+integrations:
+  auth-service:
+    url: ${AUTH_SERVICE_URL:http://localhost:8080}
+
+# Configuração detalhada do log para depurar chamadas HTTP se necessário
+logging:
+  level:
+    com.inventory.control.web.system.infrastructure.integration.client: DEBUG
+
+app:
+  security:
+    jwt-secret: ${JWT_SECRET:eYmIrhhGLEP/xQ/V4AzbcJXMHjGcA29D9QzD0O9oklo=}
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Informamos ao Spring Security que usaremos uma chave local/simétrica para validar o JWT
+          secret-key-spec: ${app.security.jwt-secret}
