@@ -1,18 +1,14 @@
-version: '3.8'
-
 services:
-  # Banco de Dados SQL Server para o Auth Service
   auth-db:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: auth-db
     environment:
       - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=YourStrong@Password123 # SQL Server exige senhas fortes (letras, números e símbolos)
+      - MSSQL_SA_PASSWORD=YourStrong@Password123
     ports:
       - "1433:1433"
     healthcheck:
-      # Comando específico para verificar se o SQL Server está pronto para receber conexões
-      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "YourStrong@Password123", "-Q", "SELECT 1"]
+      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "YourStrong@Password123", "-Q", "IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = 'product_db') CREATE DATABASE product_db; SELECT 1;"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -21,7 +17,6 @@ services:
     networks:
       - inventory-network
 
-  # Microsserviço de Autenticação (Porta 8080)
   auth-service:
     build:
       context: ./auth-service
@@ -30,7 +25,6 @@ services:
     ports:
       - "8080:8080"
     environment:
-      # URL JDBC corrigida para SQL Server (usando o DNS interno 'auth-db')
       - SPRING_DATASOURCE_URL=jdbc:sqlserver://auth-db:1433;databaseName=master;encrypt=true;trustServerCertificate=true;
       - SPRING_DATASOURCE_USERNAME=sa
       - SPRING_DATASOURCE_PASSWORD=YourStrong@Password123
@@ -41,18 +35,37 @@ services:
     networks:
       - inventory-network
 
-  # Backend-For-Frontend Web (Porta 8081)
-  bff-web:
+  inventory-control-system:
+    build:
+      context: ./inventory-control-system
+      dockerfile: Dockerfile
+    container_name: inventory-control-system
+    ports:
+      - "8082:8082"
+    environment:
+      - DB_HOST=auth-db
+      - DB_NAME=product_db
+      - DB_USER=sa
+      - DB_PASSWORD=YourStrong@Password123
+    depends_on:
+      auth-db:
+        condition: service_healthy
+    networks:
+      - inventory-network
+
+  inventory-control-web-system:
     build:
       context: ./inventory-control-web-system
       dockerfile: Dockerfile
-    container_name: bff-web
+    container_name: inventory-control-web-system
     ports:
       - "8081:8081"
     environment:
       - AUTH_SERVICE_URL=http://auth-service:8080
+      - PRODUCT_SERVICE_URL=http://inventory-control-system:8082
     depends_on:
       - auth-service
+      - inventory-control-system
     networks:
       - inventory-network
 
