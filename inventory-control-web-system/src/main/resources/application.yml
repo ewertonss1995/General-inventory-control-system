@@ -4,6 +4,11 @@ server:
 spring:
   application:
     name: inventory-control-web-system
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          secret-key-spec: ${app.security.jwt-secret}
 
 # URLs de Integração de Serviços (Podem ser facilmente sobrescritas no K8s via Env Vars)
 integrations:
@@ -17,12 +22,4 @@ logging:
 
 app:
   security:
-    jwt-secret: ${JWT_SECRET:eYmIrhhGLEP/xQ/V4AzbcJXMHjGcA29D9QzD0O9oklo=}
-
-spring:
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          # Informamos ao Spring Security que usaremos uma chave local/simétrica para validar o JWT
-          secret-key-spec: ${app.security.jwt-secret}
+    jwt-secret: ${JWT_SECRET:eYmIrhhGLEP/xQ/V4AzbcJXMHjGcA29D9QzD0O9oklo=}  
