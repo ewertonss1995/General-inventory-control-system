@@ -1,4 +1,4 @@
-package com.inventory.control.system.api.dto;
+package com.inventory.control.system.adapters.in.web.dto;
 
 import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
