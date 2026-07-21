@@ -1,30 +1,62 @@
 package com.inventory.control.system.adapters.in.web.exception;
 
+import com.inventory.control.system.adapters.in.web.dto.ErrorResponse;
 import com.inventory.control.system.domain.exception.BusinessException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.net.URI;
-import java.time.Instant;
+import java.util.List;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    /**
+     * Intercepta erros puristas de regra de negócio do Domínio (BusinessException)
+     * Retorna HTTP 400 (Bad Request) ou 422 (Unprocessable Entity) com o motivo limpo.
+     */
     @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<ProblemDetail> handleBusinessException(BusinessException ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.UNPROCESSABLE_ENTITY, 
-                ex.getMessage()
+    public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+            HttpStatus.BAD_REQUEST.value(),
+            "Regra de Negócio Violada",
+            ex.getMessage()
         );
-        
-        problemDetail.setTitle("Violação de Regra de Negócio");
-        problemDetail.setType(URI.create("https://api.inventory-control.com/errors"));
-        problemDetail.setProperty("timestamp", Instant.now());
-        
-        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(problemDetail);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    /**
+     * Intercepta falhas no @Valid dos DTOs (ex: @NotBlank, @Min)
+     * Retorna HTTP 400 mapeando exatamente quais campos falharam.
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
+        List<ErrorResponse.FieldError> fieldErrors = ex.getBindingResult().getFieldErrors().stream()
+            .map(field -> new ErrorResponse.FieldError(field.getField(), field.getDefaultMessage()))
+            .toList();
+
+        ErrorResponse errorResponse = new ErrorResponse(
+            HttpStatus.BAD_REQUEST.value(),
+            "Erro de Validação de Payload",
+            "Um ou mais campos do formulário/requisição estão inválidos.",
+            fieldErrors
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+            HttpStatus.INTERNAL_SERVER_ERROR.value(),
+            "Erro Interno no Servidor",
+            "Ocorreu um erro inesperado ao processar a requisição. Tente novamente mais tarde."
+        );
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 }
