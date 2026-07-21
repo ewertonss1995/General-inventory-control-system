@@ -4,9 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.inventory.control.web.system.application.dto.LoginDto;
 import com.inventory.control.web.system.application.dto.RegisterUserDto;
 import com.inventory.control.web.system.application.dto.TokenDto;
-import org.junit.jupiter.api.AfterAll; // Alterado para AfterAll
-import org.junit.jupiter.api.BeforeAll; // Alterado para BeforeAll
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,13 +21,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.net.URI;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureMockMvc
-@ActiveProfiles("test") // Ativa o application-test.yml
+@AutoConfigureMockMvc(addFilters = false)
+@ActiveProfiles("test")
 class BffAuthControllerIntegrationTest {
 
     @Autowired
@@ -36,25 +36,24 @@ class BffAuthControllerIntegrationTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @MockBean
+    private org.springframework.security.oauth2.jwt.JwtDecoder jwtDecoder;
     
     private static com.github.tomakehurst.wiremock.WireMockServer wireMockServer;
 
-    // 1. Inicializa o WireMock ANTES de o Spring tentar resolver as propriedades de contexto
+    private static final String JWT_SECRET = "eYmIrhhGLEP/xQ/V4AzbcJXMHjGcA29D9QzD0O9oklo=";
+
     @BeforeAll
     static void startWireMock() {
         wireMockServer = new com.github.tomakehurst.wiremock.WireMockServer(
                 com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig().dynamicPort()
         );
         wireMockServer.start();
+        // Vincula os métodos estáticos como stubFor à instância dinâmica rodando
+        com.github.tomakehurst.wiremock.client.WireMock.configureFor("localhost", wireMockServer.port());
     }
 
-    // 2. Garante que o cliente estático do WireMock saiba em qual porta o servidor dinâmico subiu antes de cada teste
-    @BeforeEach
-    void setupWireMockClient() {
-        configureFor("localhost", wireMockServer.port());
-    }
-
-    // 3. Finaliza o servidor após todos os testes da classe rodarem
     @AfterAll
     static void stopWireMock() {
         if (wireMockServer != null) {
@@ -62,10 +61,13 @@ class BffAuthControllerIntegrationTest {
         }
     }
 
-    // Agora que o WireMock inicia no @BeforeAll, o wireMockServer não estará nulo aqui!
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
         registry.add("wiremock.server.port", () -> wireMockServer.port());
+        // Injeta a URL completa com a porta dinâmica sob o nó exato mapeado nas integrações
+        registry.add("integrations.auth-service.url", () -> "http://localhost:" + wireMockServer.port());
+        registry.add("app.security.jwt-secret", () -> JWT_SECRET);
+        registry.add("spring.security.oauth2.resourceserver.jwt.secret-key-spec", () -> JWT_SECRET);
     }
 
     @Test

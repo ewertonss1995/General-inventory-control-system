@@ -1,6 +1,24 @@
 server:
-  port: 0 # Escolhe uma porta aleatória para o BFF rodar durante os testes
+  port: 0
 
 integrations:
   auth-service:
-    url: http://localhost:${wiremock.server.port} # Aponta o Feign dinamicamente para o servidor WireMock
+    url: http://localhost:0 # Aponta o Feign dinamicamente para o servidor WireMock
+
+app:
+  security:
+    jwt-secret: ${JWT_SECRET:eYmIrhhGLEP/xQ/V4AzbcJXMHjGcA29D9QzD0O9oklo=}
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jws-algorithm: HS256
+          secret-key-spec: "eYmIrhhGLEP/xQ/V4AzbcJXMHjGcA29D9QzD0O9oklo="
