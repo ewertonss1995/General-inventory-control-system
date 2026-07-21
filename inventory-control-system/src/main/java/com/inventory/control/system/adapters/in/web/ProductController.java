@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
@@ -59,9 +61,7 @@ public class ProductController {
      */
     @GetMapping("/{sku}")
     public ResponseEntity<ProductResponse> findBySku(@PathVariable String sku) {
-        Product product = findProductUseCase.findBySku(sku)
-                .orElseThrow(() -> new BusinessException("Produto não encontrado para o SKU: " + sku));
-
+        Product product = findProductUseCase.findBySku(sku);
         return ResponseEntity.ok(toResponse(product));
     }
 

@@ -25,11 +25,8 @@ public class FindProductService implements FindProductUseCase {
     }
 
     @Override
-    public Optional<Product> findBySku(String sku) {
-        if (sku == null || sku.isBlank()) {
-            return Optional.empty();
-        }
-
-        return productRepositoryPort.findBySku(sku.trim().toUpperCase());
+    public Product findBySku(String sku) {
+        return productRepositoryPort.findBySku(sku.trim().toUpperCase())
+        .orElseThrow(() -> new RuntimeException("Produto não encontrado para o SKU: " + sku));
     }
 }

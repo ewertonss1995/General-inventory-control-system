@@ -1,15 +1,15 @@
-package com.inventory.control.system.domain.repository;
+package com.inventory.control.system.adapters.out.database.repository;
 
-import com.inventory.control.system.domain.model.Category;
+import com.inventory.control.system.adapters.out.database.entities.CategoryEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface CategoryRepository extends JpaRepository<Category, Long> {
+public interface CategoryRepository extends JpaRepository<CategoryEntity, Long> {
     
-    Optional<Category> findByNameIgnoreCase(String name);
+    Optional<CategoryEntity> findByNameIgnoreCase(String name);
     
     boolean existsByNameIgnoreCase(String name);
 }
