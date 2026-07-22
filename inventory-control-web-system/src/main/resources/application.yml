@@ -4,11 +4,15 @@ server:
 spring:
   application:
     name: inventory-control-web-system
+    feign:
+      inventory-control-system:
+        url: ${INVENTORY_CONTROL_SYSTEM_URL:http://localhost:8080}
   security:
     oauth2:
       resourceserver:
         jwt:
           secret-key-spec: ${app.security.jwt-secret}
+
 
 # URLs de Integração de Serviços (Podem ser facilmente sobrescritas no K8s via Env Vars)
 integrations:

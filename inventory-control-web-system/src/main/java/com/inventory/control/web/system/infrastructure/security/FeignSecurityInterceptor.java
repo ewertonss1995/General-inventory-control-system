@@ -1,4 +1,4 @@
-package com.inventory.control.web.system.infrastructure.integration.security;
+package com.inventory.control.web.system.infrastructure.security;
 
 import feign.RequestInterceptor;
 import feign.RequestTemplate;

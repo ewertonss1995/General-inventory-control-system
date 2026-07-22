@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/products")
+@RequestMapping("/v1/products")
 public class ProductController {
 
     private final CreateProductUseCase createProductUseCase;
@@ -26,10 +26,10 @@ public class ProductController {
 
     /**
      * Endpoint de Cadastro de Produto
-     * POST /api/internal/products
+     * POST /v1/products
      */
     @PostMapping
-    public ResponseEntity<ProductResponse> create(@RequestBody @Valid ProductRequest request) {
+    public ResponseEntity<ProductResponse> createProduct(@RequestBody @Valid ProductRequest request) {
         Product product = createProductUseCase.execute(
                 request.sku(),
                 request.name(),
@@ -44,7 +44,7 @@ public class ProductController {
 
     /**
      * Endpoint de Listagem Geral de Produtos
-     * GET /api/internal/products
+     * GET /v1/products
      */
     @GetMapping
     public ResponseEntity<List<ProductResponse>> findAll() {
@@ -57,7 +57,7 @@ public class ProductController {
 
     /**
      * Endpoint de Busca por SKU Único
-     * GET /api/internal/products/{sku}
+     * GET /v1/products/{sku}
      */
     @GetMapping("/{sku}")
     public ResponseEntity<ProductResponse> findBySku(@PathVariable String sku) {

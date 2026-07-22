@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
-public class BffRateLimitingFilter extends OncePerRequestFilter {
+public class RateLimitingFilter extends OncePerRequestFilter {
 
     private final Map<String, Bucket> authBuckets = new ConcurrentHashMap<>();
     private final Map<String, Bucket> apiBuckets = new ConcurrentHashMap<>();

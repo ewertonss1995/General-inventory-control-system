@@ -81,16 +81,16 @@
             <version>7.4</version>
         </dependency>
 
-        <!-- Abstração de Cache do Spring Boot -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-cache</artifactId>
-        </dependency>
-
         <!-- Provedor de Cache In-Memory de alta performance Caffeine -->
         <dependency>
             <groupId>com.github.ben-manes.caffeine</groupId>
             <artifactId>caffeine</artifactId>
+        </dependency>
+
+        <!-- Abstração de Cache do Spring Boot -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
         
         <!-- Bucket4j para controle de Rate Limiting e proteção de endpoints -->
