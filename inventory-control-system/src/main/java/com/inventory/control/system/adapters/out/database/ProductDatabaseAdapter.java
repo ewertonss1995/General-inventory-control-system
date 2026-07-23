@@ -45,28 +45,28 @@ public class ProductDatabaseAdapter implements ProductRepositoryPort {
     @Override
     public List<Product> findAll() { return List.of(); }
 
-@Override
-public Optional<Product> findBySku(String sku) {
-    return repository.findBySkuIgnoreCase(sku)
-        .map(entity -> {
-            Category category = null;
-            if (entity.getCategory() != null) {
-                category = new Category(
-                        entity.getCategory().getId(),
-                        entity.getCategory().getName(),
-                        entity.getCategory().getDescription()
-                );
-            }
+    @Override
+    public Optional<Product> findBySku(String sku) {
+        return repository.findBySkuIgnoreCase(sku)
+            .map(entity -> {
+                Category category = null;
+                if (entity.getCategory() != null) {
+                    category = new Category(
+                            entity.getCategory().getId(),
+                            entity.getCategory().getName(),
+                            entity.getCategory().getDescription()
+                    );
+                }
 
-            return new Product(
-                    entity.getId(),
-                    entity.getSku(),
-                    entity.getName(),
-                    entity.getDescription(),
-                    entity.getPrice(),
-                    entity.getQuantity(),
-                    category
-            );
-        });
-}
+                return new Product(
+                        entity.getId(),
+                        entity.getSku(),
+                        entity.getName(),
+                        entity.getDescription(),
+                        entity.getPrice(),
+                        entity.getQuantity(),
+                        category
+                );
+            });
+    }
 }

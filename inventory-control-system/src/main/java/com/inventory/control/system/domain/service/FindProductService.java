@@ -1,10 +1,7 @@
 package com.inventory.control.system.domain.service;
 
-import com.inventory.control.system.domain.model.Category;
 import com.inventory.control.system.domain.model.Product;
-import com.inventory.control.system.ports.in.CreateProductUseCase;
-import com.inventory.control.system.ports.in.FindProductUseCase; // <-- Nova Port importada
-import com.inventory.control.system.ports.out.CategoryRepositoryPort;
+import com.inventory.control.system.ports.in.FindProductUseCase;
 import com.inventory.control.system.ports.out.ProductRepositoryPort;
 
 import java.math.BigDecimal;

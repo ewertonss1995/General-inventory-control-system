@@ -1,17 +1,16 @@
 package com.auth.domain.service;
 
-import com.auth.infrastructure.persistence.jpa.entity.UserEntity;
+import com.auth.adapters.out.database.entity.UserEntity;
+import com.auth.ports.in.TokenUseCase;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
-import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.stream.Collectors;
 
-@Service
-public class TokenService {
+public class TokenService implements TokenUseCase {
 
     private final JwtEncoder jwtEncoder;
 
@@ -19,6 +18,7 @@ public class TokenService {
         this.jwtEncoder = jwtEncoder;
     }
 
+    @Override
     public String generateToken(UserEntity user) {
         Instant now = Instant.now();
         long expiresInSeconds = 7200L; // 2 horas de expiração do Token
