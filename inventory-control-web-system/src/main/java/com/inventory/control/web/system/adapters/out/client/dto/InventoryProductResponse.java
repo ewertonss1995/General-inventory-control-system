@@ -1,4 +1,4 @@
-package com.inventory.control.web.system.adapters.out.client.inventory.dto;
+package com.inventory.control.web.system.adapters.out.client.dto;
 
 import java.math.BigDecimal;
 

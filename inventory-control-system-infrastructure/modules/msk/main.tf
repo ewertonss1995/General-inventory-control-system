@@ -16,9 +16,9 @@ resource "aws_msk_cluster" "kafka" {
     }
   }
 
-  encryption_info {
+encryption_info {
     encryption_in_transit {
-      client_in_transit = "TLS_PLAINTEXT" # Permite conexões com ou sem TLS para facilitar os testes de estudo
+      client_broker = "TLS_PLAINTEXT" # Permite conexões com TLS ou PLAINTEXT
     }
   }
 

@@ -7,23 +7,13 @@ spring:
     feign:
       inventory-control-system:
         url: ${INVENTORY_CONTROL_SYSTEM_URL:http://localhost:8080}
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          secret-key-spec: ${app.security.jwt-secret}
-
-
-# URLs de Integração de Serviços (Podem ser facilmente sobrescritas no K8s via Env Vars)
-integrations:
-  auth-service:
-    url: ${AUTH_SERVICE_URL:http://localhost:8080}
+      auth-service:
+        url: ${AUTH_SERVICE_URL:http://localhost:8082}
 
 # Configuração detalhada do log para depurar chamadas HTTP se necessário
 logging:
   level:
     com.inventory.control.web.system.infrastructure.integration.client: DEBUG
 
-app:
-  security:
-    jwt-secret: ${JWT_SECRET:eYmIrhhGLEP/xQ/V4AzbcJXMHjGcA29D9QzD0O9oklo=}  
+jwt:
+  public-key-path: classpath:certs/app.pub 

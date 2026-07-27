@@ -1,7 +1,7 @@
-package com.inventory.control.web.system.adapters.out.client.inventory;
+package com.inventory.control.web.system.adapters.out.client;
 
-import com.inventory.control.web.system.adapters.out.client.inventory.dto.InventoryProductRequest;
-import com.inventory.control.web.system.adapters.out.client.inventory.dto.InventoryProductResponse;
+import com.inventory.control.web.system.adapters.out.client.dto.InventoryProductRequest;
+import com.inventory.control.web.system.adapters.out.client.dto.InventoryProductResponse;
 import com.inventory.control.web.system.domain.model.ProductItem;
 import com.inventory.control.web.system.domain.model.Product;
 import com.inventory.control.web.system.ports.out.InventoryClientPort;

@@ -2,6 +2,7 @@ package com.inventory.control.system.infrastructure.config;
 
 import com.inventory.control.system.domain.service.CreateProductService;
 import com.inventory.control.system.domain.service.FindProductService;
+import com.inventory.control.system.domain.service.UpdateStockService;
 import com.inventory.control.system.ports.out.CategoryRepositoryPort;
 import com.inventory.control.system.ports.out.ProductRepositoryPort;
 import org.springframework.context.annotation.Bean;
@@ -18,5 +19,10 @@ public class BeanConfig {
     @Bean
     public FindProductService findProductService(ProductRepositoryPort productRepositoryPort) {
         return new FindProductService(productRepositoryPort);
+    }
+
+    @Bean
+    public UpdateStockService updateStockService(ProductRepositoryPort productRepositoryPort) {
+        return new UpdateStockService(productRepositoryPort);
     }
 }

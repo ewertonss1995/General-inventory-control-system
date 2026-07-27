@@ -16,7 +16,7 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // Padrão recomendado pelo mercado sênior
+        return new BCryptPasswordEncoder();
     }
 
     @Bean

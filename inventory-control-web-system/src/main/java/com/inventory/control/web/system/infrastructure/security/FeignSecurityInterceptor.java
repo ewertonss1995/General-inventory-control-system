@@ -17,16 +17,24 @@ public class FeignSecurityInterceptor implements RequestInterceptor {
     @Override
     public void apply(RequestTemplate template) {
         String activeTraceId = MDC.get(TRACE_ID_KEY);
-        
         if (activeTraceId != null && !activeTraceId.isBlank()) {
             template.header(TRACE_ID_HEADER, activeTraceId);
         }
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication != null && authentication.getCredentials() instanceof Jwt jwt) {
-            String tokenValue = jwt.getTokenValue();
-            template.header(AUTHORIZATION_HEADER, String.format("%s %s", BEARER_TOKEN_TYPE, tokenValue));
+        if (authentication != null && authentication.isAuthenticated()) {
+            Jwt jwt = null;
+
+            if (authentication.getPrincipal() instanceof Jwt principalJwt) {
+                jwt = principalJwt;
+            } else if (authentication.getCredentials() instanceof Jwt credentialsJwt) {
+                jwt = credentialsJwt;
+            }
+
+            if (jwt != null) {
+                template.header(AUTHORIZATION_HEADER, String.format("%s %s", BEARER_TOKEN_TYPE, jwt.getTokenValue()));
+            }
         }
     }
 }

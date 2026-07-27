@@ -3,12 +3,16 @@ package com.inventory.control.web.system.adapters.out.auth;
 import com.inventory.control.web.system.adapters.in.web.dto.LoginDto;
 import com.inventory.control.web.system.adapters.in.web.dto.RegisterUserDto;
 import com.inventory.control.web.system.adapters.in.web.dto.TokenDto;
+import com.inventory.control.web.system.infrastructure.config.FeignConfig;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "auth-client", url = "${integrations.auth-service.url}")
+@FeignClient(
+    name = "auth-client", 
+    url = "${application.feign.auth-service.url}", 
+    configuration = FeignConfig.class)
 public interface AuthFeignClient {
 
     @PostMapping("/auth/register")

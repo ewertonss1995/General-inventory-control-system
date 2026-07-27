@@ -1,7 +1,7 @@
-package com.inventory.control.web.system.adapters.out.client.inventory;
+package com.inventory.control.web.system.adapters.out.client;
 
-import com.inventory.control.web.system.adapters.out.client.inventory.dto.InventoryProductRequest;
-import com.inventory.control.web.system.adapters.out.client.inventory.dto.InventoryProductResponse;
+import com.inventory.control.web.system.adapters.out.client.dto.InventoryProductRequest;
+import com.inventory.control.web.system.adapters.out.client.dto.InventoryProductResponse;
 import com.inventory.control.web.system.infrastructure.config.FeignConfig;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
@@ -12,8 +12,7 @@ import java.util.List;
 @FeignClient(
     name = "inventory-control-system", 
     url = "${application.feign.inventory-control-system.url",
-    configuration = FeignConfig.class
-)
+    configuration = FeignConfig.class)
 public interface InventoryFeignClient {
 
     @PostMapping("/v1/products")
