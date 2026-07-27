@@ -11,7 +11,11 @@ import com.auth.adapters.out.database.repository.UserRepository;
 import com.auth.ports.in.AuthenticateUserUseCase;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class AuthenticateUserService implements AuthenticateUserUseCase {
 
     private final UserRepositoryPort userRepositoryPort;
@@ -27,19 +31,23 @@ public class AuthenticateUserService implements AuthenticateUserUseCase {
     }
 
     public TokenResponse execute(LoginRequest request) {
+        log.info("Iniciando processo de autenticação: " + request.usernameOrEmail());
+        
         UserEntity user = userRepositoryPort.findByUsernameOrEmail(request.usernameOrEmail(), request.usernameOrEmail())
                 .orElseThrow(() -> new BusinessException("Credenciais inválidas."));
 
         if (!user.isActive()) {
-            throw new BusinessException("Conta de usuário inativa.");
+            log.error("A conta do usuário não esta ativa: " + request.usernameOrEmail());
+            throw new BusinessException("Conta de usuário inativa: " + request.usernameOrEmail());
         }
 
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {
-            throw new BusinessException("Credenciais inválidas.");
+            log.error("Credenciais inválidas, verifique sua senha!");
+            throw new BusinessException("Credenciais inválidas:" + request.usernameOrEmail());
         }
 
         String token = tokenUseCase.generateToken(user);
-
+        log.info("Usuário autenticado com sucesso!");
         return new TokenResponse(token, "Bearer", 7200L);
     }
 }

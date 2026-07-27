@@ -31,6 +31,8 @@ public class GlobalExceptionHandler {
         problemDetail.setTitle("Violação de Regra de Negócio");
         problemDetail.setType(URI.create("https://api.inventory-control.com/errors/business-rule-violation"));
         problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty("exception", ex.getClass().getName());
+        problemDetail.setProperty("exceptionMessage", ex.getMessage());
         
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(problemDetail);
     }
@@ -58,6 +60,8 @@ public class GlobalExceptionHandler {
                 .toList();
 
         problemDetail.setProperty("invalidFields", errors);
+        problemDetail.setProperty("exception", ex.getClass().getName());
+        problemDetail.setProperty("exceptionMessage", ex.getMessage());
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problemDetail);
     }
@@ -77,6 +81,8 @@ public class GlobalExceptionHandler {
         problemDetail.setTitle("Erro Interno do Servidor");
         problemDetail.setType(URI.create("https://auth-service/errors/internal-server-error"));
         problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty("exception", ex.getClass().getName());
+        problemDetail.setProperty("exceptionMessage", ex.getMessage());
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problemDetail);
     }

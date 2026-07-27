@@ -53,6 +53,6 @@ logging:
   level:
     root: INFO # Nível geral do ecossistema (Spring, Hibernate, etc.)
     com.auth: DEBUG # Nível detalhado para o seu código
-    org.hibernate.SQL: DEBUG # Exibe as queries SQL no console
+    # org.hibernate.SQL: DEBUG # Exibe as queries SQL no console
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
