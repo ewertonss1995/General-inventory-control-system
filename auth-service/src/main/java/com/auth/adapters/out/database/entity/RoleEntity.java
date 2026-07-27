@@ -16,6 +16,9 @@ public class RoleEntity implements GrantedAuthority {
     @Column(nullable = false, unique = true, length = 30)
     private String name;
 
+    public RoleEntity() {
+    }
+
     public RoleEntity(UUID id, String name) {
         this.id = id;
         this.name = name;

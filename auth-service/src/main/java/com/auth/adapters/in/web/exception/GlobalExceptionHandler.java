@@ -75,7 +75,7 @@ public class GlobalExceptionHandler {
         );
 
         problemDetail.setTitle("Erro Interno do Servidor");
-        problemDetail.setType(URI.create("https://api.inventory-control.com/errors/internal-server-error"));
+        problemDetail.setType(URI.create("https://auth-service/errors/internal-server-error"));
         problemDetail.setProperty("timestamp", Instant.now());
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problemDetail);

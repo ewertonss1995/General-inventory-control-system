@@ -4,7 +4,8 @@ import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.time.OffsetDateTime;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -31,7 +32,7 @@ public class UserEntity implements UserDetails {
     private boolean active = true;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private OffsetDateTime createdAt = OffsetDateTime.now();
+    private Timestamp createdAt;
 
     @ManyToMany(fetch = FetchType.EAGER) // Carrega os perfis junto com o usuário para evitar LazyInitializationException
     @JoinTable(
@@ -42,7 +43,17 @@ public class UserEntity implements UserDetails {
     private Set<RoleEntity> roles = new HashSet<>();
 
 
-    public UserEntity(UUID id, String username, String email, String password, boolean active, OffsetDateTime createdAt, Set<RoleEntity> roles) {
+    public UserEntity() {
+    }
+
+    public UserEntity(String username, String email, String password, Set<RoleEntity> roles) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.roles = roles;
+    }
+
+    public UserEntity(UUID id, String username, String email, String password, boolean active, Timestamp createdAt, Set<RoleEntity> roles) {
         this.id = id;
         this.username = username;
         this.email = email;
@@ -127,11 +138,11 @@ public class UserEntity implements UserDetails {
         this.active = active;
     }
 
-    public OffsetDateTime getCreatedAt() {
+    public Timestamp getCreatedAt() {
         return this.createdAt;
     }
 
-    public void setCreatedAt(OffsetDateTime createdAt) {
+    public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
     }
 
@@ -141,5 +152,12 @@ public class UserEntity implements UserDetails {
 
     public void setRoles(Set<RoleEntity> roles) {
         this.roles = roles;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.createdAt == null) {
+            this.createdAt = Timestamp.from(Instant.now());
+        }
     }
 }

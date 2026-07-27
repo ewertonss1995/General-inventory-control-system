@@ -5,9 +5,9 @@ CREATE TABLE users (
     email VARCHAR(100) NOT NULL,
     password_hash VARCHAR(100) NOT NULL,
     active BIT NOT NULL DEFAULT 1,
-    created_at DATETIMEOFFSET NOT NULL DEFAULT SYSDATETIMEOFFSET(),
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     
-    CONSTRAINT PK_users PRIMARY KEY CLUSTERED (id),
+    CONSTRAINT PK_users PRIMARY KEY (id),
     CONSTRAINT UQ_users_username UNIQUE (username),
     CONSTRAINT UQ_users_email UNIQUE (email)
 );
@@ -17,7 +17,7 @@ CREATE TABLE roles (
     id UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),
     name VARCHAR(30) NOT NULL,
     
-    CONSTRAINT PK_roles PRIMARY KEY CLUSTERED (id),
+    CONSTRAINT PK_roles PRIMARY KEY  (id),
     CONSTRAINT UQ_roles_name UNIQUE (name)
 );
 
@@ -26,7 +26,7 @@ CREATE TABLE user_roles (
     user_id UNIQUEIDENTIFIER NOT NULL,
     role_id UNIQUEIDENTIFIER NOT NULL,
     
-    CONSTRAINT PK_user_roles PRIMARY KEY CLUSTERED (user_id, role_id),
+    CONSTRAINT PK_user_roles PRIMARY KEY  (user_id, role_id),
     CONSTRAINT FK_user_roles_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     CONSTRAINT FK_user_roles_role FOREIGN KEY (role_id) REFERENCES roles (id) ON DELETE CASCADE
 );

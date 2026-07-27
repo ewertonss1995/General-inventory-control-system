@@ -13,7 +13,9 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/auth")
 @Tag(name = "Authentication", description = "Endpoints de login e registro de operadores de estoque")
@@ -36,6 +38,7 @@ public class AuthController {
         @ApiResponse(responseCode = "422", description = "Dados duplicados ou regra de negócio violada")
     })
     public ResponseEntity<Void> register(@Valid @RequestBody RegisterRequest request) {
+        log.info("Iniciando processo de registro de usuário: " + request.username());
         registerUserUseCase.execute(request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -48,6 +51,7 @@ public class AuthController {
         @ApiResponse(responseCode = "401", description = "Credenciais incorretas")
     })
     public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest request) {
+        log.info("Iniciando processo de login: " + request.usernameOrEmail());
         TokenResponse response = authenticateUserUseCase.execute(request);
         return ResponseEntity.ok(response);
     }
