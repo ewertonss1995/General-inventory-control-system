@@ -5,7 +5,9 @@ import com.auth.ports.out.RoleRepositoryPort;
 import com.auth.adapters.out.database.repository.RoleRepository;
 
 import java.util.Optional;
+import org.springframework.stereotype.Component;
 
+@Component
 public class RegisterUserAdapter implements RoleRepositoryPort {
 
     private final RoleRepository roleRepository;

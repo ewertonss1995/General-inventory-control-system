@@ -20,7 +20,4 @@ public interface AuthFeignClient {
 
     @PostMapping("/auth/login")
     ResponseEntity<TokenDto> login(@RequestBody LoginDto request);
-
-    @PostMapping("/auth/validate")
-    boolean validate(@RequestBody String token);
 }

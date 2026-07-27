@@ -25,9 +25,9 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable) // Desabilitado pois usaremos JWT (Stateless)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/auth/login", "/auth/register").permitAll() // Rotas públicas de autenticação
-                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll() // Swagger
-                .requestMatchers("/actuator/**").permitAll() // Monitoramento do Kubernetes (Probes)
+                .requestMatchers("/auth/login", "/auth/register").permitAll()
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                .requestMatchers("/actuator/**").permitAll()
                 .anyRequest().authenticated()
             );
 

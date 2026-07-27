@@ -4,13 +4,10 @@ import com.auth.ports.out.UserRepositoryPort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.auth.ports.in.TokenUseCase;
 import com.auth.domain.service.AuthenticateUserService;
-import com.auth.domain.service.JwkSetService;
 import com.auth.domain.service.RegisterUserService;
 import com.auth.domain.service.TokenService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.security.interfaces.RSAPublicKey;
 
 import com.auth.ports.out.RoleRepositoryPort;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,11 +25,6 @@ public class BeanConfig {
         
         return new AuthenticateUserService(
             userRepositoryPort, passwordEncoder, tokenUseCase);
-    }
-
-    @Bean
-    public JwkSetService jwkSetService(RSAPublicKey rsaPublicKey) {
-        return new JwkSetService(rsaPublicKey);
     }
 
     @Bean

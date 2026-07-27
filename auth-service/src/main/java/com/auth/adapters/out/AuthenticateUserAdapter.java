@@ -6,6 +6,9 @@ import com.auth.ports.out.UserRepositoryPort;
 import com.auth.adapters.out.database.entity.UserEntity;
 import java.util.Optional;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class AuthenticateUserAdapter implements UserRepositoryPort {
 
     private final UserRepository userRepository;

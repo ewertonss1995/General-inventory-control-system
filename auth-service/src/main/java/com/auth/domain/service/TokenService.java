@@ -21,21 +21,19 @@ public class TokenService implements TokenUseCase {
     @Override
     public String generateToken(UserEntity user) {
         Instant now = Instant.now();
-        long expiresInSeconds = 7200L; // 2 horas de expiração do Token
+        long expiresInSeconds = 7200L;
 
-        // Coleta os papéis de acesso do usuário (Ex: ROLE_ADMIN)
         String scope = user.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(" "));
 
-        // Define as Claims profissionais exigidas no Confluence
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("auth-service")
                 .subject(user.getId().toString())
                 .issuedAt(now)
                 .expiresAt(now.plusSeconds(expiresInSeconds))
                 .claim("email", user.getEmail())
-                .claim("scope", scope) // Claim 'scope' ou 'roles' mapeia as permissões no Spring Security
+                .claim("scope", scope)
                 .build();
 
         return this.jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
