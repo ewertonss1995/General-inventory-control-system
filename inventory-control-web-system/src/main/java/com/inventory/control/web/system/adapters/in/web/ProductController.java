@@ -1,10 +1,9 @@
 package com.inventory.control.web.system.adapters.in.web;
 
-import com.inventory.control.web.system.adapters.in.web.dto.ProductResponse;
-import com.inventory.control.web.system.adapters.in.web.dto.ProductRequest;
+import com.inventory.control.web.system.adapters.in.web.dto.response.ProductResponse;
+import com.inventory.control.web.system.adapters.in.web.dto.request.ProductRequest;
 import com.inventory.control.web.system.domain.model.ProductItem;
 import com.inventory.control.web.system.ports.in.RegisterProductUseCase;
-import com.inventory.control.web.system.ports.out.InventoryClientPort;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,15 +12,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/catalog/products")
-public class ProductCatalogController {
+@RequestMapping("/api/v1/products")
+public class ProductController {
 
     private final RegisterProductUseCase registerProductUseCase;
-    private final InventoryClientPort inventoryClientPort;
 
-    public ProductCatalogController(RegisterProductUseCase registerProductUseCase, InventoryClientPort inventoryClientPort) {
+    public ProductController(RegisterProductUseCase registerProductUseCase) {
         this.registerProductUseCase = registerProductUseCase;
-        this.inventoryClientPort = inventoryClientPort;
     }
 
     /**
@@ -39,25 +36,25 @@ public class ProductCatalogController {
      * Endpoint BFF de Listagem Geral de Produtos
      * GET /api/v1/catalog/products
      */
-    @GetMapping
-    public ResponseEntity<List<ProductResponse>> getAllProducts() {
-        List<ProductResponse> list = inventoryClientPort.getAllProducts().stream()
-                .map(this::toProductResponse)
-                .toList();
+    // @GetMapping
+    // public ResponseEntity<List<ProductResponse>> getAllProducts() {
+    //     List<ProductResponse> list = inventoryClientPort.getAllProducts().stream()
+    //             .map(this::toProductResponse)
+    //             .toList();
 
-        return ResponseEntity.ok(list);
-    }
+    //     return ResponseEntity.ok(list);
+    // }
 
     /**
      * Endpoint BFF de Detalhes do Produto por SKU
      * GET /api/v1/catalog/products/{sku}
      */
-    @GetMapping("/{sku}")
-    public ResponseEntity<ProductResponse> getProductBySku(@PathVariable String sku) {
-        return inventoryClientPort.getProductBySku(sku)
-                .map(item -> ResponseEntity.ok(toProductResponse(item)))
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
+    // @GetMapping("/{sku}")
+    // public ResponseEntity<ProductResponse> getProductBySku(@PathVariable String sku) {
+    //     return inventoryClientPort.getProductBySku(sku)
+    //             .map(item -> ResponseEntity.ok(toProductResponse(item)))
+    //             .orElseGet(() -> ResponseEntity.notFound().build());
+    // }
 
     private ProductResponse toProductResponse(ProductItem item) {
         return new ProductResponse(

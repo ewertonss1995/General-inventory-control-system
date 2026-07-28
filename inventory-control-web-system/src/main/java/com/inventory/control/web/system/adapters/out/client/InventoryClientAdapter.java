@@ -4,7 +4,8 @@ import com.inventory.control.web.system.adapters.out.client.dto.InventoryProduct
 import com.inventory.control.web.system.adapters.out.client.dto.InventoryProductResponse;
 import com.inventory.control.web.system.domain.model.ProductItem;
 import com.inventory.control.web.system.domain.model.Product;
-import com.inventory.control.web.system.ports.out.InventoryClientPort;
+import com.inventory.control.web.system.ports.out.FetchProductPort;
+import com.inventory.control.web.system.ports.out.CreateProductPort;
 import org.springframework.stereotype.Component;
 import org.springframework.http.ResponseEntity;
 
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
-public class InventoryClientAdapter implements InventoryClientPort {
+public class InventoryClientAdapter implements FetchProductPort, CreateProductPort  {
 
     private final InventoryFeignClient feignClient;
 

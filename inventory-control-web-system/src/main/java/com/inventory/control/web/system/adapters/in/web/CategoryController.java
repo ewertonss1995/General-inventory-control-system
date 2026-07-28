@@ -8,7 +8,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/web/categories")
-public class CategoryCatalogController {
+public class CategoryController {
 
     /**
      * @Cacheable intercepta a chamada. 

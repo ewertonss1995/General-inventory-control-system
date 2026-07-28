@@ -1,8 +1,8 @@
-package com.inventory.control.web.system.adapters.in.web.dto;
+package com.inventory.control.web.system.adapters.in.web.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 
-public record LoginDto(
+public record LoginRequest(
     @NotBlank(message = "O usuário ou e-mail é obrigatório")
     String usernameOrEmail,
 

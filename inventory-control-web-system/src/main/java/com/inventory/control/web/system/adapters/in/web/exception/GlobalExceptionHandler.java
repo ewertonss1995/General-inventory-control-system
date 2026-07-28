@@ -13,8 +13,8 @@ public class GlobalExceptionHandler {
      * Intercepta erros das integrações HTTP downstream (como as do auth-service)
      * e repassa o mesmo payload estruturado de erro para o Frontend Web.
      */
-    @ExceptionHandler(IntegrationException.class)
-    public ResponseEntity<ProblemDetail> handleIntegrationException(IntegrationException ex) {
-        return ResponseEntity.status(ex.getStatus()).body(ex.getProblemDetail());
-    }
+    // @ExceptionHandler(IntegrationException.class)
+    // public ResponseEntity<ProblemDetail> handleIntegrationException(IntegrationException ex) {
+    //     return ResponseEntity.status(ex.getStatus()).body(ex);
+    // }
 }

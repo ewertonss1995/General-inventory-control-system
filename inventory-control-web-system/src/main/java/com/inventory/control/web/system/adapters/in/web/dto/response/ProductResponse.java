@@ -1,4 +1,4 @@
-package com.inventory.control.web.system.adapters.in.web.dto;
+package com.inventory.control.web.system.adapters.in.web.dto.response;
 
 import java.math.BigDecimal;
 
