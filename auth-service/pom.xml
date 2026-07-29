@@ -66,17 +66,17 @@
             <artifactId>flyway-core</artifactId> <!-- Controle profissional de migrations -->
         </dependency>
         
-        <!-- Extensão do Flyway para suporte ao SQL Server -->
+        <!-- Extensão do Flyway para suporte ao Postgres -->
         <dependency>
             <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-sqlserver</artifactId>
+            <artifactId>flyway-database-postgresql</artifactId>
             <version>${flyway.version}</version>
         </dependency>
 
-        <!-- Driver de Conexão oficial do SQL Server -->
+        <!-- Driver de Conexão oficial do Postgres -->
         <dependency>
-            <groupId>com.microsoft.sqlserver</groupId>
-            <artifactId>mssql-jdbc</artifactId>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
 
