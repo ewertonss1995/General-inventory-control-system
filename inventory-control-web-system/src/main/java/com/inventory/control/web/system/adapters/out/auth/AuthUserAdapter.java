@@ -8,7 +8,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.http.ResponseEntity;
 import com.inventory.control.web.system.ports.out.AuthenticateUserPort;
 import com.inventory.control.web.system.ports.out.CreateUserPort;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 public class AuthUserAdapter implements AuthenticateUserPort, CreateUserPort {
 
@@ -20,12 +22,28 @@ public class AuthUserAdapter implements AuthenticateUserPort, CreateUserPort {
 
     @Override
     public void createUser(RegisterUserRequest registerUserRequest) {
-        authFeignClient.register(registerUserRequest);
+        log.info("Iniciando processo de registro de usuário: " + registerUserRequest.username());
+        try {
+            authFeignClient.register(registerUserRequest);
+        } catch (Exception e) {
+            log.error("Erro durante registro de usuário: " + 
+            registerUserRequest.username() + " ERRO: " + e.getMessage() );
+
+            throw e;
+        }
     }
 
     @Override
     public TokenResponse userLogin(LoginRequest loginRequest) {
-        ResponseEntity<TokenResponse> responseToken = authFeignClient.login(loginRequest);
+        log.info("Iniciando processo de registro de usuário: " + loginRequest.usernameOrEmail());
+        ResponseEntity<TokenResponse> responseToken;
+        try {
+            responseToken = authFeignClient.login(loginRequest);
+        } catch (Exception e) {
+            log.error("Erro durante login de usuário: " + loginRequest.usernameOrEmail() + " ERRO: " + e.getMessage() );
+            throw e;
+        }
+        
         return responseToken.getBody();
     }
 }

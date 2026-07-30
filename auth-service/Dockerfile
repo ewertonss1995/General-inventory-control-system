@@ -10,7 +10,7 @@ COPY src ./src
 RUN mvn package -DskipTests
 
 # Estágio 3: Runtime leve
-FROM eclipse-temurin:18-jre-alpine
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
 # Cria um usuário não-root para segurança do container
