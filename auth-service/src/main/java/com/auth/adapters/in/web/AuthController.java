@@ -1,58 +1,57 @@
-package com.auth.adapters.in.web;
+package com.auth.domain.service;
 
-import com.auth.adapters.in.web.dto.LoginRequest;
-import com.auth.adapters.in.web.dto.RegisterRequest;
-import com.auth.adapters.in.web.dto.TokenResponse;
-import com.auth.ports.in.AuthenticateUserUseCase;
-import com.auth.ports.in.RegisterUserUseCase;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import com.auth.adapters.out.database.entity.UserEntity;
+import com.auth.ports.in.TokenUseCase;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.stereotype.Service;
+
+import java.time.Instant;
+import java.util.stream.Collectors;
 
 @Slf4j
-@RestController
-@RequestMapping("/auth")
-@Tag(name = "Authentication", description = "Endpoints de login e registro de operadores de estoque")
-public class AuthController {
+@Service
+public class TokenService implements TokenUseCase {
 
-    private final RegisterUserUseCase registerUserUseCase;
-    private final AuthenticateUserUseCase authenticateUserUseCase;
+    private final JwtEncoder jwtEncoder;
 
-    public AuthController(RegisterUserUseCase registerUserUseCase, 
-                          AuthenticateUserUseCase authenticateUserUseCase) {
-        this.registerUserUseCase = registerUserUseCase;
-        this.authenticateUserUseCase = authenticateUserUseCase;
+    public TokenService(JwtEncoder jwtEncoder) {
+        this.jwtEncoder = jwtEncoder;
     }
 
-    @PostMapping("/register")
-    @Operation(summary = "Registra um novo operador de estoque", description = "Cria uma conta e atribui automaticamente a regra básica de operador.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Usuário registrado com sucesso"),
-        @ApiResponse(responseCode = "400", description = "Erros de validação ou payload incorreto"),
-        @ApiResponse(responseCode = "422", description = "Dados duplicados ou regra de negócio violada")
-    })
-    public ResponseEntity<Void> register(@Valid @RequestBody RegisterRequest request) {
-        log.info("Iniciando processo de registro de usuário: " + request.username());
-        registerUserUseCase.execute(request);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
+    @Override
+    public String generateToken(UserEntity user) {
+        log.debug("Iniciando geração de token JWT para o usuário ID: {}", user.getId());
 
-    @PostMapping("/login")
-    @Operation(summary = "Realiza o login de um operador", description = "Valida as credenciais e retorna um token JWT assinado com RSA-256.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Autenticação realizada com sucesso"),
-        @ApiResponse(responseCode = "400", description = "Erros de validação de payload"),
-        @ApiResponse(responseCode = "401", description = "Credenciais incorretas")
-    })
-    public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest request) {
-        log.info("Iniciando processo de login: " + request.usernameOrEmail());
-        TokenResponse response = authenticateUserUseCase.execute(request);
-        return ResponseEntity.ok(response);
+        Instant now = Instant.now();
+        long expiresInSeconds = 7200L;
+
+        String scope = user.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(" "));
+
+        JwtClaimsSet claims = JwtClaimsSet.builder()
+                .issuer("auth-service")
+                .subject(user.getId().toString())
+                .issuedAt(now)
+                .expiresAt(now.plusSeconds(expiresInSeconds))
+                .claim("email", user.getEmail())
+                .claim("scope", scope)
+                .build();
+
+        try {
+            String tokenValue = this.jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+            
+            log.info("Token JWT gerado com sucesso [Subject/UserId: {}, Scopes: {}, ExpiraEm: {}s]", 
+                    user.getId(), scope, expiresInSeconds);
+                    
+            return tokenValue;
+        } catch (Exception ex) {
+            log.error("Erro ao codificar/assinar o token JWT para o usuário ID: {}", user.getId(), ex);
+            throw ex;
+        }
     }
 }

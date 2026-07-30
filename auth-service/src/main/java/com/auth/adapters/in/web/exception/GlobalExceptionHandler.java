@@ -17,6 +17,15 @@ import java.util.List;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    // Trata falhas de autenticação (Ex: senha incorreta)
+    // @ExceptionHandler(BadCredentialsException.class)
+    // public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException ex) {
+    //     log.warn("Tentativa desautorizada de login: {}", ex.getMessage());
+    //     return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+    //             .body(new ErrorResponse("Credenciais inválidas."));
+    // }
+
+
     /**
      * 1. Captura as exceções de regras de negócio (BusinessException)
      * Retorna HTTP 422 Unprocessable Entity ou 400 Bad Request conforme a semântica.

@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.auth.ports.out.RoleRepositoryPort;
+import com.auth.ports.out.PasswordEncoderPort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import org.springframework.security.oauth2.jwt.JwtEncoder;
@@ -19,22 +20,22 @@ public class BeanConfig {
     
     @Bean
     public AuthenticateUserService authenticateUserService(
-        UserRepositoryPort userRepositoryPort, 
-        PasswordEncoder passwordEncoder, 
+        UserRepositoryPort userRepositoryPort,
+        PasswordEncoderPort passwordEncoderPort, 
         TokenUseCase tokenUseCase) {
         
         return new AuthenticateUserService(
-            userRepositoryPort, passwordEncoder, tokenUseCase);
+            userRepositoryPort, passwordEncoderPort, tokenUseCase);
     }
 
     @Bean
     public RegisterUserService registerUserService(
         RoleRepositoryPort roleRepositoryPort,
         UserRepositoryPort userRepositoryPort,
-        PasswordEncoder passwordEncoder) {
+        PasswordEncoderPort passwordEncoderPort) {
             
         return new RegisterUserService(
-            roleRepositoryPort, userRepositoryPort, passwordEncoder);
+            roleRepositoryPort, userRepositoryPort, passwordEncoderPort);
     }
 
     @Bean

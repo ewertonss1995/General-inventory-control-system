@@ -1,13 +1,14 @@
-package com.auth.ports.in;
+package com.auth.adapters.out;
 
+import com.auth.adapters.out.database.entity.UserEntity;
 import com.auth.adapters.out.database.repository.UserRepository;
-import com.auth.adapters.out.database.entity.UserEntity;
 import com.auth.ports.out.UserRepositoryPort;
-import com.auth.adapters.out.database.entity.UserEntity;
-import java.util.Optional;
-
-import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
+import com.auth.adapters.in.web.exception.DatabaseException;
+import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -21,25 +22,46 @@ public class UserPersistenceAdapter implements UserRepositoryPort {
 
     @Override
     public Optional<UserEntity> findByUsernameOrEmail(String username, String email) {
-        log.info("Buscando usuário por nome de usuário ou e-mail: " + username + " / " + email);
-        return userRepository.findByUsernameOrEmail(username, email);
+        log.debug("Buscando usuário por username: {} ou email: {}", username, email);
+        try {
+            return userRepository.findByUsernameOrEmail(username, email);
+        } catch (DataAccessException ex) {
+            log.error("Erro ao buscar usuário no banco de dados [username: {}, email: {}]", username, email, ex);
+            throw new DatabaseException("Usuário não encontrado: ", ex);
+        }
     }
 
     @Override
     public boolean existsByUsername(String username) {
-        log.info("Verificando existência de usuário por nome de usuário: " + username);
-        return userRepository.existsByUsername(username);
+        log.debug("Verificando existência do username: {}", username);
+        try {
+            return userRepository.existsByUsername(username);
+        } catch (DataAccessException ex) {
+            log.error("Erro ao verificar existência do username no banco de dados: {}", username, ex);
+            throw new DatabaseException("Erro durante verificação de existencia de usuário: ", ex);
+        }
     }
 
     @Override
     public boolean existsByEmail(String email) {
-        log.info("Verificando existência de usuário por e-mail: " + email);
-        return userRepository.existsByEmail(email);
+        log.debug("Verificando existência do e-mail: {}", email);
+        try {
+            return userRepository.existsByEmail(email);
+        } catch (DataAccessException ex) {
+            log.error("Erro ao verificar existência do e-mail no banco de dados: {}", email, ex);
+            throw new DatabaseException("Erro durante verificação de existencia de email: ", ex);
+        }
     }
 
     @Override
     public void save(UserEntity user) {
-        log.info("Salvando usuário: " + user.getUsername() + ", E-mail: " + user.getEmail());
-        userRepository.save(user);
+        log.debug("Persistindo usuário no banco de dados: username={}, email={}", user.getUsername(), user.getEmail());
+        try {
+            userRepository.save(user);
+            log.info("Usuário persistido com sucesso [ID: {}, username: {}]", user.getId(), user.getUsername());
+        } catch (DataAccessException ex) {
+            log.error("Erro ao salvar usuário no banco de dados [username: {}]", user.getUsername(), ex);
+            throw new DatabaseException("Erro durante registro usuário: ", ex);
+        }
     }
 }

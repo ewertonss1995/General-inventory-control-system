@@ -7,7 +7,7 @@ import com.auth.adapters.out.database.entity.RoleEntity;
 import com.auth.adapters.out.database.entity.UserEntity;
 import com.auth.ports.out.RoleRepositoryPort;
 import com.auth.ports.out.UserRepositoryPort;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import com.auth.ports.out.PasswordEncoderPort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,12 +19,14 @@ public class RegisterUserService implements RegisterUserUseCase {
 
     private final RoleRepositoryPort roleRepositoryPort;
     private final UserRepositoryPort userRepositoryPort;
-    private final PasswordEncoder passwordEncoder;
+    private final PasswordEncoderPort passwordEncoderPort;
 
-    public RegisterUserService(RoleRepositoryPort roleRepositoryPort, UserRepositoryPort userRepositoryPort, PasswordEncoder passwordEncoder) {
+    public RegisterUserService(RoleRepositoryPort roleRepositoryPort, 
+                                UserRepositoryPort userRepositoryPort, 
+                                PasswordEncoderPort passwordEncoderPort) {
         this.roleRepositoryPort = roleRepositoryPort;
         this.userRepositoryPort = userRepositoryPort;
-        this.passwordEncoder = passwordEncoder;
+        this.passwordEncoderPort = passwordEncoderPort;
     }
 
     @Transactional
@@ -48,7 +50,7 @@ public class RegisterUserService implements RegisterUserUseCase {
         UserEntity user = new UserEntity(
             request.username(), 
             request.email(), 
-            passwordEncoder.encode(request.password()), 
+            passwordEncoderPort.encode(request.password()), 
             Set.of(defaultRole));
 
         userRepositoryPort.save(user);
