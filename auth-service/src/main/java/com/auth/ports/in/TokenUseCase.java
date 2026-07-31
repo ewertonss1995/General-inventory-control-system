@@ -1,7 +1,7 @@
 package com.auth.ports.in;
 
-import com.auth.adapters.out.database.entity.UserEntity;
+import com.auth.domain.model.User;
 
 public interface TokenUseCase {
-    String generateToken(UserEntity user);
+    String generateToken(User user);
 }

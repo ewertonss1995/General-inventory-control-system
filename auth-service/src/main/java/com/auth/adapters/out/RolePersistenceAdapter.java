@@ -1,6 +1,7 @@
 package com.auth.adapters.out.database;
 
 import com.auth.adapters.out.database.entity.RoleEntity;
+import com.auth.domain.model.Role;
 import com.auth.adapters.out.database.repository.RoleRepository;
 import com.auth.ports.out.RoleRepositoryPort;
 import com.auth.adapters.in.web.exception.DatabaseException;
@@ -24,10 +25,11 @@ public class RolePersistenceAdapter implements RoleRepositoryPort {
     }
 
     @Override
-    public Optional<RoleEntity> findByName(String name) {
+    public Optional<Role> findByName(String name) {
         log.debug("Buscando perfil (role) por nome no banco de dados: {}", name);
         try {
-            return roleRepository.findByName(name);
+            Optional<RoleEntity> roleEntity = roleRepository.findByName(name);
+            return Optional.of(new Role(roleEntity.get().getId(), roleEntity.get().getName()));
         } catch (DataAccessException ex) {
             log.error("Erro ao buscar perfil (role) no banco de dados [RoleName: {}]", name, ex);
             throw new DatabaseException("Erro ao buscar perfil (role) do usuário: ", ex);

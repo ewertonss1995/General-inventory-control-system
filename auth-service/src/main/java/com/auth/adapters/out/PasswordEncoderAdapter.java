@@ -12,17 +12,17 @@ public class PasswordEncoderAdapter implements PasswordEncoderPort {
     
     private static final Logger log = LoggerFactory.getLogger(PasswordEncoderAdapter.class);
 
-    private final PasswordEncoder springPasswordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    public PasswordEncoderAdapter(PasswordEncoder springPasswordEncoder) {
-        this.springPasswordEncoder = springPasswordEncoder;
+    public PasswordEncoderAdapter(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public String encode(CharSequence rawPassword) {
         log.debug("Gerando hash da senha");
         try {
-            return springPasswordEncoder.encode(rawPassword);
+            return passwordEncoder.encode(rawPassword);
         } catch (Exception ex) {
             log.error("Erro inesperado ao gerar hash da senha", ex);
             throw ex;
@@ -33,7 +33,7 @@ public class PasswordEncoderAdapter implements PasswordEncoderPort {
     public boolean matches(CharSequence rawPassword, String encodedPassword) {
         log.debug("Verificando se a senha informada corresponde ao hash cadastrado");
         try {
-            return springPasswordEncoder.matches(rawPassword, encodedPassword);
+            return passwordEncoder.matches(rawPassword, encodedPassword);
         } catch (Exception ex) {
             log.error("Erro inesperado ao verificar equivalência de hash da senha", ex);
             throw ex;

@@ -1,6 +1,5 @@
 package com.auth.infrastructure.config;
 
-import com.auth.ports.out.UserRepositoryPort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.auth.ports.in.TokenUseCase;
 import com.auth.domain.service.AuthenticateUserService;
@@ -9,11 +8,10 @@ import com.auth.domain.service.TokenService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.auth.ports.out.UserRepositoryPort;
 import com.auth.ports.out.RoleRepositoryPort;
 import com.auth.ports.out.PasswordEncoderPort;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
-import org.springframework.security.oauth2.jwt.JwtEncoder;
+import com.auth.ports.out.TokenProviderPort;
 
 @Configuration
 public class BeanConfig {
@@ -39,8 +37,8 @@ public class BeanConfig {
     }
 
     @Bean
-    public TokenService tokenService(JwtEncoder jwtEncoder) {
-        return new TokenService(jwtEncoder);
+    public TokenService tokenService(TokenProviderPort tokenProviderPort) {
+        return new TokenService(tokenProviderPort);
     }
 
 }

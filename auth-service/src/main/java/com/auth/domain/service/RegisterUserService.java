@@ -3,12 +3,12 @@ package com.auth.domain.service;
 import com.auth.adapters.in.web.dto.RegisterRequest;
 import com.auth.domain.exception.BusinessException;
 import com.auth.ports.in.RegisterUserUseCase;
-import com.auth.adapters.out.database.entity.RoleEntity;
-import com.auth.adapters.out.database.entity.UserEntity;
 import com.auth.ports.out.RoleRepositoryPort;
 import com.auth.ports.out.UserRepositoryPort;
 import com.auth.ports.out.PasswordEncoderPort;
-import org.springframework.stereotype.Service;
+import com.auth.domain.model.User;
+import com.auth.domain.model.Role;
+
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 public class RegisterUserService implements RegisterUserUseCase {
     
     private static final Logger log = LoggerFactory.getLogger(RegisterUserService.class);
-
 
     private final RoleRepositoryPort roleRepositoryPort;
     private final UserRepositoryPort userRepositoryPort;
@@ -48,10 +47,10 @@ public class RegisterUserService implements RegisterUserUseCase {
             throw new BusinessException("E-mail já cadastrado.");
         }
 
-        RoleEntity defaultRole = roleRepositoryPort.findByName("ROLE_OPERATOR")
+        Role defaultRole = roleRepositoryPort.findByName("ROLE_OPERATOR")
                 .orElseThrow(() -> new IllegalStateException("Perfil padrão de operador não encontrado no sistema."));
 
-        UserEntity user = new UserEntity(
+        User user = new User(
             request.username(), 
             request.email(), 
             passwordEncoderPort.encode(request.password()), 

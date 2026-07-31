@@ -3,11 +3,17 @@ package com.auth.domain.service;
 import com.auth.adapters.in.web.dto.LoginRequest;
 import com.auth.adapters.in.web.dto.TokenResponse;
 import com.auth.adapters.out.database.entity.UserEntity;
+import com.auth.adapters.out.database.entity.RoleEntity;
 import com.auth.domain.exception.BusinessException;
+import com.auth.domain.model.Role;
+import com.auth.domain.model.User;
 import com.auth.ports.in.AuthenticateUserUseCase;
 import com.auth.ports.in.TokenUseCase;
 import com.auth.ports.out.UserRepositoryPort;
 import com.auth.ports.out.PasswordEncoderPort;
+
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,8 +38,8 @@ public class AuthenticateUserService implements AuthenticateUserUseCase {
     @Override
     public TokenResponse execute(LoginRequest request) {
         log.debug("Iniciando processo de autenticação para: {}", request.usernameOrEmail());
-        
-        UserEntity user = userRepositoryPort.findByUsernameOrEmail(request.usernameOrEmail(), request.usernameOrEmail())
+    
+        User user = userRepositoryPort.findByUsernameOrEmail(request.usernameOrEmail(), request.usernameOrEmail())
                 .orElseThrow(() -> {
                     log.warn("Tentativa de autenticação com usuário/e-mail inexistente: {}", request.usernameOrEmail());
                     return new BusinessException("Credenciais inválidas.");

@@ -1,61 +1,31 @@
 package com.auth.domain.service;
 
-import com.auth.adapters.out.database.entity.UserEntity;
 import com.auth.ports.in.TokenUseCase;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.jwt.JwtClaimsSet;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
-import org.springframework.stereotype.Service;
-
-import java.time.Instant;
-import java.util.stream.Collectors;
+import com.auth.ports.out.TokenProviderPort;
+import com.auth.domain.model.User;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Service
+import java.util.Set;
+
 public class TokenService implements TokenUseCase {
-    
+
     private static final Logger log = LoggerFactory.getLogger(TokenService.class);
 
+    private final TokenProviderPort tokenProviderPort;
 
-    private final JwtEncoder jwtEncoder;
-
-    public TokenService(JwtEncoder jwtEncoder) {
-        this.jwtEncoder = jwtEncoder;
+    public TokenService(TokenProviderPort tokenProviderPort) {
+        this.tokenProviderPort = tokenProviderPort;
     }
 
     @Override
-    public String generateToken(UserEntity user) {
-        log.debug("Iniciando geração de token JWT para o usuário ID: {}", user.getId());
+    public String generateToken(User user) {
+        log.debug("Iniciando geração de token para o usuário ID: {}", user.getId());
 
-        Instant now = Instant.now();
-        long expiresInSeconds = 7200L;
+        String token = tokenProviderPort.generateToken(user);
 
-        String scope = user.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(" "));
-
-        JwtClaimsSet claims = JwtClaimsSet.builder()
-                .issuer("auth-service")
-                .subject(user.getId().toString())
-                .issuedAt(now)
-                .expiresAt(now.plusSeconds(expiresInSeconds))
-                .claim("email", user.getEmail())
-                .claim("scope", scope)
-                .build();
-
-        try {
-            String tokenValue = this.jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
-            
-            log.info("Token JWT gerado com sucesso [Subject/UserId: {}, Scopes: {}, ExpiraEm: {}s]", 
-                    user.getId(), scope, expiresInSeconds);
-                    
-            return tokenValue;
-        } catch (Exception ex) {
-            log.error("Erro ao codificar/assinar o token JWT para o usuário ID: {}", user.getId(), ex);
-            throw ex;
-        }
+        log.info("Token gerado com sucesso no domínio para o usuário ID: {}", user.getId());
+        return token;
     }
 }

@@ -1,12 +1,17 @@
 package com.auth.adapters.out;
 
 import com.auth.adapters.out.database.entity.UserEntity;
+import com.auth.adapters.out.database.entity.RoleEntity;
 import com.auth.adapters.out.database.repository.UserRepository;
+import com.auth.domain.model.User;
+import com.auth.domain.model.Role;
 import com.auth.ports.out.UserRepositoryPort;
 import com.auth.adapters.in.web.exception.DatabaseException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -24,10 +29,24 @@ public class UserPersistenceAdapter implements UserRepositoryPort {
     }
 
     @Override
-    public Optional<UserEntity> findByUsernameOrEmail(String username, String email) {
+    public Optional<User> findByUsernameOrEmail(String username, String email) {
         log.debug("Buscando usuário por username: {} ou email: {}", username, email);
         try {
-            return userRepository.findByUsernameOrEmail(username, email);
+            Optional<UserEntity> userEntity = userRepository.findByUsernameOrEmail(username, email);
+
+            Set<Role> roles = userEntity.get().getRoles().stream()
+            .map(role ->  new Role(role.getId(), role.getName()))
+            .collect(Collectors.toSet());
+            
+            User user = new User(
+                userEntity.get().getId(), 
+                userEntity.get().getEmail(), 
+                userEntity.get().isActive(), 
+                userEntity.get().getPassword(), 
+                roles
+            );
+            
+            return Optional.of(user);
         } catch (DataAccessException ex) {
             log.error("Erro ao buscar usuário no banco de dados [username: {}, email: {}]", username, email, ex);
             throw new DatabaseException("Usuário não encontrado: ", ex);
@@ -57,11 +76,22 @@ public class UserPersistenceAdapter implements UserRepositoryPort {
     }
 
     @Override
-    public void save(UserEntity user) {
+    public void save(User user) {
         log.debug("Persistindo usuário no banco de dados: username={}, email={}", user.getUsername(), user.getEmail());
         try {
-            userRepository.save(user);
-            log.info("Usuário persistido com sucesso [ID: {}, username: {}]", user.getId(), user.getUsername());
+            
+            Set<RoleEntity> roles = user.getRoles().stream()
+            .map(role ->  new RoleEntity(role.getId(), role.getName()))
+            .collect(Collectors.toSet());
+                        
+            UserEntity userEntity = new UserEntity(
+                user.getUsername(), 
+                user.getEmail(), 
+                user.getPassword(), 
+                roles);
+
+            userRepository.save(userEntity);
+            log.info("Usuário persistido com sucesso [ID: {}, username: {}]", userEntity.getId(), userEntity.getUsername());
         } catch (DataAccessException ex) {
             log.error("Erro ao salvar usuário no banco de dados [username: {}]", user.getUsername(), ex);
             throw new DatabaseException("Erro durante registro usuário: ", ex);
