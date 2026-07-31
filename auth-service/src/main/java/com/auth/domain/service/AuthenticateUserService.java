@@ -8,10 +8,14 @@ import com.auth.ports.in.AuthenticateUserUseCase;
 import com.auth.ports.in.TokenUseCase;
 import com.auth.ports.out.UserRepositoryPort;
 import com.auth.ports.out.PasswordEncoderPort;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class AuthenticateUserService implements AuthenticateUserUseCase {
+
+    private static final Logger log = LoggerFactory.getLogger(AuthenticateUserService.class);
+
 
     private final UserRepositoryPort userRepositoryPort;
     private final PasswordEncoderPort passwordEncoderPort;

@@ -12,10 +12,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class RegisterUserService implements RegisterUserUseCase {
+    
+    private static final Logger log = LoggerFactory.getLogger(RegisterUserService.class);
+
 
     private final RoleRepositoryPort roleRepositoryPort;
     private final UserRepositoryPort userRepositoryPort;

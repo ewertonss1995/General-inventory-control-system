@@ -3,16 +3,19 @@ package com.auth.adapters.out;
 import com.auth.adapters.out.database.entity.UserEntity;
 import com.auth.adapters.out.database.repository.UserRepository;
 import com.auth.ports.out.UserRepositoryPort;
-import lombok.extern.slf4j.Slf4j;
 import com.auth.adapters.in.web.exception.DatabaseException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
-@Slf4j
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Component
 public class UserPersistenceAdapter implements UserRepositoryPort {
+
+    private static final Logger log = LoggerFactory.getLogger(UserPersistenceAdapter.class);
 
     private final UserRepository userRepository;
 

@@ -6,11 +6,19 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+@Service
 public class TokenService implements TokenUseCase {
+    
+    private static final Logger log = LoggerFactory.getLogger(TokenService.class);
+
 
     private final JwtEncoder jwtEncoder;
 
@@ -20,6 +28,8 @@ public class TokenService implements TokenUseCase {
 
     @Override
     public String generateToken(UserEntity user) {
+        log.debug("Iniciando geração de token JWT para o usuário ID: {}", user.getId());
+
         Instant now = Instant.now();
         long expiresInSeconds = 7200L;
 
@@ -36,6 +46,16 @@ public class TokenService implements TokenUseCase {
                 .claim("scope", scope)
                 .build();
 
-        return this.jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+        try {
+            String tokenValue = this.jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+            
+            log.info("Token JWT gerado com sucesso [Subject/UserId: {}, Scopes: {}, ExpiraEm: {}s]", 
+                    user.getId(), scope, expiresInSeconds);
+                    
+            return tokenValue;
+        } catch (Exception ex) {
+            log.error("Erro ao codificar/assinar o token JWT para o usuário ID: {}", user.getId(), ex);
+            throw ex;
+        }
     }
 }

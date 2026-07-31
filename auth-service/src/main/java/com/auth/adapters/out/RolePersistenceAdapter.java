@@ -3,16 +3,19 @@ package com.auth.adapters.out.database;
 import com.auth.adapters.out.database.entity.RoleEntity;
 import com.auth.adapters.out.database.repository.RoleRepository;
 import com.auth.ports.out.RoleRepositoryPort;
-import lombok.extern.slf4j.Slf4j;
 import com.auth.adapters.in.web.exception.DatabaseException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
-@Slf4j
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Component
 public class RolePersistenceAdapter implements RoleRepositoryPort {
+
+    private static final Logger log = LoggerFactory.getLogger(RolePersistenceAdapter.class);
 
     private final RoleRepository roleRepository;
 
