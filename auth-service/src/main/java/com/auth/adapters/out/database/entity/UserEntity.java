@@ -63,6 +63,14 @@ public class UserEntity implements UserDetails {
         this.roles = roles;
     }
 
+    public UserEntity(UUID id, String username, String email, String password, Set<RoleEntity> roles) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.roles = roles;
+    }
+
     // =========================================================================
     // METODOS DA INTERFACE USERDETAILS (SPRING SECURITY)
     // =========================================================================

@@ -1,98 +1,135 @@
 package com.auth.adapters.in.web.exception;
 
-import com.auth.adapters.in.web.exception.FieldErrorRepresentation;
+import com.auth.adapters.in.web.dto.ErrorResponse;
 import com.auth.domain.exception.BusinessException;
+import com.auth.adapters.out.exception.DatabaseException;
+import com.auth.adapters.out.exception.PasswordEncryptionException;
+import com.auth.adapters.out.exception.TokenGenerationException;
+import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.net.URI;
-import java.time.Instant;
 import java.util.List;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Trata falhas de autenticação (Ex: senha incorreta)
-    // @ExceptionHandler(BadCredentialsException.class)
-    // public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException ex) {
-    //     log.warn("Tentativa desautorizada de login: {}", ex.getMessage());
-    //     return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-    //             .body(new ErrorResponse("Credenciais inválidas."));
-    // }
-
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     /**
-     * 1. Captura as exceções de regras de negócio (BusinessException)
-     * Retorna HTTP 422 Unprocessable Entity ou 400 Bad Request conforme a semântica.
+     * Trata erros de Regra de Negócio do Domínio (Ex: Usuário já cadastrado, Email duplicado).
+     * Mapeia para HTTP 400 Bad Request ou HTTP 422 Unprocessable Entity.
      */
     @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<ProblemDetail> handleBusinessException(BusinessException ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.UNPROCESSABLE_ENTITY, 
-                ex.getMessage()
+    public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException ex, HttpServletRequest request) {
+        log.warn("Violação de regra de negócio: {} | URI: {}", ex.getMessage(), request.getRequestURI());
+
+        ErrorResponse error = ErrorResponse.of(
+                HttpStatus.BAD_REQUEST.value(),
+                "Regra de Negócio Violada",
+                ex.getMessage(),
+                request.getRequestURI()
         );
-        
-        problemDetail.setTitle("Violação de Regra de Negócio");
-        problemDetail.setType(URI.create("https://api.inventory-control.com/errors/business-rule-violation"));
-        problemDetail.setProperty("timestamp", Instant.now());
-        problemDetail.setProperty("exception", ex.getClass().getName());
-        problemDetail.setProperty("exceptionMessage", ex.getMessage());
-        
-        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(problemDetail);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
     /**
-     * 2. Captura erros de validação (@Valid do Bean Validation)
-     * Retorna HTTP 400 Bad Request contendo a lista detalhada de campos inválidos.
+     * Trata falhas de validação dos DTOs do Controller (@Valid / @NotBlank / etc).
+     * Retorna HTTP 400 Bad Request detalhando os campos inválidos.
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ProblemDetail> handleValidationException(MethodArgumentNotValidException ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.BAD_REQUEST, 
-                "Um ou mais campos da requisição são inválidos. Corrija-os e tente novamente."
-        );
+    public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex, HttpServletRequest request) {
+        log.warn("Erro de validação na requisição | URI: {}", request.getRequestURI());
 
-        problemDetail.setTitle("Erro de Validação de Dados");
-        problemDetail.setType(URI.create("https://api.inventory-control.com/errors/invalid-fields"));
-        problemDetail.setProperty("timestamp", Instant.now());
-
-        // Mapeia cada erro de validação para a nossa representação resumida
-        List<FieldErrorRepresentation> errors = ex.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .map(error -> new FieldErrorRepresentation(error.getField(), error.getDefaultMessage()))
+        List<ErrorResponse.FieldError> fieldErrors = ex.getBindingResult().getFieldErrors().stream()
+                .map(field -> new ErrorResponse.FieldError(field.getField(), field.getDefaultMessage()))
                 .toList();
 
-        problemDetail.setProperty("invalidFields", errors);
-        problemDetail.setProperty("exception", ex.getClass().getName());
-        problemDetail.setProperty("exceptionMessage", ex.getMessage());
+        ErrorResponse error = ErrorResponse.ofValidation(
+                HttpStatus.BAD_REQUEST.value(),
+                "Erro de Validação nos Dados Enviados",
+                "Um ou mais campos contêm valores inválidos. Verifique os detalhes.",
+                request.getRequestURI(),
+                fieldErrors
+        );
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problemDetail);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
     /**
-     * 3. Captura qualquer outra exceção genérica inesperada (Internal Server Error)
-     * Retorna HTTP 500 para não expor stacktraces internos sensíveis em produção.
+     * Trata violações de integridade no banco de dados (Unique Keys, Foreign Keys, Not Null).
+     * Retorna HTTP 409 Conflict.
      */
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ProblemDetail> handleGenericException(Exception ex) {
-        // Em produção, registre este erro com um logger (Ex: log.error("Erro não esperado", ex))
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.INTERNAL_SERVER_ERROR, 
-                "Ocorreu um erro interno inesperado no servidor. Por favor, tente novamente mais tarde."
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(DataIntegrityViolationException ex, HttpServletRequest request) {
+        log.warn("Conflito de integridade de dados no banco | URI: {} | Causa: {}", request.getRequestURI(), ex.getMostSpecificCause().getMessage());
+
+        ErrorResponse error = ErrorResponse.of(
+                HttpStatus.CONFLICT.value(),
+                "Conflito de Dados",
+                "Já existe um registro com os dados informados ou o formato é incompatível com as regras de integridade.",
+                request.getRequestURI()
         );
 
-        problemDetail.setTitle("Erro Interno do Servidor");
-        problemDetail.setType(URI.create("https://auth-service/errors/internal-server-error"));
-        problemDetail.setProperty("timestamp", Instant.now());
-        problemDetail.setProperty("exception", ex.getClass().getName());
-        problemDetail.setProperty("exceptionMessage", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
 
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problemDetail);
+    /**
+     * Trata falhas de Persistência/Banco de Dados capturadas pelos seus Adapters.
+     * Retorna HTTP 500 sem expor detalhes sensíveis da consulta SQL para o cliente.
+     */
+    @ExceptionHandler(DatabaseException.class)
+    public ResponseEntity<ErrorResponse> handleDatabaseException(DatabaseException ex, HttpServletRequest request) {
+        log.error("Erro interno no banco de dados | URI: {}", request.getRequestURI(), ex);
+
+        ErrorResponse error = ErrorResponse.of(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "Erro de Persistência",
+                "Ocorreu uma falha ao comunicar com o armazenamento de dados. Tente novamente mais tarde.",
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
+
+    /**
+     * Trata falhas na Criptografia de Senha ou Geração de Tokens JWT (Adapters de Infraestrutura).
+     */
+    @ExceptionHandler({TokenGenerationException.class, PasswordEncryptionException.class})
+    public ResponseEntity<ErrorResponse> handleSecurityInfrastructureException(RuntimeException ex, HttpServletRequest request) {
+        log.error("Erro no serviço de segurança/criptografia | URI: {}", request.getRequestURI(), ex);
+
+        ErrorResponse error = ErrorResponse.of(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "Erro Interno de Segurança",
+                "Não foi possível processar as credenciais ou gerar o token de acesso.",
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
+
+    /**
+     * Captura qualquer outra exceção não mapeada (Exceções genéricas / NullPointerException).
+     */
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex, HttpServletRequest request) {
+        log.error("Erro não tratado detectado pela aplicação | URI: {}", request.getRequestURI(), ex);
+
+        ErrorResponse error = ErrorResponse.of(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "Erro Interno do Servidor",
+                "Ocorreu um erro inesperado no sistema. Entre em contato com o suporte.",
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 }

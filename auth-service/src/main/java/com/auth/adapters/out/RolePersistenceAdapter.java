@@ -4,7 +4,7 @@ import com.auth.adapters.out.database.entity.RoleEntity;
 import com.auth.domain.model.Role;
 import com.auth.adapters.out.database.repository.RoleRepository;
 import com.auth.ports.out.RoleRepositoryPort;
-import com.auth.adapters.in.web.exception.DatabaseException;
+import com.auth.adapters.out.exception.DatabaseException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
@@ -28,8 +28,8 @@ public class RolePersistenceAdapter implements RoleRepositoryPort {
     public Optional<Role> findByName(String name) {
         log.debug("Buscando perfil (role) por nome no banco de dados: {}", name);
         try {
-            Optional<RoleEntity> roleEntity = roleRepository.findByName(name);
-            return Optional.of(new Role(roleEntity.get().getId(), roleEntity.get().getName()));
+            return roleRepository.findByName(name)
+            .map(roleEntity -> new Role(roleEntity.getId(), roleEntity.getName()));
         } catch (DataAccessException ex) {
             log.error("Erro ao buscar perfil (role) no banco de dados [RoleName: {}]", name, ex);
             throw new DatabaseException("Erro ao buscar perfil (role) do usuário: ", ex);
