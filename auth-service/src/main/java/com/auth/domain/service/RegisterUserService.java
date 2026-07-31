@@ -1,6 +1,5 @@
 package com.auth.domain.service;
 
-import com.auth.adapters.in.web.dto.RegisterRequest;
 import com.auth.domain.exception.BusinessException;
 import com.auth.ports.in.RegisterUserUseCase;
 import com.auth.ports.out.RoleRepositoryPort;
@@ -8,8 +7,6 @@ import com.auth.ports.out.UserRepositoryPort;
 import com.auth.ports.out.PasswordEncoderPort;
 import com.auth.domain.model.User;
 import com.auth.domain.model.Role;
-
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 
@@ -32,31 +29,27 @@ public class RegisterUserService implements RegisterUserUseCase {
         this.passwordEncoderPort = passwordEncoderPort;
     }
 
-    @Transactional
     @Override
-    public void execute(RegisterRequest request) {
-        log.info("Iniciando processo de registro de usuário: " + request.username());
+    public void execute(User user) {
+        log.info("Iniciando processo de registro de usuário: " + user.getUsername());
         
-        if (userRepositoryPort.existsByUsername(request.username())) {
-            log.error("Tentativa de registro com nome de usuário já existente: " + request.username());
+        if (userRepositoryPort.existsByUsername(user.getUsername())) {
+            log.error("Tentativa de registro com nome de usuário já existente: " + user.getUsername());
             throw new BusinessException("Nome de usuário já está em uso.");
         }
 
-        if (userRepositoryPort.existsByEmail(request.email())) {
-            log.error("Tentativa de registro com e-mail já cadastrado: " + request.email());
+        if (userRepositoryPort.existsByEmail(user.getEmail())) {
+            log.error("Tentativa de registro com e-mail já cadastrado: " + user.getEmail());
             throw new BusinessException("E-mail já cadastrado.");
         }
 
         Role defaultRole = roleRepositoryPort.findByName("ROLE_OPERATOR")
                 .orElseThrow(() -> new IllegalStateException("Perfil padrão de operador não encontrado no sistema."));
 
-        User user = new User(
-            request.username(), 
-            request.email(), 
-            passwordEncoderPort.encode(request.password()), 
-            Set.of(defaultRole));
+        user.setPassword(passwordEncoderPort.encode(user.getPassword()));
+        user.setRoles(Set.of(defaultRole));
 
         userRepositoryPort.save(user);
-        log.info("Usuário registrado com sucesso: " + request.username());
+        log.info("Usuário registrado com sucesso: " + user.getUsername());
     }
 }

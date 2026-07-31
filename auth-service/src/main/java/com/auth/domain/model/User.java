@@ -42,10 +42,20 @@ public class User {
         this.roles = roles;
     }
 
+    public User(String username, String email, String password) {
+        this.email = email;
+        this.active = active;
+        this.password = password;
+    }
+
     public UUID getId() { return id; }
     public String getEmail() { return email; }
     public String getUsername() { return username; }
     public boolean isActive() { return active; }
     public String getPassword() { return password; }
     public Set<Role> getRoles() { return roles; }
+
+    public void setPassword(String password) { this.password = password; }
+    public void setRoles(Set<Role> roles) { this.roles = roles; }
+
 }
