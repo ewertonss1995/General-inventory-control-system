@@ -1,7 +1,7 @@
 package com.inventory.control.system.domain.model;
 
 import java.math.BigDecimal;
-import com.inventory.control.system.domain.model.Category;
+import com.inventory.control.system.domain.exception.BusinessException;
 
 public class Product {
     private Long id;
@@ -10,34 +10,57 @@ public class Product {
     private String description;
     private BigDecimal price;
     private Integer quantity;
-    private Category category;
+    private Long categoryId;
+    private String categoryName;
 
-    public Product(Long id, String sku, String name, String description, BigDecimal price, Integer quantity, Category category) {
+
+    public Product(Long id, String sku, String name, String description, BigDecimal price, Integer quantity, Long categoryId, String categoryName) {
         this.id = id;
         this.sku = sku != null ? sku.toUpperCase() : null;
         this.name = name;
         this.description = description;
         this.price = price;
-        this.quantity = quantity;
-        this.category = category;
+        this.quantity = quantity != null ? quantity : 0;
+        this.categoryId = categoryId;
+        this.categoryName = categoryName;
     }
 
-    public void addStock(Integer amount) {
-        if (amount == null || amount <= 0) throw new IllegalArgumentException("A quantidade para entrada de estoque deve ser maior que zero.");
-        this.quantity += amount;
+    public Product(String sku, String name, String description, BigDecimal price, Integer quantity, Long categoryId) {
+        this.sku = sku != null ? sku.toUpperCase() : null;
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.quantity = quantity != null ? quantity : 0;
+        this.categoryId = categoryId;
     }
 
-    public void removeStock(Integer amount) {
-        if (amount == null || amount <= 0) {
+    public Product(String sku, String name, String description, BigDecimal price, Integer quantity, Long categoryId, String categoryName) {
+        this.sku = sku != null ? sku.toUpperCase() : null;
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.quantity = quantity != null ? quantity : 0;
+        this.categoryId = categoryId;
+        this.categoryName = categoryName;
+    }
+
+
+    public void addStock(Integer quantity) {
+        if (quantity == null || quantity <= 0) throw new IllegalArgumentException("A quantidade para entrada de estoque deve ser maior que zero.");
+        this.quantity += quantity;
+    }
+
+    public void removeStock(Integer quantity) {
+        if (quantity == null || quantity <= 0) {
             throw new IllegalArgumentException("A quantidade para baixa de estoque deve ser maior que zero.");
         }
-        if (this.quantity < amount) {
-            throw new IllegalArgumentException(String.format(
+        if (this.quantity < quantity) {
+            throw new BusinessException(String.format(
                 "Saldo insuficiente para o produto SKU '%s'. Saldo atual: %d, Quantidade solicitada: %d",
-                this.sku, this.quantity, amount
+                this.sku, this.quantity, quantity
             ));
         }
-        this.quantity -= amount;
+        this.quantity -= quantity;
     }
 
     public Long getId() { return id; }
@@ -46,5 +69,6 @@ public class Product {
     public String getDescription() { return description; }
     public BigDecimal getPrice() { return price; }
     public Integer getQuantity() { return quantity; }
-    public Category getCategory() { return category; }
+    public Long getCategoryId() { return categoryId; }
+    public String getCategoryName() { return categoryName; }
 }

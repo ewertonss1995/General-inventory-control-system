@@ -1,5 +1,7 @@
 package com.inventory.control.system.adapters.in.web.dto;
 
+import com.inventory.control.system.adapters.in.web.dto.CategoryRequest;
+
 import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 
@@ -9,5 +11,5 @@ public record ProductRequest(
     String description,
     @NotNull(message = "Preço é obrigatório") @DecimalMin("0.0") BigDecimal price,
     @NotNull(message = "Quantidade é obrigatória") @Min(0) Integer quantity,
-    @NotNull(message = "ID da categoria é obrigatório") Long categoryId
+    @NotNull(message = "Id da categoria é obrigatório") Long categoryId
 ) {}

@@ -5,7 +5,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ProductRepositoryPort {
-    Product save(Product product);
+    Product saveProduct(Product product);
+    Product updateProduct(Product product);
     boolean existsBySku(String sku);
     List<Product> findAll();
     Optional<Product> findBySku(String sku);

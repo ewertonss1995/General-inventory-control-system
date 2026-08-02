@@ -1,8 +1,7 @@
 package com.inventory.control.system.ports.in;
 
 import com.inventory.control.system.domain.model.Product;
-import java.math.BigDecimal;
 
-public interface CreateProductUseCase {
+public interface UpdateProductUseCase {
     Product execute(Product product);
 }
