@@ -19,6 +19,40 @@ public class ProductEntity {
     @JoinColumn(name = "category_id")
     private CategoryEntity category;
 
+    public ProductEntity() {}
+    
+    public ProductEntity(
+        Long id, 
+        String sku, 
+        String name, 
+        String description, 
+        BigDecimal price, 
+        Integer quantity, 
+        CategoryEntity category) {
+            this.id = id;
+            this.sku = sku;
+            this.name = name;
+            this.description = description;
+            this.price = price;
+            this.quantity = quantity;
+            this.category = category;
+    }
+
+    public ProductEntity(
+        String sku, 
+        String name, 
+        String description, 
+        BigDecimal price, 
+        Integer quantity, 
+        CategoryEntity category) {
+            this.sku = sku;
+            this.name = name;
+            this.description = description;
+            this.price = price;
+            this.quantity = quantity;
+            this.category = category;
+    }
+    
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getSku() { return sku; }

@@ -1,6 +1,7 @@
-package com.inventory.control.system.adapters.in.web.dto;
+package com.inventory.control.system.adapters.in.web.dto.request;
 
 import com.inventory.control.system.domain.model.enums.StockMovementType;
+
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 

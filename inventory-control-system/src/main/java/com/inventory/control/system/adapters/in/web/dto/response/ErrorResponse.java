@@ -1,4 +1,4 @@
-package com.inventory.control.system.adapters.in.web.dto;
+package com.inventory.control.system.adapters.in.web.dto.response;
 
 import java.time.Instant;
 import java.util.List;

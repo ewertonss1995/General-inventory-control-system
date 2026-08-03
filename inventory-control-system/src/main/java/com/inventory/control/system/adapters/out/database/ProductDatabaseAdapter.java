@@ -6,11 +6,16 @@ import com.inventory.control.system.adapters.out.database.repository.ProductRepo
 import com.inventory.control.system.domain.model.Category;
 import com.inventory.control.system.domain.model.Product;
 import com.inventory.control.system.ports.out.ProductRepositoryPort;
+
+import jakarta.persistence.PersistenceException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Component
@@ -28,137 +33,143 @@ public class ProductDatabaseAdapter implements ProductRepositoryPort {
     public Product saveProduct(Product product) {
         log.debug("Mapeando produto domínio para entidade de banco. SKU: {}", product.getSku());
 
-        ProductEntity entity = new ProductEntity();
-        entity.setSku(product.getSku());
-        entity.setName(product.getName());
-        entity.setDescription(product.getDescription());
-        entity.setPrice(product.getPrice());
-        entity.setQuantity(product.getQuantity());
-        
-        CategoryEntity categoryEntity = new CategoryEntity();
-        categoryEntity.setId(product.getCategoryId());
-        categoryEntity.setName(product.getCategoryName());
-        entity.setCategory(categoryEntity);
+        try {
+            ProductEntity entity = mapProductToEntity(product);
 
-        log.info("Persistindo novo produto no banco de dados. SKU: {}", product.getSku());
-        ProductEntity saved = repository.save(entity);
-        log.info("Produto persistido com sucesso no banco de dados. ID: {} | SKU: {}", saved.getId(), saved.getSku());
-        
-        return new Product(
-            saved.getId(), 
-            saved.getSku(), 
-            saved.getName(), 
-            saved.getDescription(), 
-            saved.getPrice(), 
-            saved.getQuantity(), 
-            saved.getCategory().getId(),
-            saved.getCategory().getName()
-        );
+            log.info("Persistindo novo produto no banco de dados. SKU: {}", product.getSku());
+            ProductEntity saved = Objects.requireNonNull(repository.save(entity));
+
+            log.info("Produto persistido com sucesso no banco de dados. ID: {} | SKU: {}", saved.getId(),
+                    saved.getSku());
+
+            return mapEntityToProduct(saved);
+
+        } catch (DataAccessException e) {
+            log.error("Erro ao salvar produto no banco de dados. SKU: {} | Erro: {}", product.getSku(), e.getMessage());
+            throw new PersistenceException("Erro ao salvar produto no banco de dados.", e);
+        }
     }
 
     @Override
     public Product updateProduct(Product product) {
         log.debug("Mapeando atualização de produto para entidade de banco. SKU: {}", product.getSku());
 
-        ProductEntity entity = new ProductEntity();
-        entity.setSku(product.getSku());
-        entity.setName(product.getName());
-        entity.setDescription(product.getDescription());
-        entity.setPrice(product.getPrice());
-        entity.setQuantity(product.getQuantity());
-        
-        CategoryEntity categoryEntity = new CategoryEntity();
-        categoryEntity.setId(product.getCategoryId());
-        categoryEntity.setName(product.getCategoryName());
-        entity.setCategory(categoryEntity);
+        try {
+            ProductEntity entity = mapProductToEntity(product);
 
-        log.info("Atualizando registro do produto no banco de dados. SKU: {}", product.getSku());
-        ProductEntity updated = repository.save(entity);
-        log.info("Produto atualizado com sucesso no banco de dados. ID: {} | SKU: {}", updated.getId(), updated.getSku());
-        
-        return new Product(
-            updated.getId(), 
-            updated.getSku(), 
-            updated.getName(), 
-            updated.getDescription(), 
-            updated.getPrice(), 
-            updated.getQuantity(), 
-            updated.getCategory().getId(),
-            updated.getCategory().getName()
-        );
+            log.info("Atualizando registro do produto no banco de dados. SKU: {}", product.getSku());
+            ProductEntity updated = Objects.requireNonNull(repository.save(entity));
+
+            log.info("Produto atualizado com sucesso no banco de dados. ID: {} | SKU: {}", updated.getId(),
+                    updated.getSku());
+                    
+            return mapEntityToProduct(updated);
+
+        } catch (DataAccessException e) {
+            log.error("Erro ao atualizar produto no banco de dados. SKU: {} | Erro: {}", product.getSku(),
+                    e.getMessage());
+            throw new PersistenceException("Erro ao atualizar produto no banco de dados.", e);
+        }
     }
 
     @Override
     public boolean existsBySku(String sku) {
         log.debug("Verificando existência do produto no banco pelo SKU: {}", sku);
-        boolean exists = repository.existsBySkuIgnoreCase(sku);
-        log.debug("Resultado da verificação do SKU '{}': {}", sku, exists);
-        return exists;
+
+        try {
+            boolean exists = repository.existsBySkuIgnoreCase(sku);
+
+            log.debug("Resultado da verificação do SKU '{}': {}", sku, exists);
+            return exists;
+
+        } catch (DataAccessException e) {
+            log.error("Erro ao verificar a existência do produto pelo SKU: {}. Motivo: {}", sku, e.getMessage(), e);
+            throw new PersistenceException("Falha ao consultar existência do produto no banco de dados.", e);
+        }
     }
 
     @Override
-    public List<Product> findAll() { 
+    public List<Product> findAll() {
         log.info("Consultando todos os produtos na base de dados.");
-        List<Product> productList = repository.findAll().stream()
-            .map(entity -> {
-                log.debug("Mapeando entidade de banco para domínio. ID: {} | SKU: {}", entity.getId(), entity.getSku());
-                
-                Category category = null;
-                if (entity.getCategory() != null) {
-                    category = new Category(
-                            entity.getCategory().getId(),
-                            entity.getCategory().getName(),
-                            entity.getCategory().getDescription()
-                    );
-                }
 
-                return new Product(
-                        entity.getId(),
-                        entity.getSku(),
-                        entity.getName(),
-                        entity.getDescription(),
-                        entity.getPrice(),
-                        entity.getQuantity(),
-                        category != null ? category.getId() : null,
-                        category != null ? category.getName() : null
-                );
-            })
-            .toList();
-        log.debug("Consulta findAll finalizada.");
-        return productList; 
+        try {
+            List<Product> productList = repository.findAll().stream()
+                    .map(entity -> {
+                        log.debug("Mapeando entidade de banco para domínio. ID: {} | SKU: {}", entity.getId(),
+                                entity.getSku());
+                        return mapEntityToProduct(entity);
+                    })
+                    .toList();
+
+            log.debug("Consulta findAll finalizada.");
+            return productList;
+
+        } catch (DataAccessException e) {
+            log.error("Erro ao consultar produtos no banco de dados. Erro: {}", e.getMessage());
+            throw new PersistenceException("Erro ao consultar produtos no banco de dados.", e);
+        }
     }
 
     @Override
     public Optional<Product> findBySku(String sku) {
-        log.info("Buscando produto no banco de dados pelo SKU: {}", sku);
+        log.debug("Buscando produto no banco de dados pelo SKU: {}", sku);
 
-        return repository.findBySkuIgnoreCase(sku)
-            .map(entity -> {
-                log.debug("Produto encontrado no banco. Mapeando para domínio. ID: {} | SKU: {}", entity.getId(), entity.getSku());
-                
-                Category category = null;
-                if (entity.getCategory() != null) {
-                    category = new Category(
-                            entity.getCategory().getId(),
-                            entity.getCategory().getName(),
-                            entity.getCategory().getDescription()
-                    );
-                }
+        try {
+            Optional<ProductEntity> entityOptional = repository.findBySkuIgnoreCase(sku);
 
-                return new Product(
-                        entity.getId(),
-                        entity.getSku(),
-                        entity.getName(),
-                        entity.getDescription(),
-                        entity.getPrice(),
-                        entity.getQuantity(),
-                        category != null ? category.getId() : null,
-                        category != null ? category.getName() : null
-                );
-            })
-            .or(() -> {
-                log.warn("Nenhum produto encontrado no banco para o SKU: {}", sku);
+            if (entityOptional.isEmpty()) {
+                log.debug("Nenhum produto encontrado no banco para o SKU: {}", sku);
                 return Optional.empty();
-            });
+            }
+
+            ProductEntity entity = entityOptional.get();
+            log.debug("Produto encontrado no banco. Mapeando para domínio. ID: {} | SKU: {}", entity.getId(),
+                    entity.getSku());
+
+            return Optional.of(mapEntityToProduct(entity));
+
+        } catch (DataAccessException e) {
+            log.error("Erro ao buscar produto no banco pelo SKU: {}. Motivo: {}", sku, e.getMessage(), e);
+            throw new PersistenceException("Falha ao consultar produto no banco de dados.", e);
+        }
+    }
+
+    private ProductEntity mapProductToEntity(Product productdomain) {
+        CategoryEntity category = null;
+        if (productdomain.getCategory() != null) {
+            category = new CategoryEntity(
+                    productdomain.getCategory().getId() != null ? productdomain.getCategory().getId() : null,
+                    productdomain.getCategory().getName() != null ? productdomain.getCategory().getName() : null,
+                    productdomain.getCategory().getDescription() != null ? productdomain.getCategory().getDescription()
+                            : null);
+        }
+
+        return new ProductEntity(
+                productdomain.getId() != null ? productdomain.getId() : null,
+                productdomain.getSku() != null ? productdomain.getSku() : null,
+                productdomain.getName() != null ? productdomain.getName() : null,
+                productdomain.getDescription() != null ? productdomain.getDescription() : null,
+                productdomain.getPrice() != null ? productdomain.getPrice() : null,
+                productdomain.getQuantity() != null ? productdomain.getQuantity() : null,
+                category);
+    }
+
+    private Product mapEntityToProduct(ProductEntity entity) {
+        Category category = null;
+        if (entity.getCategory() != null) {
+            category = new Category(
+                    entity.getCategory().getId() != null ? entity.getCategory().getId() : null,
+                    entity.getCategory().getName() != null ? entity.getCategory().getName() : null,
+                    entity.getCategory().getDescription() != null ? entity.getCategory().getDescription() : null);
+        }
+
+        return new Product(
+                entity.getId() != null ? entity.getId() : null,
+                entity.getSku() != null ? entity.getSku() : null,
+                entity.getName() != null ? entity.getName() : null,
+                entity.getDescription() != null ? entity.getDescription() : null,
+                entity.getPrice() != null ? entity.getPrice() : null,
+                entity.getQuantity() != null ? entity.getQuantity() : null,
+                category);
     }
 }

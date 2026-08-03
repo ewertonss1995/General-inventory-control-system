@@ -1,15 +1,7 @@
 package com.inventory.control.system.adapters.in.web;
 
-import com.inventory.control.system.adapters.in.web.dto.ProductRequest;
-import com.inventory.control.system.adapters.in.web.dto.ProductResponse;
-import com.inventory.control.system.adapters.in.web.dto.UpdateStockRequest;
-import com.inventory.control.system.domain.model.UpdateStockInput;
-import com.inventory.control.system.domain.model.Product;
-import com.inventory.control.system.ports.in.CreateProductUseCase;
-import com.inventory.control.system.ports.in.UpdateProductUseCase;
-import com.inventory.control.system.ports.in.FindProductUseCase;
-import com.inventory.control.system.ports.in.UpdateStockUseCase;
-import jakarta.validation.Valid;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -23,7 +15,20 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.inventory.control.system.adapters.in.web.dto.response.ProductResponse;
+import com.inventory.control.system.adapters.in.web.dto.response.SaveProductResponse;
+import com.inventory.control.system.adapters.in.web.dto.response.CategoryResponse;
+import com.inventory.control.system.adapters.in.web.dto.request.ProductRequest;
+import com.inventory.control.system.adapters.in.web.dto.request.UpdateStockRequest;
+import com.inventory.control.system.domain.model.Product;
+import com.inventory.control.system.domain.model.Category;
+import com.inventory.control.system.domain.model.UpdateStockInput;
+import com.inventory.control.system.ports.in.CreateProductUseCase;
+import com.inventory.control.system.ports.in.FindProductUseCase;
+import com.inventory.control.system.ports.in.UpdateProductUseCase;
+import com.inventory.control.system.ports.in.UpdateStockUseCase;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/v1/products")
@@ -36,7 +41,8 @@ public class ProductController {
     private final UpdateStockUseCase updateStockUseCase;
     private final UpdateProductUseCase updateProductUseCase;
 
-    public ProductController(CreateProductUseCase createProductUseCase, FindProductUseCase findProductUseCase, UpdateStockUseCase updateStockUseCase, UpdateProductUseCase updateProductUseCase) {
+    public ProductController(CreateProductUseCase createProductUseCase, FindProductUseCase findProductUseCase,
+            UpdateStockUseCase updateStockUseCase, UpdateProductUseCase updateProductUseCase) {
         this.createProductUseCase = createProductUseCase;
         this.findProductUseCase = findProductUseCase;
         this.updateStockUseCase = updateStockUseCase;
@@ -44,7 +50,7 @@ public class ProductController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<ProductResponse> createProduct(@RequestBody @Valid ProductRequest request) {
+    public ResponseEntity<SaveProductResponse> createProduct(@RequestBody @Valid ProductRequest request) {
         log.info("Requisição recebida para criar produto com SKU: {}", request.sku());
 
         Product product = new Product(
@@ -53,17 +59,18 @@ public class ProductController {
                 request.description(),
                 request.price(),
                 request.quantity(),
-                request.categoryId()
+                new Category(request.categoryId(), null, null)
+
         );
 
         Product productCreated = createProductUseCase.execute(product);
 
         log.info("Produto com SKU: {} criado com sucesso. ID: {}", productCreated.getSku(), productCreated.getId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(productCreated));
+        return ResponseEntity.status(HttpStatus.CREATED).body(toSaveProductResponse(productCreated));
     }
 
     @PutMapping("/update/{sku}")
-    public ResponseEntity<ProductResponse> updateProduct(
+    public ResponseEntity<SaveProductResponse> updateProduct(
             @PathVariable String sku,
             @RequestBody @Valid ProductRequest request) {
 
@@ -75,13 +82,12 @@ public class ProductController {
                 request.description(),
                 request.price(),
                 request.quantity(),
-                request.categoryId()
-        );
+                new Category(request.categoryId(), null, null));
 
         Product productUpdated = updateProductUseCase.execute(product);
 
         log.info("Produto com SKU: {} atualizado com sucesso.", sku);
-        return ResponseEntity.ok(toResponse(productUpdated)); // Nota: Para atualização com sucesso, o ideal é HTTP 200 OK
+        return ResponseEntity.ok(toSaveProductResponse(productUpdated));
     }
 
     @GetMapping
@@ -89,7 +95,7 @@ public class ProductController {
         log.info("Requisição recebida para listar todos os produtos.");
 
         List<ProductResponse> products = findProductUseCase.findAll().stream()
-                .map(this::toResponse)
+                .map(this::toProductResponse)
                 .toList();
 
         log.info("Busca realizada com sucesso. Total de produtos encontrados: {}", products.size());
@@ -103,7 +109,7 @@ public class ProductController {
         Product product = findProductUseCase.findBySku(sku);
 
         log.info("Produto com SKU: {} localizado com sucesso.", sku);
-        return ResponseEntity.ok(toResponse(product));
+        return ResponseEntity.ok(toProductResponse(product));
     }
 
     @PatchMapping("/{sku}/stock")
@@ -111,17 +117,30 @@ public class ProductController {
             @PathVariable String sku,
             @RequestBody @Valid UpdateStockRequest request) {
 
-        log.info("Requisição recebida para alteração de estoque. SKU: {} | Tipo: {} | Quantidade: {}", 
+        log.info("Requisição recebida para alteração de estoque. SKU: {} | Tipo: {} | Quantidade: {}",
                 sku, request.movementType(), request.quantity());
 
         UpdateStockInput input = new UpdateStockInput(sku, request.quantity(), request.movementType());
         Product updatedProduct = updateStockUseCase.execute(input);
 
-        log.info("Estoque do produto SKU: {} atualizado com sucesso. Novo saldo: {}", sku, updatedProduct.getQuantity());
-        return ResponseEntity.ok(toResponse(updatedProduct));
+        log.info("Estoque do produto SKU: {} atualizado com sucesso. Novo saldo: {}", sku,
+                updatedProduct.getQuantity());
+        return ResponseEntity.ok(toProductResponse(updatedProduct));
     }
 
-    private ProductResponse toResponse(Product product) {
+    private ProductResponse toProductResponse(Product product) {
+
+        if (product.getCategory() == null) {
+            return new ProductResponse(
+                    product.getId(),
+                    product.getSku(),
+                    product.getName(),
+                    product.getDescription(),
+                    product.getPrice(),
+                    product.getQuantity(),
+                    null);
+        }
+
         return new ProductResponse(
                 product.getId(),
                 product.getSku(),
@@ -129,8 +148,23 @@ public class ProductController {
                 product.getDescription(),
                 product.getPrice(),
                 product.getQuantity(),
-                product.getCategoryId(),
-                product.getCategoryName()
-        );
+                new CategoryResponse(
+                        product.getCategory().getId() != null ? product.getCategory().getId() : null,
+                        product.getCategory().getName() != null ? product.getCategory().getName() : null,
+                        product.getCategory().getDescription() != null ? product.getCategory().getDescription()
+                                : null));
+
+    }
+
+    private SaveProductResponse toSaveProductResponse(Product product) {
+        return new SaveProductResponse(
+                product.getId(),
+                product.getSku(),
+                product.getName(),
+                product.getDescription(),
+                product.getPrice(),
+                product.getQuantity(),
+                product.getCategory() != null ? product.getCategory().getName() : "<category_name>"
+            );
     }
 }

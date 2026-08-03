@@ -5,6 +5,9 @@ import com.inventory.control.system.domain.model.Product;
 import com.inventory.control.system.domain.model.UpdateStockInput;
 import com.inventory.control.system.ports.in.UpdateStockUseCase;
 import com.inventory.control.system.ports.out.ProductRepositoryPort;
+
+import java.util.Objects;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +23,14 @@ public class UpdateStockService implements UpdateStockUseCase {
 
     @Override
     public Product execute(UpdateStockInput input) {
-        String formattedSku = input.sku() != null ? input.sku().trim().toUpperCase() : null;
+        String formattedSku;
+        
+        if(!Objects.isNull(input.sku())) {
+            formattedSku = input.sku().trim().toUpperCase();
+        } else {
+            log.warn("Falha na atualização de estoque: SKU fornecido é nulo ou vazio.");
+            throw new IllegalArgumentException("SKU não pode ser nulo ou vazio.");
+        }
 
         log.info("Iniciando movimentação de estoque. SKU: {} | Tipo: {} | Quantidade: {}", 
                 formattedSku, input.movementType(), input.quantity());

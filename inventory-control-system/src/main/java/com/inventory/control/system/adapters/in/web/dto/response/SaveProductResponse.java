@@ -1,14 +1,13 @@
-package com.inventory.control.system.adapters.in.web.dto;
+package com.inventory.control.system.adapters.in.web.dto.response;
 
 import java.math.BigDecimal;
 
-public record ProductResponse(
+public record SaveProductResponse(
     Long id,
     String sku,
     String name,
     String description,
     BigDecimal price,
     Integer quantity,
-    Long categoryId,
     String categoryName
 ) {}

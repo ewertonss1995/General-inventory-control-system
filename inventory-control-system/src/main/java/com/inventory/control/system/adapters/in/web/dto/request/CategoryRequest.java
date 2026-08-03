@@ -1,7 +1,6 @@
-package com.inventory.control.system.adapters.in.web.dto;
+package com.inventory.control.system.adapters.in.web.dto.request;
 
-import jakarta.validation.constraints.*;
-import java.math.BigDecimal;
+import jakarta.validation.constraints.NotNull;
 
 public record CategoryRequest(
     @NotNull(message = "ID da categoria é obrigatório") Long id,

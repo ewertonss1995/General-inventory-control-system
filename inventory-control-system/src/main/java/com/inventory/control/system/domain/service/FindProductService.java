@@ -1,5 +1,6 @@
 package com.inventory.control.system.domain.service;
 
+import com.inventory.control.system.domain.exception.BusinessException;
 import com.inventory.control.system.domain.exception.ResourceNotFoundException;
 import com.inventory.control.system.domain.model.Product;
 import com.inventory.control.system.ports.in.FindProductUseCase;
@@ -19,21 +20,21 @@ public class FindProductService implements FindProductUseCase {
         this.productRepositoryPort = productRepositoryPort;
     }
 
-    @Override
+@Override
     public List<Product> findAll() {
         log.info("Executando caso de uso para listar todos os produtos.");
 
         List<Product> products = productRepositoryPort.findAll();
 
-        log.info("Consulta de produtos concluída no caso de uso. Total retornado: {}", products.size());
+        log.info("Consulta de produtos concluída. Total retornado: {}", products.size());
         return products;
     }
 
     @Override
     public Product findBySku(String sku) {
         if (sku == null || sku.isBlank()) {
-            log.warn("Tentativa de busca com SKU nulo ou em branco.");
-            throw new IllegalArgumentException("O SKU informado para busca não pode ser nulo ou vazio.");
+            log.warn("Tentativa de busca com SKU nulo ou em branco. SKU recebido: '{}'", sku);
+            throw new BusinessException("O SKU informado para busca não pode ser nulo ou vazio.");
         }
 
         String formattedSku = sku.trim().toUpperCase();
@@ -41,7 +42,7 @@ public class FindProductService implements FindProductUseCase {
 
         return productRepositoryPort.findBySku(formattedSku)
                 .orElseThrow(() -> {
-                    log.warn("Falha na busca de produto no caso de uso: SKU '{}' não encontrado.", formattedSku);
+                    log.warn("Falha na busca de produto: SKU '{}' não encontrado.", formattedSku);
                     return new ResourceNotFoundException("Produto não encontrado para o SKU: " + formattedSku);
                 });
     }

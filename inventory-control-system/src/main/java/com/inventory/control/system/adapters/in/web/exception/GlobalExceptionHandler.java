@@ -1,6 +1,6 @@
 package com.inventory.control.system.adapters.in.web.exception;
 
-import com.inventory.control.system.adapters.in.web.dto.ErrorResponse;
+import com.inventory.control.system.adapters.in.web.dto.response.ErrorResponse;
 import com.inventory.control.system.domain.exception.BusinessException;
 import com.inventory.control.system.domain.exception.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
