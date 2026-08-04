@@ -4,11 +4,11 @@ import com.inventory.control.system.domain.service.category.CreateCategoryServic
 import com.inventory.control.system.domain.service.category.GetCategoryService;
 import com.inventory.control.system.domain.service.category.UpdateCategoryService;
 import com.inventory.control.system.domain.service.product.CreateProductService;
-import com.inventory.control.system.domain.service.product.FindProductService;
+import com.inventory.control.system.domain.service.product.GetProductService;
 import com.inventory.control.system.domain.service.product.UpdateProductService;
 import com.inventory.control.system.domain.service.product.UpdateStockService;
 import com.inventory.control.system.ports.in.pruduct.CreateProductUseCase;
-import com.inventory.control.system.ports.in.pruduct.FindProductUseCase;
+import com.inventory.control.system.ports.in.pruduct.GetProductUseCase;
 import com.inventory.control.system.ports.in.pruduct.UpdateProductUseCase;
 import com.inventory.control.system.ports.in.pruduct.UpdateStockUseCase;
 import com.inventory.control.system.ports.in.category.CreateCategoryUseCase;
@@ -28,8 +28,8 @@ public class BeanConfig {
     }
 
     @Bean
-    public FindProductUseCase findProductUseCase(ProductRepositoryPort productRepositoryPort) {
-        return new FindProductService(productRepositoryPort);
+    public GetProductUseCase findProductUseCase(ProductRepositoryPort productRepositoryPort) {
+        return new GetProductService(productRepositoryPort);
     }
 
     @Bean

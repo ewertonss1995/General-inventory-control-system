@@ -24,7 +24,7 @@ import com.inventory.control.system.domain.model.Product;
 import com.inventory.control.system.domain.model.Category;
 import com.inventory.control.system.domain.model.UpdateStockInput;
 import com.inventory.control.system.ports.in.pruduct.CreateProductUseCase;
-import com.inventory.control.system.ports.in.pruduct.FindProductUseCase;
+import com.inventory.control.system.ports.in.pruduct.GetProductUseCase;
 import com.inventory.control.system.ports.in.pruduct.UpdateProductUseCase;
 import com.inventory.control.system.ports.in.pruduct.UpdateStockUseCase;
 
@@ -37,11 +37,11 @@ public class ProductController {
     private static final Logger log = LoggerFactory.getLogger(ProductController.class);
 
     private final CreateProductUseCase createProductUseCase;
-    private final FindProductUseCase findProductUseCase;
+    private final GetProductUseCase findProductUseCase;
     private final UpdateStockUseCase updateStockUseCase;
     private final UpdateProductUseCase updateProductUseCase;
 
-    public ProductController(CreateProductUseCase createProductUseCase, FindProductUseCase findProductUseCase,
+    public ProductController(CreateProductUseCase createProductUseCase, GetProductUseCase findProductUseCase,
             UpdateStockUseCase updateStockUseCase, UpdateProductUseCase updateProductUseCase) {
         this.createProductUseCase = createProductUseCase;
         this.findProductUseCase = findProductUseCase;
