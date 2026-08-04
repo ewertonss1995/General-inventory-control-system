@@ -2,11 +2,15 @@ package com.inventory.control.web.system.infrastructure.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.inventory.control.web.system.adapters.out.exception.CustomFeignErrorDecoder;
-import com.inventory.control.web.system.infrastructure.security.FeignSecurityInterceptor;
 import feign.RequestInterceptor;
 import feign.codec.ErrorDecoder;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+@Configuration
 public class FeignConfig {
 
     private final ObjectMapper objectMapper;
@@ -21,7 +25,18 @@ public class FeignConfig {
     }
 
     @Bean
-    public RequestInterceptor feignSecurityInterceptor() {
-        return new FeignSecurityInterceptor();
+    public RequestInterceptor requestInterceptor() {
+        return requestTemplate -> {
+            ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            
+            if (attributes != null) { 
+                HttpServletRequest request = attributes.getRequest();
+                String authHeader = request.getHeader("Authorization");
+                
+                if (authHeader != null) {
+                    requestTemplate.header("Authorization", authHeader);
+                }
+            }
+        };
     }
 }

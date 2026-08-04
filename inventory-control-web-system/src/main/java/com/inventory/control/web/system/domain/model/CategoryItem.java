@@ -1,4 +1,4 @@
-package com.inventory.control.web.domain.model;
+package com.inventory.control.web.system.domain.model;
 
 public class CategoryItem {
     private Long id;
