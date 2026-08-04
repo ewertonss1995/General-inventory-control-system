@@ -1,13 +1,19 @@
 package com.inventory.control.system.infrastructure.config;
 
-import com.inventory.control.system.domain.service.CreateProductService;
-import com.inventory.control.system.domain.service.FindProductService;
-import com.inventory.control.system.domain.service.UpdateStockService;
-import com.inventory.control.system.domain.service.UpdateProductService;
-import com.inventory.control.system.ports.in.CreateProductUseCase;
-import com.inventory.control.system.ports.in.FindProductUseCase;
-import com.inventory.control.system.ports.in.UpdateStockUseCase;
-import com.inventory.control.system.ports.in.UpdateProductUseCase;
+import com.inventory.control.system.domain.service.category.CreateCategoryService;
+import com.inventory.control.system.domain.service.category.GetCategoryService;
+import com.inventory.control.system.domain.service.category.UpdateCategoryService;
+import com.inventory.control.system.domain.service.product.CreateProductService;
+import com.inventory.control.system.domain.service.product.FindProductService;
+import com.inventory.control.system.domain.service.product.UpdateProductService;
+import com.inventory.control.system.domain.service.product.UpdateStockService;
+import com.inventory.control.system.ports.in.pruduct.CreateProductUseCase;
+import com.inventory.control.system.ports.in.pruduct.FindProductUseCase;
+import com.inventory.control.system.ports.in.pruduct.UpdateProductUseCase;
+import com.inventory.control.system.ports.in.pruduct.UpdateStockUseCase;
+import com.inventory.control.system.ports.in.category.CreateCategoryUseCase;
+import com.inventory.control.system.ports.in.category.GetCategoryUseCase;
+import com.inventory.control.system.ports.in.category.UpdateCategoryUseCase;
 import com.inventory.control.system.ports.out.CategoryRepositoryPort;
 import com.inventory.control.system.ports.out.ProductRepositoryPort;
 import org.springframework.context.annotation.Bean;
@@ -34,5 +40,20 @@ public class BeanConfig {
     @Bean
     public UpdateProductUseCase updateProductUseCase(ProductRepositoryPort productRepositoryPort, CategoryRepositoryPort categoryRepositoryPort) {
         return new UpdateProductService(productRepositoryPort, categoryRepositoryPort);
+    }
+
+    @Bean
+    public CreateCategoryUseCase createCategoryUseCase(CategoryRepositoryPort categoryRepositoryPort) {
+        return new CreateCategoryService(categoryRepositoryPort);
+    }
+
+    @Bean
+    public GetCategoryUseCase getCategoryUseCase(CategoryRepositoryPort categoryRepositoryPort) {
+        return new GetCategoryService(categoryRepositoryPort);
+    }
+
+    @Bean
+    public UpdateCategoryUseCase updateCategoryUseCase(CategoryRepositoryPort categoryRepositoryPort) {
+        return new UpdateCategoryService(categoryRepositoryPort);
     }
 }

@@ -1,9 +1,9 @@
-package com.inventory.control.system.domain.service;
+package com.inventory.control.system.domain.service.product;
 
 import com.inventory.control.system.domain.exception.ResourceNotFoundException;
 import com.inventory.control.system.domain.model.Product;
 import com.inventory.control.system.domain.model.UpdateStockInput;
-import com.inventory.control.system.ports.in.UpdateStockUseCase;
+import com.inventory.control.system.ports.in.pruduct.UpdateStockUseCase;
 import com.inventory.control.system.ports.out.ProductRepositoryPort;
 
 import java.util.Objects;

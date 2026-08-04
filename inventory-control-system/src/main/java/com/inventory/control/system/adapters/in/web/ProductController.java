@@ -23,10 +23,10 @@ import com.inventory.control.system.adapters.in.web.dto.request.UpdateStockReque
 import com.inventory.control.system.domain.model.Product;
 import com.inventory.control.system.domain.model.Category;
 import com.inventory.control.system.domain.model.UpdateStockInput;
-import com.inventory.control.system.ports.in.CreateProductUseCase;
-import com.inventory.control.system.ports.in.FindProductUseCase;
-import com.inventory.control.system.ports.in.UpdateProductUseCase;
-import com.inventory.control.system.ports.in.UpdateStockUseCase;
+import com.inventory.control.system.ports.in.pruduct.CreateProductUseCase;
+import com.inventory.control.system.ports.in.pruduct.FindProductUseCase;
+import com.inventory.control.system.ports.in.pruduct.UpdateProductUseCase;
+import com.inventory.control.system.ports.in.pruduct.UpdateStockUseCase;
 
 import jakarta.validation.Valid;
 
