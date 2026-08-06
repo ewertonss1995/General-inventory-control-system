@@ -23,10 +23,10 @@ import com.inventory.control.system.adapters.in.web.dto.request.UpdateStockReque
 import com.inventory.control.system.domain.model.Product;
 import com.inventory.control.system.domain.model.Category;
 import com.inventory.control.system.domain.model.UpdateStockInput;
-import com.inventory.control.system.ports.in.pruduct.CreateProductUseCase;
-import com.inventory.control.system.ports.in.pruduct.GetProductUseCase;
-import com.inventory.control.system.ports.in.pruduct.UpdateProductUseCase;
-import com.inventory.control.system.ports.in.pruduct.UpdateStockUseCase;
+import com.inventory.control.system.ports.in.product.CreateProductUseCase;
+import com.inventory.control.system.ports.in.product.GetProductUseCase;
+import com.inventory.control.system.ports.in.product.UpdateProductUseCase;
+import com.inventory.control.system.ports.in.product.UpdateStockUseCase;
 
 import jakarta.validation.Valid;
 
@@ -91,7 +91,7 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProductResponse>> findAll() {
+    public ResponseEntity<List<ProductResponse>> getAllProducts() {
         log.info("Requisição recebida para listar todos os produtos.");
 
         List<ProductResponse> products = findProductUseCase.findAll().stream()
@@ -103,7 +103,7 @@ public class ProductController {
     }
 
     @GetMapping("/{sku}")
-    public ResponseEntity<ProductResponse> findBySku(@PathVariable String sku) {
+    public ResponseEntity<ProductResponse> getProductBySku(@PathVariable String sku) {
         log.info("Requisição recebida para buscar produto por SKU: {}", sku);
 
         Product product = findProductUseCase.findBySku(sku);
@@ -113,7 +113,7 @@ public class ProductController {
     }
 
     @PatchMapping("/{sku}/stock")
-    public ResponseEntity<ProductResponse> updateStock(
+    public ResponseEntity<ProductResponse> updateProductStock(
             @PathVariable String sku,
             @RequestBody @Valid UpdateStockRequest request) {
 

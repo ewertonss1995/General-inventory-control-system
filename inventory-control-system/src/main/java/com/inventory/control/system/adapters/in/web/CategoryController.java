@@ -87,8 +87,6 @@ public class CategoryController {
         return ResponseEntity.ok(toCategoryResponse(category));
     }
 
-
-
     private CategoryResponse toCategoryResponse(Category category) {
         return new CategoryResponse(
                 category.getId(),

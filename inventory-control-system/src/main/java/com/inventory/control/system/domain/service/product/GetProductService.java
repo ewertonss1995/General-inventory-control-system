@@ -3,7 +3,7 @@ package com.inventory.control.system.domain.service.product;
 import com.inventory.control.system.domain.exception.BusinessException;
 import com.inventory.control.system.domain.exception.ResourceNotFoundException;
 import com.inventory.control.system.domain.model.Product;
-import com.inventory.control.system.ports.in.pruduct.GetProductUseCase;
+import com.inventory.control.system.ports.in.product.GetProductUseCase;
 import com.inventory.control.system.ports.out.ProductRepositoryPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

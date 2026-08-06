@@ -1,4 +1,4 @@
-package com.inventory.control.system.ports.in.pruduct;
+package com.inventory.control.system.ports.in.product;
 
 import com.inventory.control.system.domain.model.Product;
 
