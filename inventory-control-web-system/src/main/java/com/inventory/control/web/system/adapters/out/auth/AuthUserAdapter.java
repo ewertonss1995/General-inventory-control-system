@@ -1,18 +1,20 @@
 package com.inventory.control.web.system.adapters.out.auth;
 
-import com.inventory.control.web.system.adapters.out.auth.AuthFeignClient;
-import com.inventory.control.web.system.adapters.in.web.dto.request.RegisterUserRequest;
-import com.inventory.control.web.system.adapters.in.web.dto.request.LoginRequest;
+import com.inventory.control.web.system.domain.model.LoginUser;
+import com.inventory.control.web.system.domain.model.RegisterUser;
+import com.inventory.control.web.system.domain.model.TokenUser;
 import com.inventory.control.web.system.adapters.in.web.dto.response.TokenResponse;
+
 import org.springframework.stereotype.Component;
 import org.springframework.http.ResponseEntity;
-import com.inventory.control.web.system.ports.out.AuthenticateUserPort;
-import com.inventory.control.web.system.ports.out.CreateUserPort;
-import lombok.extern.slf4j.Slf4j;
+import com.inventory.control.web.system.ports.out.AuthenticateFeignPort;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Slf4j
 @Component
-public class AuthUserAdapter implements AuthenticateUserPort, CreateUserPort {
+public class AuthUserAdapter implements AuthenticateFeignPort {
+
+    private static final Logger log = LoggerFactory.getLogger(AuthUserAdapter.class);
 
     private final AuthFeignClient authFeignClient;
 
@@ -21,29 +23,22 @@ public class AuthUserAdapter implements AuthenticateUserPort, CreateUserPort {
     }
 
     @Override
-    public void createUser(RegisterUserRequest registerUserRequest) {
-        log.info("Iniciando processo de registro de usuário: " + registerUserRequest.username());
-        try {
-            authFeignClient.register(registerUserRequest);
-        } catch (Exception e) {
-            log.error("Erro durante registro de usuário: " + 
-            registerUserRequest.username() + " ERRO: " + e.getMessage() );
+    public void createUser(RegisterUser registerUser) {
+        log.debug("Iniciando processo de registro de usuário: {} no serviço de autenticação",
+                registerUser.getUsername());
+        authFeignClient.register(registerUser);
 
-            throw e;
-        }
     }
 
     @Override
-    public TokenResponse userLogin(LoginRequest loginRequest) {
-        log.info("Iniciando processo de registro de usuário: " + loginRequest.usernameOrEmail());
-        ResponseEntity<TokenResponse> responseToken;
-        try {
-            responseToken = authFeignClient.login(loginRequest);
-        } catch (Exception e) {
-            log.error("Erro durante login de usuário: " + loginRequest.usernameOrEmail() + " ERRO: " + e.getMessage() );
-            throw e;
-        }
-        
-        return responseToken.getBody();
+    public TokenUser userLogin(LoginUser loginUser) {
+        log.debug("Iniciando processo de login de usuário: {} no serviço de autenticação",
+                loginUser.getUsernameOrEmail());
+        ResponseEntity<TokenResponse> responseToken = authFeignClient.login(loginUser);
+        return mapToTokenUser(responseToken.getBody());
+    }
+
+    private TokenUser mapToTokenUser(TokenResponse tokenResponse) {
+        return new TokenUser(tokenResponse.accessToken(), tokenResponse.tokenType(), tokenResponse.expiresInSeconds());
     }
 }

@@ -1,7 +1,8 @@
 package com.inventory.control.web.system.infrastructure.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.inventory.control.web.system.adapters.out.exception.CustomFeignErrorDecoder;
+import com.inventory.control.web.system.adapters.exception.CustomFeignErrorDecoder;
+
 import feign.RequestInterceptor;
 import feign.codec.ErrorDecoder;
 import jakarta.servlet.http.HttpServletRequest;

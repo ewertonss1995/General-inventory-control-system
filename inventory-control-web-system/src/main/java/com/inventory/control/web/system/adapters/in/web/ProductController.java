@@ -1,70 +1,53 @@
 package com.inventory.control.web.system.adapters.in.web;
 
 import com.inventory.control.web.system.adapters.in.web.dto.response.ProductResponse;
+import com.inventory.control.web.system.domain.model.Category;
+import com.inventory.control.web.system.domain.model.Product;
+import com.inventory.control.web.system.ports.in.product.PostProductUseCase;
 import com.inventory.control.web.system.adapters.in.web.dto.request.ProductRequest;
-import com.inventory.control.web.system.domain.model.ProductItem;
-import com.inventory.control.web.system.ports.in.RegisterProductUseCase;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/products")
 public class ProductController {
 
-    private final RegisterProductUseCase registerProductUseCase;
+    private final PostProductUseCase postProductUseCase;
 
-    public ProductController(RegisterProductUseCase registerProductUseCase) {
-        this.registerProductUseCase = registerProductUseCase;
+    public ProductController(PostProductUseCase postProductUseCase) {
+        this.postProductUseCase = postProductUseCase;
     }
 
-    /**
-     * Endpoint BFF de Cadastro de Produto
-     * POST /api/v1/catalog/products
-     */
     @PostMapping
     public ResponseEntity<ProductResponse> createProduct(@RequestBody @Valid ProductRequest request) {
-        ProductItem item = registerProductUseCase.execute(request);
+        Product product = new Product(
+                request.sku(),
+                request.name(),
+                request.description(),
+                request.price(),
+                request.quantity(),
+                new Category(request.categoryId())
+        );
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(toProductResponse(item));
+        product = postProductUseCase.execute(product);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(toProductResponse(product));
     }
 
-    /**
-     * Endpoint BFF de Listagem Geral de Produtos
-     * GET /api/v1/catalog/products
-     */
-    // @GetMapping
-    // public ResponseEntity<List<ProductResponse>> getAllProducts() {
-    //     List<ProductResponse> list = inventoryClientPort.getAllProducts().stream()
-    //             .map(this::toProductResponse)
-    //             .toList();
-
-    //     return ResponseEntity.ok(list);
-    // }
-
-    /**
-     * Endpoint BFF de Detalhes do Produto por SKU
-     * GET /api/v1/catalog/products/{sku}
-     */
-    // @GetMapping("/{sku}")
-    // public ResponseEntity<ProductResponse> getProductBySku(@PathVariable String sku) {
-    //     return inventoryClientPort.getProductBySku(sku)
-    //             .map(item -> ResponseEntity.ok(toProductResponse(item)))
-    //             .orElseGet(() -> ResponseEntity.notFound().build());
-    // }
-
-    private ProductResponse toProductResponse(ProductItem item) {
+    private ProductResponse toProductResponse(Product product) {
         return new ProductResponse(
-                item.getId(),
-                item.getSku(),
-                item.getName(),
-                item.getDescription(),
-                item.getPrice(),
-                item.getQuantity(),
-                item.getCategoryName()
+                product.getId(),
+                product.getSku(),
+                product.getName(),
+                product.getDescription(),
+                product.getPrice(),
+                product.getQuantity(),
+                product.getCategory().getName()
         );
     }
 }

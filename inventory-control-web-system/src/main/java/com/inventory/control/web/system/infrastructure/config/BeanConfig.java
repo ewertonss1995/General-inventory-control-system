@@ -1,13 +1,23 @@
 package com.inventory.control.web.system.infrastructure.config;
 
-import com.inventory.control.web.system.domain.service.AuthenticateUserService;
-import com.inventory.control.web.system.domain.service.FetchProductService;
-import com.inventory.control.web.system.domain.service.RegisterProductService;
-import com.inventory.control.web.system.domain.service.RegisterUserService;
-import com.inventory.control.web.system.ports.out.AuthenticateUserPort;
-import com.inventory.control.web.system.ports.out.FetchProductPort;
-import com.inventory.control.web.system.ports.out.CreateProductPort;
-import com.inventory.control.web.system.ports.out.CreateUserPort;
+import com.inventory.control.web.system.ports.in.product.PostProductUseCase;
+import com.inventory.control.web.system.ports.in.product.UpdateProductUseCase;
+import com.inventory.control.web.system.ports.in.product.UpdateStockUseCase;
+import com.inventory.control.web.system.ports.in.product.GetProductUseCase;
+import com.inventory.control.web.system.ports.in.authenticate.LoginUserUseCase;
+import com.inventory.control.web.system.ports.in.authenticate.RegisterUserUseCase;
+
+import com.inventory.control.web.system.domain.service.product.PostProductService;
+import com.inventory.control.web.system.domain.service.product.GetProductService;
+import com.inventory.control.web.system.domain.service.product.UpdateProductService;
+import com.inventory.control.web.system.domain.service.product.UpdateStockService;
+import com.inventory.control.web.system.domain.service.authenticate.LoginUserService;
+import com.inventory.control.web.system.domain.service.authenticate.RegisterUserService;
+
+import com.inventory.control.web.system.ports.out.CategoryFeignPort;
+import com.inventory.control.web.system.ports.out.ProductFeignPort;
+import com.inventory.control.web.system.ports.out.AuthenticateFeignPort;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,22 +25,34 @@ import org.springframework.context.annotation.Configuration;
 public class BeanConfig {
 
     @Bean
-    public AuthenticateUserService authenticateUserService(AuthenticateUserPort authenticateUserPort) {
-        return new AuthenticateUserService(authenticateUserPort);
+    public LoginUserUseCase loginUserUseCase(AuthenticateFeignPort authenticateFeignPort) {
+        return new LoginUserService(authenticateFeignPort);
     }
 
     @Bean
-    public FetchProductService fetchProductService(FetchProductPort fetchProductPort) {
-        return new FetchProductService(fetchProductPort);
+    public RegisterUserUseCase registerUserUseCase(AuthenticateFeignPort authenticateFeignPort) {
+        return new RegisterUserService(authenticateFeignPort);
+    }
+
+
+    @Bean
+    public GetProductUseCase getProductUseCase(ProductFeignPort productFeignPort) {
+        return new GetProductService(productFeignPort);
     }
 
     @Bean
-    public RegisterProductService registerProductService(CreateProductPort createProductPort) {
-        return new RegisterProductService(createProductPort);
+    public PostProductUseCase postProductUseCase(ProductFeignPort productFeignPort, CategoryFeignPort categoryFeignPort) {
+        return new PostProductService(productFeignPort, categoryFeignPort);
     }
 
     @Bean
-    public RegisterUserService registerUserService(CreateUserPort createUserPort) {
-        return new RegisterUserService(createUserPort);
+    public UpdateProductUseCase updateProductUseCase(ProductFeignPort productFeignPort, CategoryFeignPort categoryFeignPort) {
+        return new UpdateProductService(productFeignPort, categoryFeignPort);
     }
+
+    @Bean
+    public UpdateStockUseCase updateStockUseCase(ProductFeignPort productFeignPort) {
+        return new UpdateStockService(productFeignPort);
+    }
+
 }
