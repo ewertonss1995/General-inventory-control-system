@@ -8,6 +8,5 @@ public interface CategoryFeignPort {
     Optional<Category> findById(Long id);
     Category saveCategory(Category category);
     Category updateCategory(Category category);
-    boolean existsById(Long id);
     List<Category> findAll();
 }

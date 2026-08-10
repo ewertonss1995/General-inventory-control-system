@@ -24,10 +24,10 @@ public class GetProductService implements GetProductUseCase {
     public List<Product> findAll() {
         log.info("Executando caso de uso para listar todos os produtos.");
 
-        List<Product> products = productFeignPort.findAll();
+        // List<Product> products = productFeignPort.findAll();
 
-        log.info("Consulta de produtos concluída. Total retornado: {}", products.size());
-        return products;
+        // log.info("Consulta de produtos concluída. Total retornado: {}", products.size());
+        return null;
     }
 
     @Override
@@ -40,10 +40,13 @@ public class GetProductService implements GetProductUseCase {
         String formattedSku = sku.trim().toUpperCase();
         log.info("Executando caso de uso para buscar produto pelo SKU: {}", formattedSku);
 
-        return productFeignPort.findBySku(formattedSku)
-                .orElseThrow(() -> {
-                    log.warn("Falha na busca de produto: SKU '{}' não encontrado.", formattedSku);
-                    return new ResourceNotFoundException("Produto não encontrado para o SKU: " + formattedSku);
-                });
+        // return productFeignPort.findBySku(formattedSku)
+        //         .orElseThrow(() -> {
+        //             log.warn("Falha na busca de produto: SKU '{}' não encontrado.", formattedSku);
+        //             return new ResourceNotFoundException("Produto não encontrado para o SKU: " + formattedSku);
+        //         });
+
+        return null;
+                
     }
 }

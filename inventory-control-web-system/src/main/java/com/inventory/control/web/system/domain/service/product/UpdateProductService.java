@@ -41,11 +41,13 @@ public class UpdateProductService implements UpdateProductUseCase {
         log.info("Iniciando atualização do produto com SKU: {} | Nova Categoria ID: {}",
                 formattedSku, product.getCategory().getId());
 
-        Product existingProduct = productFeignPort.findBySku(formattedSku)
-                .orElseThrow(() -> {
-                    log.warn("Falha na atualização: Produto não encontrado no banco para o SKU '{}'.", formattedSku);
-                    return new ResourceNotFoundException("Produto não encontrado para o SKU: " + formattedSku);
-                });
+        // Product existingProduct = productFeignPort.findBySku(formattedSku)
+        //         .orElseThrow(() -> {
+        //             log.warn("Falha na atualização: Produto não encontrado no banco para o SKU '{}'.", formattedSku);
+        //             return new ResourceNotFoundException("Produto não encontrado para o SKU: " + formattedSku);
+        //         });
+
+        Product existingProduct = null;
 
         Category category = categoryFeignPort.findById(product.getCategory().getId())
                 .orElseThrow(() -> {
@@ -66,10 +68,12 @@ public class UpdateProductService implements UpdateProductUseCase {
                 product.getQuantity(),
                 new Category(category.getId(), category.getName(), category.getDescription()));
 
-        Product updatedProduct = productFeignPort.updateProduct(productToUpdate);
+        // Product updatedProduct = productFeignPort.updateProduct(productToUpdate);
 
-        log.info("Produto com SKU '{}' atualizado com sucesso.", updatedProduct.getSku());
+        // log.info("Produto com SKU '{}' atualizado com sucesso.", updatedProduct.getSku());
 
-        return updatedProduct;
+        // return updatedProduct;
+
+        return null;
     }
 }

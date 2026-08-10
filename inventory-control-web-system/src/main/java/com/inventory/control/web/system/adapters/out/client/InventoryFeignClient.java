@@ -1,9 +1,12 @@
 package com.inventory.control.web.system.adapters.out.client;
 
+import com.inventory.control.web.system.adapters.out.client.dto.request.InventoryCategoryRequest;
 import com.inventory.control.web.system.adapters.out.client.dto.request.InventoryProductRequest;
 import com.inventory.control.web.system.adapters.out.client.dto.request.InventoryProductStockRequest;
+import com.inventory.control.web.system.adapters.out.client.dto.response.InventoryCategoryResponse;
 import com.inventory.control.web.system.adapters.out.client.dto.response.InventoryProductResponse;
 import com.inventory.control.web.system.adapters.out.client.dto.response.InventorySaveProductResponse;
+import com.inventory.control.web.system.adapters.out.client.dto.response.InventoryUpdateStockResponse;
 import com.inventory.control.web.system.infrastructure.config.FeignConfig;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
@@ -34,5 +37,19 @@ public interface InventoryFeignClient {
     ResponseEntity<InventoryProductResponse> getProductBySku(@PathVariable("sku") String sku);
 
     @PatchMapping("/v1/products/{sku}/stock")
-    ResponseEntity<InventoryProductResponse> updateProductStock(@PathVariable("sku") String sku, @RequestBody InventoryProductStockRequest request);
+    ResponseEntity<InventoryUpdateStockResponse> updateProductStock(@PathVariable("sku") String sku, @RequestBody InventoryProductStockRequest request);
+
+
+    @PostMapping("/v1/categories/save")
+    ResponseEntity<InventoryCategoryResponse> createCategory(@RequestBody InventoryCategoryRequest request);
+
+    @PutMapping("/v1/categories/update/{id}")
+    ResponseEntity<InventoryCategoryResponse> updateCategory(@PathVariable("id") Long id, @RequestBody InventoryCategoryRequest request);
+
+    @GetMapping("/v1/categories")
+    ResponseEntity<List<InventoryCategoryResponse>> getAllCategories();
+
+    @GetMapping("/v1/categories/{id}")
+    ResponseEntity<InventoryCategoryResponse> getCategoryById(@PathVariable("id") Long id);
+
 }

@@ -23,14 +23,6 @@ public class PostCategoryService implements PostCategoryUseCase {
     @Override
     public Category execute(Category category) {
         log.info("Iniciando processo de criação de categoria. Nome: {}", category.getName());
-
-        if (!Objects.isNull(category.getId())) {
-            if (categoryFeignPort.existsById(category.getId())) {
-                log.warn("Falha ao criar categoria: ID '{}' já está cadastrado no sistema.", category.getId());
-                throw new BusinessException("ID de categoria já cadastrado: " + category.getId());
-            }
-        }
-
         Category savedCategory = categoryFeignPort.saveCategory(category);
 
         log.info("Categoria com Nome '{}' criada com sucesso. ID gerado: {}", savedCategory.getName(), savedCategory.getId());
