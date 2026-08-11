@@ -1,21 +1,20 @@
+server:
+  port: 8082
+
 spring:
   application:
     name: auth-service
+  # profiles:
+  #   active: ${SPRING_PROFILES_ACTIVE:dev}
 
   datasource:
-    url: jdbc:sqlserver://${DB_HOST:localhost}:1433;databaseName=${DB_NAME:auth_db};encrypt=true;trustServerCertificate=true;
-    username: ${DB_USERNAME:sa}
+    url: jdbc:postgresql://${DB_HOST:localhost}:5432/${DB_NAME:auth_db}
+    username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:SenhaSuperSegura123!}
-    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    driver-class-name: org.postgresql.Driver
 
   jpa:
-    hibernate:
-      ddl-auto: validate # Mercado sênior: NUNCA use 'update' ou 'create-drop' em produção. Use Flyway para alterar o banco.
-    show-sql: false
-    properties:
-      hibernate:
-        format_sql: true
-        dialect: org.hibernate.dialect.SQLServerDialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
 
   flyway:
     enabled: true
@@ -43,3 +42,11 @@ springdoc:
 jwt:
   private-key-path: classpath:certs/app.key
   public-key-path: classpath:certs/app.pub
+
+logging:
+  level:
+    root: INFO # Nível geral do ecossistema (Spring, Hibernate, etc.)
+    com.auth: DEBUG # Nível detalhado para o seu código
+    # org.hibernate.SQL: DEBUG # Exibe as queries SQL no console
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

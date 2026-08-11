@@ -1,6 +1,0 @@
-server:
-  port: 0 # Escolhe uma porta aleatória para o BFF rodar durante os testes
-
-integrations:
-  auth-service:
-    url: http://localhost:${wiremock.server.port} # Aponta o Feign dinamicamente para o servidor WireMock

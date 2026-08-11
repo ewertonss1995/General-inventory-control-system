@@ -1,58 +1,74 @@
-version: '3.8'
-
 services:
-  # Banco de Dados SQL Server para o Auth Service
-  auth-db:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: auth-db
+  postgres-db:
+    image: postgres:15-alpine
+    container_name: postgres-db
     environment:
-      - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=YourStrong@Password123 # SQL Server exige senhas fortes (letras, números e símbolos)
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=SenhaSuperSegura123!
+      - POSTGRES_DB=auth_db
     ports:
-      - "1433:1433"
+      - "5432:5432"
     healthcheck:
-      # Comando específico para verificar se o SQL Server está pronto para receber conexões
-      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "YourStrong@Password123", "-Q", "SELECT 1"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d auth_db && psql -U postgres -d auth_db -c \"SELECT 1 FROM pg_database WHERE datname = 'product_db'\" | grep -q 1 || psql -U postgres -d auth_db -c \"CREATE DATABASE product_db;\""]
       interval: 10s
       timeout: 5s
       retries: 5
     volumes:
-      - auth_db_data:/var/opt/mssql
+      - pg_db_data:/var/lib/postgresql/data
     networks:
       - inventory-network
 
-  # Microsserviço de Autenticação (Porta 8080)
   auth-service:
     build:
       context: ./auth-service
       dockerfile: Dockerfile
     container_name: auth-service
     ports:
-      - "8080:8080"
+      - "8082:8082"
     environment:
-      # URL JDBC corrigida para SQL Server (usando o DNS interno 'auth-db')
-      - SPRING_DATASOURCE_URL=jdbc:sqlserver://auth-db:1433;databaseName=master;encrypt=true;trustServerCertificate=true;
-      - SPRING_DATASOURCE_USERNAME=sa
-      - SPRING_DATASOURCE_PASSWORD=YourStrong@Password123
+      - DB_HOST=postgres-db
+      - DB_NAME=auth_db
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=SenhaSuperSegura123!
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
     depends_on:
-      auth-db:
+      postgres-db:
         condition: service_healthy
     networks:
       - inventory-network
 
-  # Backend-For-Frontend Web (Porta 8081)
-  bff-web:
+  inventory-control-system:
     build:
-      context: ./inventory-control-web-system
+      context: ./inventory-control-system
       dockerfile: Dockerfile
-    container_name: bff-web
+    container_name: inventory-control-system
     ports:
       - "8081:8081"
     environment:
-      - AUTH_SERVICE_URL=http://auth-service:8080
+      - DB_HOST=postgres-db
+      - DB_NAME=product_db
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=SenhaSuperSegura123!
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    networks:
+      - inventory-network
+
+  inventory-control-web-system:
+    build:
+      context: ./inventory-control-web-system
+      dockerfile: Dockerfile
+    container_name: inventory-control-web-system
+    ports:
+      - "8080:8080"
+    environment:
+      - AUTH_SERVICE_URL=http://auth-service:8082
+      - INVENTORY_CONTROL_SYSTEM_URL=http://inventory-control-system:8081
     depends_on:
       - auth-service
+      - inventory-control-system
     networks:
       - inventory-network
 
@@ -61,4 +77,4 @@ networks:
     driver: bridge
 
 volumes:
-  auth_db_data:
+  pg_db_data:
