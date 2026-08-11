@@ -6,14 +6,18 @@ import com.inventory.control.web.system.ports.in.product.UpdateStockUseCase;
 import com.inventory.control.web.system.ports.in.product.GetProductUseCase;
 import com.inventory.control.web.system.ports.in.authenticate.LoginUserUseCase;
 import com.inventory.control.web.system.ports.in.authenticate.RegisterUserUseCase;
-
+import com.inventory.control.web.system.ports.in.category.GetCategoryUseCase;
+import com.inventory.control.web.system.ports.in.category.PostCategoryUseCase;
+import com.inventory.control.web.system.ports.in.category.UpdateCategoryUseCase;
 import com.inventory.control.web.system.domain.service.product.PostProductService;
 import com.inventory.control.web.system.domain.service.product.GetProductService;
 import com.inventory.control.web.system.domain.service.product.UpdateProductService;
 import com.inventory.control.web.system.domain.service.product.UpdateStockService;
 import com.inventory.control.web.system.domain.service.authenticate.LoginUserService;
 import com.inventory.control.web.system.domain.service.authenticate.RegisterUserService;
-
+import com.inventory.control.web.system.domain.service.category.GetCategoryService;
+import com.inventory.control.web.system.domain.service.category.PostCategoryService;
+import com.inventory.control.web.system.domain.service.category.UpdateCategoryService;
 import com.inventory.control.web.system.ports.out.CategoryFeignPort;
 import com.inventory.control.web.system.ports.out.ProductFeignPort;
 import com.inventory.control.web.system.ports.out.AuthenticateFeignPort;
@@ -34,19 +38,20 @@ public class BeanConfig {
         return new RegisterUserService(authenticateFeignPort);
     }
 
-
     @Bean
     public GetProductUseCase getProductUseCase(ProductFeignPort productFeignPort) {
         return new GetProductService(productFeignPort);
     }
 
     @Bean
-    public PostProductUseCase postProductUseCase(ProductFeignPort productFeignPort, CategoryFeignPort categoryFeignPort) {
+    public PostProductUseCase postProductUseCase(ProductFeignPort productFeignPort,
+            CategoryFeignPort categoryFeignPort) {
         return new PostProductService(productFeignPort);
     }
 
     @Bean
-    public UpdateProductUseCase updateProductUseCase(ProductFeignPort productFeignPort, CategoryFeignPort categoryFeignPort) {
+    public UpdateProductUseCase updateProductUseCase(ProductFeignPort productFeignPort,
+            CategoryFeignPort categoryFeignPort) {
         return new UpdateProductService(productFeignPort);
     }
 
@@ -55,4 +60,18 @@ public class BeanConfig {
         return new UpdateStockService(productFeignPort);
     }
 
+    @Bean
+    public GetCategoryUseCase getCategoryUseCase(CategoryFeignPort CategoryFeignPort) {
+        return new GetCategoryService(CategoryFeignPort);
+    }
+
+    @Bean
+    public PostCategoryUseCase postCategoryUseCase(CategoryFeignPort categoryFeignPort) {
+        return new PostCategoryService(categoryFeignPort);
+    }
+
+    @Bean
+    public UpdateCategoryUseCase updateCategoryUseCase(CategoryFeignPort categoryFeignPort) {
+        return new UpdateCategoryService(categoryFeignPort);
+    }
 }
