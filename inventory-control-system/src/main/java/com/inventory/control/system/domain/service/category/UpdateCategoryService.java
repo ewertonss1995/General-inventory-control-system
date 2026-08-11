@@ -22,24 +22,25 @@ public class UpdateCategoryService implements UpdateCategoryUseCase {
     }
 
     @Override
-    public Category execute(Category category) {
-        if (Objects.isNull(category.getId())) {
+    public Category execute(Long id, Category category) {
+        if (Objects.isNull(id)) {
             log.warn("Falha na atualização: ID da categoria é nulo.");
             throw new BusinessException("O ID da categoria é obrigatório para atualização.");
         }
 
-        log.info("Iniciando atualização da categoria com ID: {}", category.getId());
+        log.info("Iniciando atualização da categoria com ID: {}", id);
 
-        Category existingCategory = categoryRepositoryPort.findById(category.getId())
+        Category existingCategory = categoryRepositoryPort.findById(id)
                 .orElseThrow(() -> {
-                    log.warn("Falha na atualização: Categoria não encontrada no banco para o ID '{}'.", category.getId());
-                    return new ResourceNotFoundException("Categoria não encontrada para o ID: " + category.getId());
+                    log.warn("Falha na atualização: Categoria não encontrada no banco para o ID '{}'.", id);
+                    return new ResourceNotFoundException("Categoria não encontrada para o ID: " + id);
                 });
 
-        log.debug("Categoria de ID {} validada com sucesso.", category.getId());
+        log.debug("Categoria de ID {} validada com sucesso.", existingCategory.getId());
 
         existingCategory.setDescription(category.getDescription());
         existingCategory.setName(category.getName());
+
         Category updatedCategory = categoryRepositoryPort.updateCategory(existingCategory);
 
         log.info("Categoria com ID '{}' atualizada com sucesso.", updatedCategory.getId());

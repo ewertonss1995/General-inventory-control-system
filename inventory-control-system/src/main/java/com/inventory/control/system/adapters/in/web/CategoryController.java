@@ -47,7 +47,7 @@ public class CategoryController {
     public ResponseEntity<CategoryResponse> createCategory(@RequestBody @Valid CategoryRequest request) {
         log.info("Requisição recebida para criar categoria: {}", request.name());
 
-        Category category = createCategoryUseCase.execute(new Category(request.name(),request.description()));
+        Category category = createCategoryUseCase.execute(toCategory(request));
 
         log.info("Categoria criada com sucesso. ID: {}", category.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(toCategoryResponse(category));
@@ -60,7 +60,7 @@ public class CategoryController {
 
         log.info("Requisição recebida para atualizar categoria com ID: {}", id);
 
-        Category category =  updateCategoryUseCase.execute(new Category(id, request.name(), request.description()));
+        Category category =  updateCategoryUseCase.execute(id, toCategory(request));
 
         log.info("Categoria com ID: {} atualizada com sucesso.", id);
         return ResponseEntity.ok(toCategoryResponse(category));
@@ -86,6 +86,10 @@ public class CategoryController {
 
         log.info("Categoria com ID: {} localizada com sucesso.", id);
         return ResponseEntity.ok(toCategoryResponse(category));
+    }
+
+    private Category toCategory(CategoryRequest request) {
+        return new Category(request.name(), request.description());
     }
 
     private CategoryResponse toCategoryResponse(Category category) {
