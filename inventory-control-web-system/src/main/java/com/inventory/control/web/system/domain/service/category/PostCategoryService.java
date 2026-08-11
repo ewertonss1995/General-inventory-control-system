@@ -4,8 +4,6 @@ import com.inventory.control.web.system.domain.model.Category;
 import com.inventory.control.web.system.ports.in.category.PostCategoryUseCase;
 import com.inventory.control.web.system.ports.out.CategoryFeignPort;
 
-import java.util.Objects;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

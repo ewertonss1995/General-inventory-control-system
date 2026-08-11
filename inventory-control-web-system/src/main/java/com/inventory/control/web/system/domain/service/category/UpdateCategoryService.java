@@ -1,12 +1,8 @@
 package com.inventory.control.web.system.domain.service.category;
 
-import com.inventory.control.web.system.domain.exception.BusinessException;
-import com.inventory.control.web.system.domain.exception.ResourceNotFoundException;
 import com.inventory.control.web.system.domain.model.Category;
 import com.inventory.control.web.system.ports.in.category.UpdateCategoryUseCase;
 import com.inventory.control.web.system.ports.out.CategoryFeignPort;
-
-import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
