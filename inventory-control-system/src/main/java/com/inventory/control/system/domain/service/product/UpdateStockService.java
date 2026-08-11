@@ -22,11 +22,11 @@ public class UpdateStockService implements UpdateStockUseCase {
     }
 
     @Override
-    public Product execute(UpdateStockInput input) {
+    public Product execute(String sku, UpdateStockInput input) {
         String formattedSku;
         
-        if(!Objects.isNull(input.sku())) {
-            formattedSku = input.sku().trim().toUpperCase();
+        if(!Objects.isNull(sku)) {
+            formattedSku = sku.trim().toUpperCase();
         } else {
             log.warn("Falha na atualização de estoque: SKU fornecido é nulo ou vazio.");
             throw new IllegalArgumentException("SKU não pode ser nulo ou vazio.");

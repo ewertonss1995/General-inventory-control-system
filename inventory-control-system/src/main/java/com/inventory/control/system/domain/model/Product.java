@@ -1,7 +1,6 @@
 package com.inventory.control.system.domain.model;
 
 import java.math.BigDecimal;
-import com.inventory.control.system.domain.model.Category;
 import com.inventory.control.system.domain.exception.BusinessException;
 
 public class Product {
@@ -12,7 +11,6 @@ public class Product {
     private BigDecimal price;
     private Integer quantity;
     private Category category;
-
 
     public Product(
         Long id, 

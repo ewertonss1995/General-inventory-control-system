@@ -4,5 +4,5 @@ import com.inventory.control.system.domain.model.Product;
 import com.inventory.control.system.domain.model.UpdateStockInput;
 
 public interface UpdateStockUseCase {
-    Product execute(UpdateStockInput input);
+    Product execute(String sku, UpdateStockInput input);
 }

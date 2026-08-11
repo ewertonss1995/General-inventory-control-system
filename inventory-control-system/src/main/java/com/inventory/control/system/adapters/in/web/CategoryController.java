@@ -2,8 +2,6 @@ package com.inventory.control.system.adapters.in.web;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +18,9 @@ import com.inventory.control.system.domain.model.Category;
 import com.inventory.control.system.ports.in.category.CreateCategoryUseCase;
 import com.inventory.control.system.ports.in.category.GetCategoryUseCase;
 import com.inventory.control.system.ports.in.category.UpdateCategoryUseCase;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import jakarta.validation.Valid;
 
