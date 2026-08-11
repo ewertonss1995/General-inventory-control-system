@@ -1,15 +1,15 @@
 package com.inventory.control.web.system.ports.out;
 
-import com.inventory.control.web.system.adapters.out.client.dto.request.InventoryProductStockRequest;
+import com.inventory.control.web.system.domain.model.UpdateStockInput;
 import com.inventory.control.web.system.domain.model.Product;
+import com.inventory.control.web.system.domain.model.UpdateStock;
+
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 public interface ProductFeignPort {
     Product saveProduct(Product product);
-    Product updateProduct(Product product);
-    Map<String, String> updateProductStock(String sku, InventoryProductStockRequest request);
+    Product updateProduct(String sku, Product product);
+    UpdateStock updateProductStock(String sku, UpdateStockInput input);
     List<Product> findAll();
-    Optional<Product> findBySku(String sku);
+    Product findBySku(String sku);
 }

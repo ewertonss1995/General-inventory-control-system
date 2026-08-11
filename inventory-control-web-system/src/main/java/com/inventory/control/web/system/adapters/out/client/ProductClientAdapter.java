@@ -5,17 +5,17 @@ import com.inventory.control.web.system.adapters.out.client.dto.request.Inventor
 import com.inventory.control.web.system.adapters.out.client.dto.response.InventoryProductResponse;
 import com.inventory.control.web.system.adapters.out.client.dto.response.InventorySaveProductResponse;
 import com.inventory.control.web.system.adapters.out.client.dto.response.InventoryUpdateStockResponse;
+import com.inventory.control.web.system.adapters.out.client.dto.enums.StockMovementType;
 import com.inventory.control.web.system.domain.model.Category;
 import com.inventory.control.web.system.domain.model.Product;
+import com.inventory.control.web.system.domain.model.UpdateStock;
+import com.inventory.control.web.system.domain.model.UpdateStockInput;
 import com.inventory.control.web.system.ports.out.ProductFeignPort;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,15 +33,15 @@ public class ProductClientAdapter implements ProductFeignPort {
     @Override
     public Product saveProduct(Product product) {
         log.debug("Iniciando processo de salvamento de produto: {}", product.getSku());
-        ResponseEntity<InventorySaveProductResponse> response = inventoryFeignClient.createProduct(productToInventoryProductRequest(product));
+        ResponseEntity<InventorySaveProductResponse> response = inventoryFeignClient.createProduct(toInventoryProductRequest(product));
         log.debug("Produto salvo com sucesso: {}", response.getBody());
         return inventorySaveProductResponseToProduct(response.getBody());
     }
 
     @Override
-    public Product updateProduct(Product product) {
+    public Product updateProduct(String sku, Product product) {
         log.debug("Iniciando processo de atualização de produto: {}", product.getSku());
-        ResponseEntity<InventorySaveProductResponse> response = inventoryFeignClient.updateProduct(product.getSku(), productToInventoryProductRequest(product));
+        ResponseEntity<InventorySaveProductResponse> response = inventoryFeignClient.updateProduct(sku, toInventoryProductRequest(product));
         log.debug("Produto atualizado com sucesso: {}", response.getBody());
         return inventorySaveProductResponseToProduct(response.getBody());
     }
@@ -51,30 +51,28 @@ public class ProductClientAdapter implements ProductFeignPort {
         log.debug("Iniciando processo de busca de todos os produtos");
         ResponseEntity<List<InventoryProductResponse>> response = inventoryFeignClient.getAllProducts();
         log.debug("Produtos encontrados: {}", response.getBody());
-        return inventoryProductResponseListToProductList(response.getBody());
+        return toProductList(response.getBody());
     }
     
     @Override
-    public Optional<Product> findBySku(String sku) {
+    public Product findBySku(String sku) {
         log.debug("Iniciando processo de busca de produto por SKU: {}", sku);
         ResponseEntity<InventoryProductResponse> response = inventoryFeignClient.getProductBySku(sku);
         log.debug("Produto encontrado: {}", response.getBody());
-        return Optional.ofNullable(inventoryProductResponseToProduct(response.getBody()));
+        return toProduct(response.getBody());
     }
 
     @Override
-    public Map<String, String> updateProductStock(String sku, InventoryProductStockRequest request) {
+    public UpdateStock updateProductStock(String sku, UpdateStockInput input) {
         log.debug("Iniciando processo de atualização de estoque do produto: {}", sku);
-        ResponseEntity<InventoryUpdateStockResponse> response = inventoryFeignClient.updateProductStock(sku, request);
-        InventoryUpdateStockResponse responseBody = response.getBody();
-        log.debug("Estoque do produto atualizado com sucesso: {}", responseBody);
-
-        Map<String, String> mapResponse = new HashMap<>();
-        mapResponse.put("Tipo de movimentação", responseBody.movementType());
-        mapResponse.put("Valor da quantidade alterado para", responseBody.quantity().toString());
-        mapResponse.put("Menssagem", responseBody.message());
+               
+        InventoryUpdateStockResponse responseBody = inventoryFeignClient.updateProductStock(
+            sku, toInventoryProductStockRequest(input))
+            .getBody();
         
-        return mapResponse;
+        log.debug("Estoque do produto atualizado com sucesso: {}", responseBody);
+        
+        return toUpdateStock(sku, responseBody);
     }
 
     private Product inventorySaveProductResponseToProduct(InventorySaveProductResponse productResponse) {
@@ -85,10 +83,10 @@ public class ProductClientAdapter implements ProductFeignPort {
             productResponse.description(),
             productResponse.price(),
             productResponse.quantity(),
-            new Category(productResponse.categoryName(), null));
+            new Category(productResponse.categoryName()));
     }
 
-    private Product inventoryProductResponseToProduct(InventoryProductResponse productResponse) {
+    private Product toProduct(InventoryProductResponse productResponse) {
         return new Product(
             productResponse.id(),
             productResponse.sku(), 
@@ -104,14 +102,13 @@ public class ProductClientAdapter implements ProductFeignPort {
         );
     }
 
-    private List<Product> inventoryProductResponseListToProductList(List<InventoryProductResponse> productListResponse) {
+    private List<Product> toProductList(List<InventoryProductResponse> productListResponse) {
         return productListResponse.stream()
-        .map(this::inventoryProductResponseToProduct)
+        .map(this::toProduct)
         .toList();
     }
 
-
-    private InventoryProductRequest productToInventoryProductRequest(Product product) {
+    private InventoryProductRequest toInventoryProductRequest(Product product) {
         return new InventoryProductRequest(
             product.getSku(), 
             product.getName(), 
@@ -119,6 +116,16 @@ public class ProductClientAdapter implements ProductFeignPort {
             product.getPrice(), 
             product.getQuantity(), 
             product.getCategory().getId());        
+    }
+
+    private InventoryProductStockRequest toInventoryProductStockRequest(UpdateStockInput input) {
+        return new InventoryProductStockRequest(
+            input.quantity(), 
+            StockMovementType.valueOf(input.movementType().toUpperCase()));
+    }
+
+    private UpdateStock toUpdateStock(String sku, InventoryUpdateStockResponse response) {
+        return new UpdateStock(sku, response.quantity(), response.movementType(), response.message());
     }
 
 }

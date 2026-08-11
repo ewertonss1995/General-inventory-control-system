@@ -42,12 +42,12 @@ public class BeanConfig {
 
     @Bean
     public PostProductUseCase postProductUseCase(ProductFeignPort productFeignPort, CategoryFeignPort categoryFeignPort) {
-        return new PostProductService(productFeignPort, categoryFeignPort);
+        return new PostProductService(productFeignPort);
     }
 
     @Bean
     public UpdateProductUseCase updateProductUseCase(ProductFeignPort productFeignPort, CategoryFeignPort categoryFeignPort) {
-        return new UpdateProductService(productFeignPort, categoryFeignPort);
+        return new UpdateProductService(productFeignPort);
     }
 
     @Bean

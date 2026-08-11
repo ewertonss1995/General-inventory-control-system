@@ -1,6 +1,5 @@
 package com.inventory.control.web.system.domain.service.category;
 
-import com.inventory.control.web.system.domain.exception.BusinessException;
 import com.inventory.control.web.system.domain.model.Category;
 import com.inventory.control.web.system.ports.in.category.PostCategoryUseCase;
 import com.inventory.control.web.system.ports.out.CategoryFeignPort;
@@ -22,7 +21,8 @@ public class PostCategoryService implements PostCategoryUseCase {
 
     @Override
     public Category execute(Category category) {
-        log.info("Iniciando processo de criação de categoria. Nome: {}", category.getName());
+        log.info("Executando caso de uso para criação de categoria. Nome: {}", category.getName());
+
         Category savedCategory = categoryFeignPort.saveCategory(category);
 
         log.info("Categoria com Nome '{}' criada com sucesso. ID gerado: {}", savedCategory.getName(), savedCategory.getId());

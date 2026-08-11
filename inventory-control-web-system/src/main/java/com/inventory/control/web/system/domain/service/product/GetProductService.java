@@ -1,7 +1,5 @@
 package com.inventory.control.web.system.domain.service.product;
 
-import com.inventory.control.web.system.domain.exception.BusinessException;
-import com.inventory.control.web.system.domain.exception.ResourceNotFoundException;
 import com.inventory.control.web.system.domain.model.Product;
 import com.inventory.control.web.system.ports.in.product.GetProductUseCase;
 import com.inventory.control.web.system.ports.out.ProductFeignPort;
@@ -24,29 +22,24 @@ public class GetProductService implements GetProductUseCase {
     public List<Product> findAll() {
         log.info("Executando caso de uso para listar todos os produtos.");
 
-        // List<Product> products = productFeignPort.findAll();
+        List<Product> products = productFeignPort.findAll();
 
-        // log.info("Consulta de produtos concluída. Total retornado: {}", products.size());
+        log.info("Consulta de produtos concluída. Total retornado: {}", products.size());
+        
         return null;
     }
 
     @Override
-    public Product findBySku(String sku) {
-        if (sku == null || sku.isBlank()) {
-            log.warn("Tentativa de busca com SKU nulo ou em branco. SKU recebido: '{}'", sku);
-            throw new BusinessException("O SKU informado para busca não pode ser nulo ou vazio.");
-        }
-
-        String formattedSku = sku.trim().toUpperCase();
+    public Product findBySku(String sku) { 
+        String formattedSku = sku != null ? sku.trim().toUpperCase() : null;
+        
         log.info("Executando caso de uso para buscar produto pelo SKU: {}", formattedSku);
 
-        // return productFeignPort.findBySku(formattedSku)
-        //         .orElseThrow(() -> {
-        //             log.warn("Falha na busca de produto: SKU '{}' não encontrado.", formattedSku);
-        //             return new ResourceNotFoundException("Produto não encontrado para o SKU: " + formattedSku);
-        //         });
+        Product product = productFeignPort.findBySku(formattedSku);
+        
+        log.info("Consulta de produto SKU '{}' concluída.", product.getSku());
 
-        return null;
+        return product;
                 
     }
 }

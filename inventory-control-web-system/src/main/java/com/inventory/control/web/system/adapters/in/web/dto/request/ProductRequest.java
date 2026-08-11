@@ -1,15 +1,17 @@
 package com.inventory.control.web.system.adapters.in.web.dto.request;
 
-import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 
-import java.math.BigDecimal;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public record ProductRequest(
-    String sku,
-    String name,
-    String description,
-    BigDecimal price,
-    Integer quantity,
-    Long categoryId
-) {}
+        @NotBlank(message = "SKU é obrigatório") String sku,
+        @NotBlank(message = "Nome é obrigatório") String name,
+        String description,
+        @NotNull(message = "Preço é obrigatório") @DecimalMin("0.0") BigDecimal price,
+        @NotNull(message = "Quantidade é obrigatória") @Min(0) Integer quantity,
+        @NotNull(message = "Id da categoria é obrigatório") Long categoryId) {
+}

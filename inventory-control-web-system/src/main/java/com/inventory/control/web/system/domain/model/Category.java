@@ -16,6 +16,8 @@ public class Category {
         this.description = description;
     }
 
+    public Category(String name) {this.name = name;}
+
     public Category(Long id) { this.id = id;}
 
     public Long getId() { return id; }
