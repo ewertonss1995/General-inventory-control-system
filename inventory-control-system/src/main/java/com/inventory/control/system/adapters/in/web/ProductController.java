@@ -19,7 +19,8 @@ import com.inventory.control.system.adapters.in.web.dto.response.ProductResponse
 import com.inventory.control.system.adapters.in.web.dto.response.SaveProductResponse;
 import com.inventory.control.system.adapters.in.web.dto.response.UpdateStockResponse;
 import com.inventory.control.system.adapters.in.web.dto.response.CategoryResponse;
-import com.inventory.control.system.adapters.in.web.dto.request.ProductRequest;
+import com.inventory.control.system.adapters.in.web.dto.request.CreateProductRequest;
+import com.inventory.control.system.adapters.in.web.dto.request.UpdateProductRequest;
 import com.inventory.control.system.adapters.in.web.dto.request.UpdateStockRequest;
 import com.inventory.control.system.domain.model.Product;
 import com.inventory.control.system.domain.model.Category;
@@ -52,20 +53,10 @@ public class ProductController {
         }
 
         @PostMapping("/save")
-        public ResponseEntity<SaveProductResponse> createProduct(@RequestBody @Valid ProductRequest request) {
-                log.info("Requisição recebida para criar produto com SKU: {}", request.sku());
+        public ResponseEntity<SaveProductResponse> createProduct(@RequestBody @Valid CreateProductRequest request) {
+                log.info("Requisição recebida para criar produto: {}", request.sku());
 
-                Product product = new Product(
-                                request.sku(),
-                                request.name(),
-                                request.description(),
-                                request.price(),
-                                request.quantity(),
-                                new Category(request.categoryId(), null, null)
-
-                );
-
-                Product productCreated = createProductUseCase.execute(product);
+                Product productCreated = createProductUseCase.execute(toProduct(request));
 
                 log.info("Produto com SKU: {} criado com sucesso. ID: {}", productCreated.getSku(),
                                 productCreated.getId());
@@ -75,11 +66,11 @@ public class ProductController {
         @PutMapping("/update/{sku}")
         public ResponseEntity<SaveProductResponse> updateProduct(
                         @PathVariable String sku,
-                        @RequestBody @Valid ProductRequest request) {
+                        @RequestBody @Valid UpdateProductRequest request) {
 
                 log.info("Requisição recebida para atualizar produto com SKU: {}", sku);
 
-                Product productUpdated = updateProductUseCase.execute(toProduct(sku, request));
+                Product productUpdated = updateProductUseCase.execute(sku, toProduct(request));
 
                 log.info("Produto com SKU: {} atualizado com sucesso.", sku);
                 return ResponseEntity.ok(toSaveProductResponse(productUpdated));
@@ -135,9 +126,19 @@ public class ProductController {
                 return new UpdateStockInput(request.quantity(), request.movementType());
         }
 
-        private Product toProduct(String sku, ProductRequest request) {
+        private Product toProduct(UpdateProductRequest request) {
                 return new Product(
-                                sku,
+                                request.name(),
+                                request.description(),
+                                request.price(),
+                                request.quantity(),
+                                new Category(request.categoryId()));
+
+        }
+
+        private Product toProduct(CreateProductRequest request) {
+                return new Product(
+                                request.sku(),
                                 request.name(),
                                 request.description(),
                                 request.price(),
