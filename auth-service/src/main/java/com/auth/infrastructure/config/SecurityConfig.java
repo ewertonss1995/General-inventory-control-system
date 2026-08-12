@@ -1,24 +1,50 @@
 package com.auth.infrastructure.config;
 
-import java.util.Arrays;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
+import com.auth.infrastructure.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private Environment environment;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        // 1. Liberar endpoints de Login, Cadastro, Public Key e Swagger
+                        .requestMatchers("/v1/auth/**", "/actuator/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+
+                        // // 2. Se houver rotas internas protegidas no Auth-Service (ex: Gestão de Usuários)
+                        // .requestMatchers(HttpMethod.GET, "/v1/users/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_MANAGER")
+                        // .requestMatchers(HttpMethod.POST, "/v1/users/**").hasAuthority("ROLE_ADMIN")
+                        // .requestMatchers(HttpMethod.DELETE, "/v1/users/**").hasAuthority("ROLE_ADMIN")
+
+                        .anyRequest().authenticated()
+                )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -26,29 +52,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        boolean isDevProfile = Arrays.asList(environment.getActiveProfiles()).contains("dev");
-
-        return http
-            .csrf(csrf -> csrf.disable()) // Desabilita CSRF
-            .authorizeHttpRequests(authorize -> {
-                // ✅ Executa toH2Console() APENAS se o perfil ativo for "dev"
-                if (isDevProfile) {
-                    authorize.requestMatchers(PathRequest.toH2Console()).permitAll();
-                }
-
-                authorize
-                    .requestMatchers("/auth/login", "/auth/register").permitAll()
-                    .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                    .requestMatchers("/actuator/**").permitAll()
-                    .anyRequest().authenticated();
-            })
-            .headers(headers -> {
-                // ✅ Permite frames do H2 apenas em ambiente de dev
-                if (isDevProfile) {
-                    headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin);
-                }
-            })
-            .build();
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
     }
 }

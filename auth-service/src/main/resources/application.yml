@@ -4,8 +4,8 @@ server:
 spring:
   application:
     name: auth-service
-  # profiles:
-  #   active: ${SPRING_PROFILES_ACTIVE:dev}
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
 
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:5432/${DB_NAME:auth_db}
@@ -42,6 +42,7 @@ springdoc:
 jwt:
   private-key-path: classpath:certs/app.key
   public-key-path: classpath:certs/app.pub
+  expiration-ms: 86400000
 
 logging:
   level:
