@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
     configuration = FeignConfig.class)
 public interface AuthFeignClient {
 
-    @PostMapping("/auth/login")
+    @PostMapping("/v1/auth/login")
     ResponseEntity<TokenResponse> login(@RequestBody LoginUser loginUser);
 
-    @PostMapping("/auth/register")
+    @PostMapping("/v1/auth/register")
     ResponseEntity<Void> register(@RequestBody RegisterUser registerUser);
 }
