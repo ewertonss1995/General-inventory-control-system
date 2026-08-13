@@ -32,15 +32,19 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // 1. Liberar endpoints de Login, Cadastro, Public Key e Swagger
-                        .requestMatchers("/v1/auth/**", "/actuator/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers(
+                            "/v1/auth/**", "/actuator/**", "/h2-console/**",
+                            "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html" 
+                            ).permitAll()
 
-                        // // 2. Se houver rotas internas protegidas no Auth-Service (ex: Gestão de Usuários)
+                        // 2. Se houver rotas internas protegidas no Auth-Service (ex: Gestão de Usuários)
                         // .requestMatchers(HttpMethod.GET, "/v1/users/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_MANAGER")
                         // .requestMatchers(HttpMethod.POST, "/v1/users/**").hasAuthority("ROLE_ADMIN")
                         // .requestMatchers(HttpMethod.DELETE, "/v1/users/**").hasAuthority("ROLE_ADMIN")
 
                         .anyRequest().authenticated()
                 )
+                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
