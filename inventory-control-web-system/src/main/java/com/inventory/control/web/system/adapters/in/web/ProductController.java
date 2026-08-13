@@ -118,7 +118,7 @@ public class ProductController {
 
     private Product toProduct(ProductRequest request) {
         return new Product(
-                request.sku() != null ? request.sku() : null,
+                request.sku(),
                 request.name(),
                 request.description(),
                 request.price(),

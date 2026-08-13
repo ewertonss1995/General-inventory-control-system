@@ -13,7 +13,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity // Permite o uso de @PreAuthorize se necessário
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -29,14 +29,11 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/h2-console/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/v1/products/**", "/v1/categories/**")
-                        .hasAnyAuthority("ROLE_ADMIN", "ROLE_MANAGER", "ROLE_OPERATOR")
-                        .requestMatchers(HttpMethod.POST, "/v1/products/**", "/v1/categories/**")
-                        .hasAnyAuthority("ROLE_ADMIN", "ROLE_MANAGER")
+                        .requestMatchers(HttpMethod.GET, "/v1/products/**", "/v1/categories/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_MANAGER", "ROLE_OPERATOR")
+                        .requestMatchers(HttpMethod.POST, "/v1/products/**", "/v1/categories/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_MANAGER")
                         .requestMatchers(HttpMethod.PUT, "/v1/products/**", "/v1/categories/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_MANAGER")
-                        .requestMatchers(HttpMethod.PATCH, "/v1/products/**", "/v1/categories/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_MANAGER")
-                        .requestMatchers(HttpMethod.DELETE, "/v1/products/**", "/v1/categories/**")
-                        .hasAuthority("ROLE_MANAGER")
+                        .requestMatchers(HttpMethod.PATCH, "/v1/products/*/stock").hasAnyAuthority("ROLE_ADMIN", "ROLE_MANAGER")
+                        .requestMatchers(HttpMethod.DELETE, "/v1/products/**", "/v1/categories/**").hasAuthority("ROLE_MANAGER")
                         .anyRequest().authenticated()
                 )
                 .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))

@@ -19,8 +19,7 @@ import com.inventory.control.system.adapters.in.web.dto.response.ProductResponse
 import com.inventory.control.system.adapters.in.web.dto.response.SaveProductResponse;
 import com.inventory.control.system.adapters.in.web.dto.response.UpdateStockResponse;
 import com.inventory.control.system.adapters.in.web.dto.response.CategoryResponse;
-import com.inventory.control.system.adapters.in.web.dto.request.CreateProductRequest;
-import com.inventory.control.system.adapters.in.web.dto.request.UpdateProductRequest;
+import com.inventory.control.system.adapters.in.web.dto.request.ProductRequest;
 import com.inventory.control.system.adapters.in.web.dto.request.UpdateStockRequest;
 import com.inventory.control.system.domain.model.Product;
 import com.inventory.control.system.domain.model.Category;
@@ -53,7 +52,7 @@ public class ProductController {
         }
 
         @PostMapping("/save")
-        public ResponseEntity<SaveProductResponse> createProduct(@RequestBody @Valid CreateProductRequest request) {
+        public ResponseEntity<SaveProductResponse> createProduct(@RequestBody @Valid ProductRequest request) {
                 log.info("Requisição recebida para criar produto: {}", request.sku());
 
                 Product productCreated = createProductUseCase.execute(toProduct(request));
@@ -66,7 +65,7 @@ public class ProductController {
         @PutMapping("/update/{sku}")
         public ResponseEntity<SaveProductResponse> updateProduct(
                         @PathVariable String sku,
-                        @RequestBody @Valid UpdateProductRequest request) {
+                        @RequestBody @Valid ProductRequest request) {
 
                 log.info("Requisição recebida para atualizar produto com SKU: {}", sku);
 
@@ -126,17 +125,7 @@ public class ProductController {
                 return new UpdateStockInput(request.quantity(), request.movementType());
         }
 
-        private Product toProduct(UpdateProductRequest request) {
-                return new Product(
-                                request.name(),
-                                request.description(),
-                                request.price(),
-                                request.quantity(),
-                                new Category(request.categoryId()));
-
-        }
-
-        private Product toProduct(CreateProductRequest request) {
+        private Product toProduct(ProductRequest request) {
                 return new Product(
                                 request.sku(),
                                 request.name(),

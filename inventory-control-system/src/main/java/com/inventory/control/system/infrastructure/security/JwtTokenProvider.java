@@ -59,21 +59,24 @@ public class JwtTokenProvider {
     public Collection<? extends GrantedAuthority> getAuthoritiesFromToken(String token) {
         Claims claims = getClaims(token);
 
-        // 1. Tenta extrair da claim "roles" (Lista de Strings)
         List<?> roles = claims.get("roles", List.class);
         if (roles != null && !roles.isEmpty()) {
             return roles.stream()
-                    .map(Object::toString)
-                    .map(SimpleGrantedAuthority::new)
-                    .toList();
+                .map(Object::toString)
+                .map(String::trim)
+                .map(r -> r.startsWith("ROLE_") ? r : "ROLE_" + r)
+                .map(SimpleGrantedAuthority::new)
+                .toList();
         }
 
-        // 2. Fallback: tenta extrair da claim "scope" (String separada por espaços)
         String scope = claims.get("scope", String.class);
         if (scope != null && !scope.isBlank()) {
             return Arrays.stream(scope.split(" "))
-                    .map(SimpleGrantedAuthority::new)
-                    .toList();
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .map(r -> r.startsWith("ROLE_") ? r : "ROLE_" + r)
+                .map(SimpleGrantedAuthority::new)
+                .toList();
         }
 
         return Collections.emptyList();

@@ -12,6 +12,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import com.auth.domain.model.User;
+import com.auth.domain.model.Role;
 import com.auth.ports.out.JwtTokenProviderPort;
 
 import java.io.InputStream;
@@ -51,14 +52,11 @@ public class JwtTokenProvider implements JwtTokenProviderPort {
         this.privateKey = loadPrivateKey(privateKeyResource);
         this.publicKey = loadPublicKey(publicKeyResource);
     }
-
-    /**
-     * Implementação do contrato da porta recebendo a Entidade de Domínio User
-     */
+    
     @Override
     public String generateToken(User user) {
         List<String> roles = user.getRoles().stream()
-                .map(Object::toString)
+                .map(Role::getName)
                 .map(roleName -> roleName.startsWith("ROLE_") ? roleName : "ROLE_" + roleName)
                 .toList();
 

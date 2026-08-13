@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public record CreateProductRequest(
+public record ProductRequest(
     @NotBlank(message = "Sku é obrigatório") String sku,
     @NotBlank(message = "Nome é obrigatório") String name,
     String description,
