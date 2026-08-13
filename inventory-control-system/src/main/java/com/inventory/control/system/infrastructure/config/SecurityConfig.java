@@ -28,28 +28,18 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Endpoints públicos (Swagger, Actuator, Health Checks)
-                        .requestMatchers("/actuator/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-
-                        // 1. GETs liberados para ADMIN, MANAGER e OPERATOR
+                        .requestMatchers("/actuator/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/h2-console/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/v1/products/**", "/v1/categories/**")
                         .hasAnyAuthority("ROLE_ADMIN", "ROLE_MANAGER", "ROLE_OPERATOR")
-
-                        // 2. POSTs liberados para ADMIN e MANAGER
                         .requestMatchers(HttpMethod.POST, "/v1/products/**", "/v1/categories/**")
                         .hasAnyAuthority("ROLE_ADMIN", "ROLE_MANAGER")
-
-                        // 3. PUTs/PATCHs liberados para ADMIN e MANAGER (mesmo nível de escrita do POST)
                         .requestMatchers(HttpMethod.PUT, "/v1/products/**", "/v1/categories/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_MANAGER")
                         .requestMatchers(HttpMethod.PATCH, "/v1/products/**", "/v1/categories/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_MANAGER")
-
-                        // 4. DELETEs liberados exclusivamente para MANAGER
                         .requestMatchers(HttpMethod.DELETE, "/v1/products/**", "/v1/categories/**")
                         .hasAuthority("ROLE_MANAGER")
-
-                        // Qualquer outra rota exige autenticação
                         .anyRequest().authenticated()
                 )
+                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
