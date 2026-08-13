@@ -1,7 +1,6 @@
 package com.inventory.control.web.system.infrastructure.security;
 
 import jakarta.annotation.PostConstruct;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.security.core.GrantedAuthority;
@@ -23,9 +22,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-@Slf4j
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Component
 public class JwtTokenProvider {
+    
+    private static final Logger log = LoggerFactory.getLogger(JwtTokenProvider.class);
 
     @Value("${jwt.public-key-path}")
     private Resource publicKeyResource;
