@@ -26,7 +26,7 @@ public class GetProductService implements GetProductUseCase {
 
         log.info("Consulta de produtos concluída. Total retornado: {}", products.size());
         
-        return null;
+        return products;
     }
 
     @Override

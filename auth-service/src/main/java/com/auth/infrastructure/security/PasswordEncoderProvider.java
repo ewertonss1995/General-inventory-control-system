@@ -1,6 +1,7 @@
-package com.auth.adapters.out;
+package com.auth.infrastructure.security;
 
 import com.auth.ports.out.PasswordEncoderPort;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import com.auth.adapters.out.exception.PasswordEncryptionException;
@@ -9,13 +10,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Component
-public class PasswordEncoderAdapter implements PasswordEncoderPort {
+public class PasswordEncoderProvider implements PasswordEncoderPort {
 
-    private static final Logger log = LoggerFactory.getLogger(PasswordEncoderAdapter.class);
+    private static final Logger log = LoggerFactory.getLogger(PasswordEncoderProvider.class);
 
     private final PasswordEncoder passwordEncoder;
 
-    public PasswordEncoderAdapter(PasswordEncoder passwordEncoder) {
+    public PasswordEncoderProvider(PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -51,4 +52,3 @@ public class PasswordEncoderAdapter implements PasswordEncoderPort {
         }
     }
 }
-

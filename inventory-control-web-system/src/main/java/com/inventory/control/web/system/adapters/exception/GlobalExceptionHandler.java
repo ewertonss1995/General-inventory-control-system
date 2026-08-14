@@ -7,6 +7,7 @@ import com.inventory.control.web.system.domain.exception.ResourceNotFoundExcepti
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -93,7 +94,7 @@ public class GlobalExceptionHandler {
         ErrorResponse error = ErrorResponse.ofValidation(
                 status.value(),
                 status.getReasonPhrase(),
-                "Erro na validação dos campos informados.",
+                "Erro na validação dos campos informados. " + ex.getMessage(),
                 request.getRequestURI(),
                 fieldErrors
         );
@@ -101,19 +102,34 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(error);
     }
 
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidJson(HttpMessageNotReadableException ex, HttpServletRequest request){
+        log.warn("Erro de validação do corpo da requisição na rota {}: ", request.getRequestURI(), ex);
+
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        ErrorResponse error = ErrorResponse.of(
+                status.value(),
+                status.getReasonPhrase(),
+                "Corpo da requisição inválido: " + ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(status).body(error);
+        }
+
     /**
      * Captura qualquer exceção não tratada (ex: NullPointerException, falhas de infraestrutura).
      * Retorna HTTP 500 Internal Server Error protegendo os detalhes sensíveis do backend.
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleUncaughtException(Exception ex, HttpServletRequest request) {
-        log.error("Erro interno não tratado no BFF na rota {}: ", request.getRequestURI(), ex);
+        log.warn("Erro interno não tratado no BFF na rota {}: ", request.getRequestURI(), ex);
 
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         ErrorResponse error = ErrorResponse.of(
                 status.value(),
                 status.getReasonPhrase(),
-                "Ocorreu um erro interno no sistema. Por favor, tente novamente mais tarde.",
+                "Ocorreu um erro interno no sistema. Por favor, tente novamente mais tarde. " + ex.getMessage(),
                 request.getRequestURI()
         );
 

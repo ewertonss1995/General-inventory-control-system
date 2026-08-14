@@ -12,8 +12,8 @@ import org.springframework.context.annotation.Configuration;
 
 import com.auth.ports.out.UserRepositoryPort;
 import com.auth.ports.out.RoleRepositoryPort;
+import com.auth.ports.out.JwtTokenProviderPort;
 import com.auth.ports.out.PasswordEncoderPort;
-import com.auth.ports.out.TokenProviderPort;
 
 @Configuration
 public class BeanConfig {
@@ -44,8 +44,8 @@ public class BeanConfig {
     }
 
     @Bean
-    public TokenUseCase tokenUseCase(TokenProviderPort tokenProviderPort) {
-        return new TokenService(tokenProviderPort);
+    public TokenUseCase tokenUseCase(JwtTokenProviderPort jwtTokenProviderPort) {
+        return new TokenService(jwtTokenProviderPort);
     }
 
 }

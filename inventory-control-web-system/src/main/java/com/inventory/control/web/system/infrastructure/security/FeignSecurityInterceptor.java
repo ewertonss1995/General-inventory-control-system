@@ -5,8 +5,10 @@ import feign.RequestTemplate;
 import org.slf4j.MDC;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
+@Component
 public class FeignSecurityInterceptor implements RequestInterceptor {
 
     private static final String AUTHORIZATION_HEADER = "Authorization";
@@ -17,23 +19,15 @@ public class FeignSecurityInterceptor implements RequestInterceptor {
     @Override
     public void apply(RequestTemplate template) {
         String activeTraceId = MDC.get(TRACE_ID_KEY);
-        if (activeTraceId != null && !activeTraceId.isBlank()) {
+        if (StringUtils.hasText(activeTraceId)) {
             template.header(TRACE_ID_HEADER, activeTraceId);
         }
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication != null && authentication.isAuthenticated()) {
-            Jwt jwt = null;
-
-            if (authentication.getPrincipal() instanceof Jwt principalJwt) {
-                jwt = principalJwt;
-            } else if (authentication.getCredentials() instanceof Jwt credentialsJwt) {
-                jwt = credentialsJwt;
-            }
-
-            if (jwt != null) {
-                template.header(AUTHORIZATION_HEADER, String.format("%s %s", BEARER_TOKEN_TYPE, jwt.getTokenValue()));
+        if (authentication != null && authentication.getCredentials() instanceof String token) {
+            if (StringUtils.hasText(token)) {
+                template.header(AUTHORIZATION_HEADER, String.format("%s %s", BEARER_TOKEN_TYPE, token));
             }
         }
     }

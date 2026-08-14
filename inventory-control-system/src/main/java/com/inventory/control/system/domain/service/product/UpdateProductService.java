@@ -24,19 +24,18 @@ public class UpdateProductService implements UpdateProductUseCase {
     }
 
     @Override
-    public Product execute(Product product) {
-        if (product.getSku() == null || product.getSku().isBlank()) {
+    public Product execute(String sku, Product product) {
+        if (sku == null || sku.isBlank()) {
             log.warn("Falha na atualização: SKU informado é nulo ou vazio.");
             throw new BusinessException("O SKU do produto é obrigatório para atualização.");
         }
 
         if (product.getCategory() == null || product.getCategory().getId() == null) {
-            log.warn("Falha na atualização do produto SKU '{}': Categoria ou ID da categoria é nulo.",
-                    product.getSku());
+            log.warn("Falha na atualização do produto SKU '{}': Categoria ou ID da categoria é nulo.", sku);
             throw new BusinessException("É necessário informar uma categoria válida para atualizar o produto.");
         }
 
-        String formattedSku = product.getSku().trim().toUpperCase();
+        String formattedSku = sku.trim().toUpperCase();
 
         log.info("Iniciando atualização do produto com SKU: {} | Nova Categoria ID: {}",
                 formattedSku, product.getCategory().getId());

@@ -1,14 +1,15 @@
-package com.inventory.control.system.infrastructure.security;
+package com.inventory.control.web.system.infrastructure.security;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -26,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 @Component
 public class JwtTokenProvider {
-
+    
     private static final Logger log = LoggerFactory.getLogger(JwtTokenProvider.class);
 
     @Value("${jwt.public-key-path}")
@@ -47,7 +48,7 @@ public class JwtTokenProvider {
                     .parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            log.warn("Falha na validação do token JWT na API Core: {}", e.getMessage());
+            log.warn("Falha na validação do token JWT no BFF: {}", e.getMessage());
             return false;
         }
     }

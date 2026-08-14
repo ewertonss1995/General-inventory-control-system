@@ -1,21 +1,19 @@
 package com.auth.domain.service;
 
 import com.auth.ports.in.TokenUseCase;
-import com.auth.ports.out.TokenProviderPort;
+import com.auth.ports.out.JwtTokenProviderPort;
 import com.auth.domain.model.User;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Set;
-
 public class TokenService implements TokenUseCase {
 
     private static final Logger log = LoggerFactory.getLogger(TokenService.class);
 
-    private final TokenProviderPort tokenProviderPort;
+    private final JwtTokenProviderPort tokenProviderPort;
 
-    public TokenService(TokenProviderPort tokenProviderPort) {
+    public TokenService(JwtTokenProviderPort tokenProviderPort) {
         this.tokenProviderPort = tokenProviderPort;
     }
 
