@@ -1,0 +1,881 @@
+{
+  "info": {
+    "name": "Inventory Control System",
+    "description": null,
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "BFF",
+      "item": [
+        {
+          "name": "Auth",
+          "item": [
+            {
+              "name": "Create user",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "auth": {
+                  "type": "noauth"
+                },
+                "description": "",
+                "url": {
+                  "raw": "{{bff-host}}/api/v1/auth/register",
+                  "protocol": "",
+                  "host": [
+                    "{{bff-host}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "register"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"username\": \"operador2\",\n  \"email\": \"operador2@exemplo.com\",\n  \"password\": \"123456\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Login user",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "auth": {
+                  "type": "noauth"
+                },
+                "description": "",
+                "url": {
+                  "raw": "{{bff-host}}/api/v1/auth/login",
+                  "protocol": "",
+                  "host": [
+                    "{{bff-host}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "login"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"usernameOrEmail\": \"admin\",\n  \"password\": \"123456\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {},
+                    "exec": [
+                      "// Tests",
+                      "const jsonData = pm.response.body;",
+                      "",
+                      "pm.environment.set(\"accessToken\", jsonData.accessToken.trim());"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Api Core",
+          "item": [
+            {
+              "name": "Products",
+              "item": [
+                {
+                  "name": "Get All Products",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{accessToken}}",
+                        "description": "",
+                        "disabled": true,
+                        "type": "default"
+                      }
+                    ],
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": {
+                        "key": "token",
+                        "value": "{{accessToken}}",
+                        "type": "string"
+                      }
+                    },
+                    "description": "",
+                    "url": {
+                      "raw": "{{bff-host}}/api/v1/products",
+                      "protocol": "",
+                      "host": [
+                        "{{bff-host}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "products"
+                      ],
+                      "query": [],
+                      "variable": []
+                    }
+                  },
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {},
+                        "exec": [
+                          "// Tests",
+                          "console.log(\"Token enviado: \", pm.environment.get(\"accessToken\"));"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "Get Product By Sku",
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": {
+                        "key": "token",
+                        "value": "{{accessToken}}",
+                        "type": "string"
+                      }
+                    },
+                    "description": "",
+                    "url": {
+                      "raw": "{{bff-host}}/api/v1/products/{{sku}}",
+                      "protocol": "",
+                      "host": [
+                        "{{bff-host}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "products",
+                        "{{sku}}"
+                      ],
+                      "query": [],
+                      "variable": []
+                    }
+                  }
+                },
+                {
+                  "name": "Patch Stock",
+                  "request": {
+                    "method": "PATCH",
+                    "header": [],
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": {
+                        "key": "token",
+                        "value": "{{accessToken}}",
+                        "type": "string"
+                      }
+                    },
+                    "description": "",
+                    "url": {
+                      "raw": "{{bff-host}}/api/v1/products/{{sku}}/stock",
+                      "protocol": "",
+                      "host": [
+                        "{{bff-host}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "products",
+                        "{{sku}}",
+                        "stock"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"quantity\": 2,\n  \"movementType\": \"OUT\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "Save Product",
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": {
+                        "key": "token",
+                        "value": "{{accessToken}}",
+                        "type": "string"
+                      }
+                    },
+                    "description": "",
+                    "url": {
+                      "raw": "{{bff-host}}/api/v1/products/save",
+                      "protocol": "",
+                      "host": [
+                        "{{bff-host}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "products",
+                        "save"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"sku\": \"{{sku}}\",\n  \"name\": \"Mouse Sem Fio Logitech MX Master 5S\",\n  \"description\": \"Mouse ergonômico de alta precisão com sensor de 8000 DPI e clique silencioso\",\n  \"price\": 499.90,\n  \"quantity\": 15,\n  \"categoryId\": 2\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "Update Product",
+                  "request": {
+                    "method": "PUT",
+                    "header": [],
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": {
+                        "key": "token",
+                        "value": "{{accessToken}}",
+                        "type": "string"
+                      }
+                    },
+                    "description": "",
+                    "url": {
+                      "raw": "{{bff-host}}/api/v1/products/update/{{sku}}",
+                      "protocol": "",
+                      "host": [
+                        "{{bff-host}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "products",
+                        "update",
+                        "{{sku}}"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"sku\": \"{{sku}}\",\n  \"name\": \"Mouse Com Fio Logitech MX Master 5S\",\n  \"description\": \"Mouse ergonômico de alta precisão com sensor de 8000 DPI e clique silencioso\",\n  \"price\": 499.90,\n  \"quantity\": 15,\n  \"categoryId\": 2\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Categories",
+              "item": [
+                {
+                  "name": "Get All Categories",
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": {
+                        "key": "token",
+                        "value": "{{accessToken}}",
+                        "type": "string"
+                      }
+                    },
+                    "description": "",
+                    "url": {
+                      "raw": "{{bff-host}}/api/v1/categories",
+                      "protocol": "",
+                      "host": [
+                        "{{bff-host}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "categories"
+                      ],
+                      "query": [],
+                      "variable": []
+                    }
+                  }
+                },
+                {
+                  "name": "Get Category By Id",
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": {
+                        "key": "token",
+                        "value": "{{accessToken}}",
+                        "type": "string"
+                      }
+                    },
+                    "description": "",
+                    "url": {
+                      "raw": "{{bff-host}}/api/v1/categories/{{categoryId}}",
+                      "protocol": "",
+                      "host": [
+                        "{{bff-host}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "categories",
+                        "{{categoryId}}"
+                      ],
+                      "query": [],
+                      "variable": []
+                    }
+                  }
+                },
+                {
+                  "name": "Put Category",
+                  "request": {
+                    "method": "PUT",
+                    "header": [],
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": {
+                        "key": "token",
+                        "value": "{{accessToken}}",
+                        "type": "string"
+                      }
+                    },
+                    "description": "",
+                    "url": {
+                      "raw": "{{bff-host}}/api/v1/categories/update/{{categoryId}}",
+                      "protocol": "",
+                      "host": [
+                        "{{bff-host}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "categories",
+                        "update",
+                        "{{categoryId}}"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": \"Eletrônicos\",\n  \"description\": \"Dispositivos eletrônicos, componentes e acessórios\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "Post Category",
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": {
+                        "key": "token",
+                        "value": "{{accessToken}}",
+                        "type": "string"
+                      }
+                    },
+                    "description": "",
+                    "url": {
+                      "raw": "{{bff-host}}/api/v1/categories/save",
+                      "protocol": "",
+                      "host": [
+                        "{{bff-host}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "categories",
+                        "save"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": \"Materias de construção\",\n  \"description\": \"Materiais gerais para casa e construção\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Auth-Service",
+      "item": [
+        {
+          "name": "Login user",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{auth-host}}/v1/auth/login",
+              "protocol": "",
+              "host": [
+                "{{auth-host}}"
+              ],
+              "path": [
+                "v1",
+                "auth",
+                "login"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usernameOrEmail\": \"gerente\",\n  \"password\": \"123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Create user",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{accessToken}}",
+                "description": "",
+                "disabled": false,
+                "type": "default"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{auth-host}}/v1/auth/register",
+              "protocol": "",
+              "host": [
+                "{{auth-host}}"
+              ],
+              "path": [
+                "v1",
+                "auth",
+                "register"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"operador\",\n  \"email\": \"operador@exemplo.com\",\n  \"password\": \"123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Api Core",
+      "item": [
+        {
+          "name": "Products",
+          "item": [
+            {
+              "name": "Get All Products",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": {
+                    "key": "token",
+                    "value": "{{accessToken}}",
+                    "type": "string"
+                  }
+                },
+                "description": "",
+                "url": {
+                  "raw": "{{apiCore-host}}/v1/products",
+                  "protocol": "",
+                  "host": [
+                    "{{apiCore-host}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "products"
+                  ],
+                  "query": [],
+                  "variable": []
+                }
+              }
+            },
+            {
+              "name": "Get Product By Sku",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": {
+                    "key": "token",
+                    "value": "{{accessToken}}",
+                    "type": "string"
+                  }
+                },
+                "description": "",
+                "url": {
+                  "raw": "{{apiCore-host}}/v1/products/{{sku}}",
+                  "protocol": "",
+                  "host": [
+                    "{{apiCore-host}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "products",
+                    "{{sku}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                }
+              }
+            },
+            {
+              "name": "Patch Stock",
+              "request": {
+                "method": "PATCH",
+                "header": [],
+                "auth": {
+                  "type": "noauth"
+                },
+                "description": "",
+                "url": {
+                  "raw": "{{apiCore-host}}/v1/products/{{sku}}/stock",
+                  "protocol": "",
+                  "host": [
+                    "{{apiCore-host}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "products",
+                    "{{sku}}",
+                    "stock"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"quantity\": 10,\n  \"movementType\": \"IN\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Save Product",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "auth": {
+                  "type": "bearer",
+                  "bearer": {
+                    "key": "token",
+                    "value": "{{accessToken}}",
+                    "type": "string"
+                  }
+                },
+                "description": "",
+                "url": {
+                  "raw": "{{apiCore-host}}/v1/products/save",
+                  "protocol": "",
+                  "host": [
+                    "{{apiCore-host}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "products",
+                    "save"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"sku\": {{sku}},\n  \"name\": \"Mouse Sem Fio Logitech MX Master 5S\",\n  \"description\": \"Mouse ergonômico de alta precisão com sensor de 8000 DPI e clique silencioso\",\n  \"price\": 499.90,\n  \"quantity\": 15,\n  \"categoryId\": 2\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Update Product",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "auth": {
+                  "type": "noauth"
+                },
+                "description": "",
+                "url": {
+                  "raw": "{{bff-host}}/v1/products/update/{{sku}}",
+                  "protocol": "",
+                  "host": [
+                    "{{bff-host}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "products",
+                    "update",
+                    "{{sku}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"sku\": {{sku}},\n  \"name\": \"Mouse Sem Fio Logitech MX Master 5S\",\n  \"description\": \"Mouse ergonômico de alta precisão com sensor de 8000 DPI e clique silencioso\",\n  \"price\": 499.90,\n  \"quantity\": 15,\n  \"categoryId\": 2\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Categories",
+          "item": [
+            {
+              "name": "Get All Categories",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "auth": {
+                  "type": "noauth"
+                },
+                "description": "",
+                "url": {
+                  "raw": "{{apiCore-host}}/v1/categories",
+                  "protocol": "",
+                  "host": [
+                    "{{apiCore-host}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "categories"
+                  ],
+                  "query": [],
+                  "variable": []
+                }
+              }
+            },
+            {
+              "name": "Get Category By Id",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "auth": {
+                  "type": "noauth"
+                },
+                "description": "",
+                "url": {
+                  "raw": "{{apiCore-host}}/v1/categories/{{categoryId}}",
+                  "protocol": "",
+                  "host": [
+                    "{{apiCore-host}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "categories",
+                    "{{categoryId}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                }
+              }
+            },
+            {
+              "name": "Put Category",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "auth": {
+                  "type": "noauth"
+                },
+                "description": "",
+                "url": {
+                  "raw": "{{apiCore-host}}/v1/categories/update/{{categoryId}}",
+                  "protocol": "",
+                  "host": [
+                    "{{apiCore-host}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "categories",
+                    "update",
+                    "{{categoryId}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"\": \"\",\n  \"\": \"\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Post Category",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "auth": {
+                  "type": "noauth"
+                },
+                "description": "",
+                "url": {
+                  "raw": "{{apiCore-host}}/v1/categories/save",
+                  "protocol": "",
+                  "host": [
+                    "{{apiCore-host}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "categories",
+                    "save"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"\": \"\",\n  \"\": \"\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "apiCore-host",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "categoryId",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "sku",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "bff-host",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "key": "auth-host",
+      "value": "",
+      "type": "default"
+    }
+  ]
+}
