@@ -1,6 +1,5 @@
-package com.auth.adapters.out.database;
+package com.auth.adapters.out;
 
-import com.auth.adapters.out.database.entity.RoleEntity;
 import com.auth.domain.model.Role;
 import com.auth.adapters.out.database.repository.RoleRepository;
 import com.auth.ports.out.RoleRepositoryPort;

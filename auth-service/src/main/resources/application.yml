@@ -42,6 +42,7 @@ springdoc:
 jwt:
   private-key-path: classpath:certs/app.key
   public-key-path: classpath:certs/app.pub
+  expiration-ms: 86400000
 
 logging:
   level:

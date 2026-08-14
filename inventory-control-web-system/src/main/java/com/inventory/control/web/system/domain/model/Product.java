@@ -42,8 +42,7 @@ public class Product {
             this.quantity = quantity != null ? quantity : 0;
             this.category = category;
     }
-
-  
+     
     public Long getId() { return id; }
     public String getSku() { return sku; }
     public String getName() { return name; }

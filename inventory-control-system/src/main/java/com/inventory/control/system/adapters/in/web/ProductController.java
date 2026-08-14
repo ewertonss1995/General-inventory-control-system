@@ -53,19 +53,9 @@ public class ProductController {
 
         @PostMapping("/save")
         public ResponseEntity<SaveProductResponse> createProduct(@RequestBody @Valid ProductRequest request) {
-                log.info("Requisição recebida para criar produto com SKU: {}", request.sku());
+                log.info("Requisição recebida para criar produto: {}", request.sku());
 
-                Product product = new Product(
-                                request.sku(),
-                                request.name(),
-                                request.description(),
-                                request.price(),
-                                request.quantity(),
-                                new Category(request.categoryId(), null, null)
-
-                );
-
-                Product productCreated = createProductUseCase.execute(product);
+                Product productCreated = createProductUseCase.execute(toProduct(request));
 
                 log.info("Produto com SKU: {} criado com sucesso. ID: {}", productCreated.getSku(),
                                 productCreated.getId());
@@ -79,7 +69,7 @@ public class ProductController {
 
                 log.info("Requisição recebida para atualizar produto com SKU: {}", sku);
 
-                Product productUpdated = updateProductUseCase.execute(toProduct(sku, request));
+                Product productUpdated = updateProductUseCase.execute(sku, toProduct(request));
 
                 log.info("Produto com SKU: {} atualizado com sucesso.", sku);
                 return ResponseEntity.ok(toSaveProductResponse(productUpdated));
@@ -135,9 +125,9 @@ public class ProductController {
                 return new UpdateStockInput(request.quantity(), request.movementType());
         }
 
-        private Product toProduct(String sku, ProductRequest request) {
+        private Product toProduct(ProductRequest request) {
                 return new Product(
-                                sku,
+                                request.sku(),
                                 request.name(),
                                 request.description(),
                                 request.price(),

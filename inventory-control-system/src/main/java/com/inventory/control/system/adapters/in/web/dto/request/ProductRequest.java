@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record ProductRequest(
-    @NotBlank(message = "SKU é obrigatório") String sku,
+    @NotBlank(message = "Sku é obrigatório") String sku,
     @NotBlank(message = "Nome é obrigatório") String name,
     String description,
     @NotNull(message = "Preço é obrigatório") @DecimalMin("0.0") BigDecimal price,

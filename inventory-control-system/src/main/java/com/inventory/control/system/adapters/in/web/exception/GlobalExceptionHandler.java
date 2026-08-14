@@ -52,10 +52,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
+        String defaultMessage = "Ocorreu um erro inesperado ao processar a requisição. Tente novamente mais tarde. ";
         ErrorResponse errorResponse = new ErrorResponse(
             HttpStatus.INTERNAL_SERVER_ERROR.value(),
             "Erro Interno no Servidor",
-            "Ocorreu um erro inesperado ao processar a requisição. Tente novamente mais tarde."
+            defaultMessage.concat(ex.getMessage())
+            
         );
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
