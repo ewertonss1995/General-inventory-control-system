@@ -5,5 +5,5 @@ import java.util.List;
 
 public interface GetCategoryUseCase {
     List<Category> findAll();
-    Category findById(Long id);
+    Category findById(String id);
 }

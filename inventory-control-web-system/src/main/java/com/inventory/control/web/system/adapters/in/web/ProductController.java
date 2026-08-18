@@ -111,7 +111,7 @@ public class ProductController {
         UpdateStock updatedStock = updateStockUseCase.execute(sku, toUpdateStockRequest(request));
 
         log.info("Estoque do produto SKU: {} atualizado com sucesso. Novo saldo: {}", sku,
-                updatedStock.quantity());
+                updatedStock.newQuantity());
 
         return ResponseEntity.ok(toUpdateStockResponse(updatedStock));
     }
@@ -123,7 +123,7 @@ public class ProductController {
                 request.description(),
                 request.price(),
                 request.quantity(),
-                new Category(request.categoryId()));
+                new Category(request.categoryId(), null, null));
     }
 
     private SaveProductResponse toSaveProductResponse(Product product) {
@@ -166,7 +166,8 @@ public class ProductController {
     private UpdateStockResponse toUpdateStockResponse(UpdateStock updatedStock) {
         return new UpdateStockResponse(
             updatedStock.sku(),
-            updatedStock.quantity(),
+            updatedStock.previousQuantity(),
+            updatedStock.newQuantity(),
             updatedStock.movementType(),
             updatedStock.message()
         );

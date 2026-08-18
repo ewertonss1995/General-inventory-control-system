@@ -13,5 +13,5 @@ public record ProductRequest(
         String description,
         @NotNull(message = "Preço é obrigatório") @DecimalMin("0.0") BigDecimal price,
         @NotNull(message = "Quantidade é obrigatória") @Min(0) Integer quantity,
-        @NotNull(message = "Id da categoria é obrigatório") Long categoryId) {
+        @NotNull(message = "Id da categoria é obrigatório") String categoryId) {
 }

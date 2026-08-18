@@ -1,8 +1,8 @@
 package com.inventory.control.system.adapters.out.database;
 
-import com.inventory.control.system.adapters.out.database.entities.CategoryEntity;
-import com.inventory.control.system.adapters.out.database.repository.CategoryRepository;
 import com.inventory.control.system.adapters.out.exception.PersistenceException;
+import com.inventory.control.system.adapters.out.database.mongodb.documents.CategoryDocument;
+import com.inventory.control.system.adapters.out.database.mongodb.repository.MongoCategoryRepository;
 import com.inventory.control.system.domain.model.Category;
 import com.inventory.control.system.ports.out.CategoryRepositoryPort;
 import org.slf4j.Logger;
@@ -19,125 +19,122 @@ public class CategoryDatabaseAdapter implements CategoryRepositoryPort {
 
     private static final Logger log = LoggerFactory.getLogger(CategoryDatabaseAdapter.class);
 
-    private final CategoryRepository repository;
+    private final MongoCategoryRepository repository;
 
-    public CategoryDatabaseAdapter(CategoryRepository repository) {
+    public CategoryDatabaseAdapter(MongoCategoryRepository repository) {
         this.repository = repository;
     }
 
     @Override
     public Category saveCategory(Category category) {
-        log.debug("Mapeando categoria domínio para entidade de banco. Nome: {}", category.getName());
+        log.debug("Mapeando categoria domínio para documento do MongoDB. Nome: {}", category.getName());
 
         try {
-            CategoryEntity entity = mapCategoryToEntity(category);
+            CategoryDocument document = mapCategoryToDocument(category);
 
-            log.info("Persistindo nova categoria no banco de dados. Nome: {}", category.getName());
-            CategoryEntity saved = Objects.requireNonNull(repository.save(entity));
-            
-            log.info("Categoria persistida com sucesso no banco de dados. ID: {} | Nome: {}", saved.getId(), saved.getName());
-            return mapEntityToCategory(saved);
+            log.info("Persistindo nova categoria no MongoDB. Nome: {}", category.getName());
+            CategoryDocument saved = Objects.requireNonNull(repository.save(document));
+
+            log.info("Categoria persistida com sucesso no MongoDB. ID: {} | Nome: {}", saved.getId(), saved.getName());
+            return mapDocumentToCategory(saved);
 
         } catch (DataAccessException e) {
-            log.error("Erro ao salvar categoria no banco de dados. Nome: {} | Erro: {}", category.getName(), e.getMessage());
-            throw new PersistenceException("Erro ao salvar categoria no banco de dados.", e);
+            log.error("Erro ao salvar categoria no MongoDB. Nome: {} | Erro: {}", category.getName(), e.getMessage(), e);
+            throw new PersistenceException("Erro ao salvar categoria no banco de dados MongoDB.", e);
         }
-    
     }
 
     @Override
     public Category updateCategory(Category category) {
-        log.debug("Mapeando atualização de categoria para entidade de banco. ID: {}", category.getId());
+        log.debug("Mapeando atualização de categoria para documento MongoDB. ID: {}", category.getId());
 
         try {
-            CategoryEntity entity = mapCategoryToEntity(category);
+            CategoryDocument document = mapCategoryToDocument(category);
 
-            log.info("Atualizando registro da categoria no banco de dados. ID: {} | Nome: {}", category.getId(), category.getName());
-            CategoryEntity saved = Objects.requireNonNull(repository.save(entity));
+            log.info("Atualizando registro da categoria no MongoDB. ID: {} | Nome: {}", category.getId(), category.getName());
+            CategoryDocument saved = Objects.requireNonNull(repository.save(document));
 
-            log.info("Categoria atualizada com sucesso no banco de dados. ID: {} | Nome: {}", saved.getId(), saved.getName());
-            return mapEntityToCategory(saved);
+            log.info("Categoria atualizada com sucesso no MongoDB. ID: {} | Nome: {}", saved.getId(), saved.getName());
+            return mapDocumentToCategory(saved);
 
         } catch (DataAccessException e) {
-            log.error("Erro ao atualizar categoria no banco de dados. ID: {} | Nome: {} | Erro: {}", category.getId(), category.getName(), e.getMessage());
-            throw new PersistenceException("Erro ao atualizar categoria no banco de dados.", e);
+            log.error("Erro ao atualizar categoria no MongoDB. ID: {} | Nome: {} | Erro: {}", category.getId(), category.getName(), e.getMessage(), e);
+            throw new PersistenceException("Erro ao atualizar categoria no banco de dados MongoDB.", e);
         }
     }
 
     @Override
-    public boolean existsById(Long id) {
-        log.debug("Verificando existência da categoria no banco pelo ID: {}", id);
-        
+    public boolean existsById(String id) {
+        log.debug("Verificando existência da categoria no MongoDB pelo ID: {}", id);
+
         try {
             boolean exists = repository.existsById(id);
-            
+
             log.debug("Resultado da verificação da categoria ID '{}': {}", id, exists);
             return exists;
         } catch (DataAccessException e) {
-            log.error("Erro ao verificar existência da categoria no banco de dados. ID: {} | Erro: {}", id, e.getMessage());
-            throw new PersistenceException("Erro ao verificar existência da categoria no banco de dados.", e);
+            log.error("Erro ao verificar existência da categoria no MongoDB. ID: {} | Erro: {}", id, e.getMessage(), e);
+            throw new PersistenceException("Erro ao verificar existência da categoria no banco de dados MongoDB.", e);
         }
     }
 
     @Override
-    public List<Category> findAll() { 
-        log.info("Consultando todas as categorias na base de dados.");
-        
+    public List<Category> findAll() {
+        log.info("Consultando todas as categorias no MongoDB.");
+
         try {
             List<Category> categories = repository.findAll().stream()
-                .map(entity -> {
-                    log.debug("Mapeando entidade para domínio. ID: {} | Nome: {}", entity.getId(), entity.getName());
-                    return mapEntityToCategory(entity);
-                })
-                .toList();
+                    .map(document -> {
+                        log.debug("Mapeando documento MongoDB para domínio. ID: {} | Nome: {}", document.getId(), document.getName());
+                        return mapDocumentToCategory(document);
+                    })
+                    .toList();
 
             log.info("Consulta de categorias finalizada com sucesso. Total de registros: {}", categories.size());
             return categories;
         } catch (DataAccessException e) {
-            log.error("Erro ao consultar todas as categorias no banco de dados. Erro: {}", e.getMessage());
-            throw new PersistenceException("Erro ao consultar todas as categorias no banco de dados.", e);
+            log.error("Erro ao consultar todas as categorias no MongoDB. Erro: {}", e.getMessage(), e);
+            throw new PersistenceException("Erro ao consultar todas as categorias no banco de dados MongoDB.", e);
         }
     }
 
     @Override
-    public Optional<Category> findById(Long id) {
-        log.info("Buscando categoria no banco de dados pelo ID: {}", id);
+    public Optional<Category> findById(String id) {
+        log.info("Buscando categoria no MongoDB pelo ID: {}", id);
 
         try {
             Optional<Category> category = repository.findById(id)
-                .map(entity -> {
-                    log.debug("Categoria encontrada. Mapeando para domínio. ID: {} | Nome: {}", entity.getId(), entity.getName());
-                    return mapEntityToCategory(entity);
-                });
+                    .map(document -> {
+                        log.debug("Categoria encontrada no MongoDB. Mapeando para domínio. ID: {} | Nome: {}", document.getId(), document.getName());
+                        return mapDocumentToCategory(document);
+                    });
 
             if (category.isPresent()) {
-                log.info("Categoria encontrada com sucesso no banco de dados. ID: {}", id);
+                log.info("Categoria encontrada com sucesso no MongoDB. ID: {}", id);
             } else {
-                log.warn("Nenhuma categoria encontrada no banco de dados para o ID: {}", id);
+                log.warn("Nenhuma categoria encontrada no MongoDB para o ID: {}", id);
             }
 
             return category;
         } catch (DataAccessException e) {
-            log.error("Erro ao buscar categoria pelo ID: {}. Erro: {}", id, e.getMessage());
-            throw new PersistenceException("Erro ao buscar categoria pelo ID no banco de dados.", e);
+            log.error("Erro ao buscar categoria pelo ID no MongoDB: {}. Erro: {}", id, e.getMessage(), e);
+            throw new PersistenceException("Erro ao buscar categoria pelo ID no banco de dados MongoDB.", e);
         }
     }
 
-    private CategoryEntity mapCategoryToEntity(Category category) {
-        CategoryEntity entity = new CategoryEntity();
-        if (category.getId() != null) {
-            entity.setId(category.getId());
-        }
-        entity.setName(category.getName());
-        entity.setDescription(category.getDescription());
-        return entity;
+    private CategoryDocument mapCategoryToDocument(Category category) {
+        return new CategoryDocument(
+                category.getId(),
+                category.getName(),
+                category.getDescription()
+        );
     }
 
-    private Category mapEntityToCategory(CategoryEntity entity) {
+    private Category mapDocumentToCategory(CategoryDocument document) {
         return new Category(
-            entity.getId(),
-            entity.getName(),
-            entity.getDescription()
+                document.getId(),
+                document.getName(),
+                document.getDescription()
         );
     }
 }

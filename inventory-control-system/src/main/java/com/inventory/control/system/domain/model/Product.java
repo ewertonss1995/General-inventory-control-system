@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import com.inventory.control.system.domain.exception.BusinessException;
 
 public class Product {
-    private Long id;
+    private String id;
     private String sku;
     private String name;
     private String description;
@@ -13,7 +13,7 @@ public class Product {
     private Category category;
 
     public Product(
-            Long id,
+            String id,
             String sku,
             String name,
             String description,
@@ -76,7 +76,7 @@ public class Product {
         this.quantity -= quantity;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 

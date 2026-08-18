@@ -125,7 +125,7 @@ public class ProductClientAdapter implements ProductFeignPort {
     }
 
     private UpdateStock toUpdateStock(String sku, InventoryUpdateStockResponse response) {
-        return new UpdateStock(sku, response.quantity(), response.movementType(), response.message());
+        return new UpdateStock(sku, response.previousQuantity(), response.newQuantity(), response.movementType(), response.message());
     }
 
 }

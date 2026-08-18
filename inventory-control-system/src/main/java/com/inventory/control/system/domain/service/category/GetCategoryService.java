@@ -27,21 +27,22 @@ public class GetCategoryService implements GetCategoryUseCase {
 
         List<Category> categories = categoryRepositoryPort.findAll();
 
-        log.info("Consulta de produtos concluída. Total retornado: {}", categories.size());
+        log.info("Consulta de categorias concluída. Total retornado: {}", categories.size());
         return categories;
     }
 
     @Override
-    public Category findById(Long id) {
+    public Category findById(String id) {
         if (Objects.isNull(id)) {
             log.warn("Tentativa de busca com ID nulo.");
-            throw new BusinessException("O ID informado para busca não pode ser nulo.");
+            throw new BusinessException("O ID informado para busca de categoria não pode ser nulo.");
         }
 
-        return categoryRepositoryPort.findById(id)
+        String categoryId = id.trim();
+        return categoryRepositoryPort.findById(categoryId)
                 .orElseThrow(() -> {
-                    log.warn("Falha na busca de categoria: ID '{}' não encontrado.", id);
-                    return new ResourceNotFoundException("Categoria não encontrada para o ID: " + id);
+                    log.warn("Falha na busca de categoria: ID '{}' não encontrado.", categoryId);
+                    return new ResourceNotFoundException("Categoria não encontrada para o ID: " + categoryId);
                 });
     }
 }

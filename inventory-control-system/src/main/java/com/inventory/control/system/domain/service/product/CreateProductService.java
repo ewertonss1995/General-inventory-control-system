@@ -29,19 +29,20 @@ public class CreateProductService implements CreateProductUseCase {
             throw new BusinessException("É necessário informar uma categoria válida para o produto.");
         }
 
+        String categoryId = product.getCategory().getId().trim();
         log.info("Iniciando processo de criação de produto. SKU: {} | Categoria ID: {}", 
-                product.getSku(), product.getCategory().getId());
+                product.getSku(), categoryId);
 
         if (productRepositoryPort.existsBySku(product.getSku())) {
             log.warn("Falha ao criar produto: SKU '{}' já está cadastrado no sistema.", product.getSku());
             throw new BusinessException("SKU já cadastrado: " + product.getSku());
         }
 
-        Category category = categoryRepositoryPort.findById(product.getCategory().getId())
+        Category category = categoryRepositoryPort.findById(categoryId)
                 .orElseThrow(() -> {
                     log.warn("Falha ao criar produto SKU '{}': Categoria ID {} não encontrada.", 
-                            product.getSku(), product.getCategory().getId());
-                    return new ResourceNotFoundException("Categoria não encontrada com o ID: " + product.getCategory().getId());
+                            product.getSku(), categoryId);
+                    return new ResourceNotFoundException("Categoria não encontrada com o ID: " + categoryId);
                 });
 
         log.debug("Categoria ID {} encontrada. Vinculando ao produto SKU '{}'.", category.getId(), product.getSku());

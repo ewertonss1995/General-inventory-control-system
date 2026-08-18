@@ -55,7 +55,7 @@ public class CategoryController {
 
     @PutMapping("/update/{id}")
     public ResponseEntity<CategoryResponse> updateCategory(
-            @PathVariable Long id,
+            @PathVariable String id,
             @RequestBody @Valid CategoryRequest request) {
 
         log.info("Requisição recebida para atualizar categoria com ID: {}", id);
@@ -73,13 +73,13 @@ public class CategoryController {
         List<CategoryResponse> categories = getCategoryUseCase.findAll().stream()
                 .map(this::toCategoryResponse)
                 .toList();
-
+                
         log.info("Busca realizada com sucesso. Total de categorias encontradas: {}", categories.size());
         return ResponseEntity.ok(categories);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CategoryResponse> getCategoryById(@PathVariable Long id) {
+    public ResponseEntity<CategoryResponse> getCategoryById(@PathVariable String id) {
         log.info("Requisição recebida para buscar categoria por ID: {}", id);
 
         Category category = getCategoryUseCase.findById(id);
@@ -89,14 +89,16 @@ public class CategoryController {
     }
 
     private Category toCategory(CategoryRequest request) {
-        return new Category(request.name(), request.description());
+        return new Category(null, request.name(), request.description());
     }
 
     private CategoryResponse toCategoryResponse(Category category) {
-        return new CategoryResponse(
+        CategoryResponse categoryResponse = new CategoryResponse(
                 category.getId(),
                 category.getName(),
                 category.getDescription()
         );
+
+        return categoryResponse;
     }
 }
