@@ -110,14 +110,16 @@ public class ProductController {
                 log.info("Estoque do produto SKU: {} atualizado com sucesso. Novo saldo: {}", sku,
                                 updatedProduct.getQuantity());
 
-                return ResponseEntity.ok(toUpdateStockResponse(sku, updatedProduct, request.movementType()));
+                return ResponseEntity.ok(toUpdateStockResponse(request, updatedProduct));
         }
 
-        private UpdateStockResponse toUpdateStockResponse(String sku, Product product, StockMovementType movementType) {
+        private UpdateStockResponse toUpdateStockResponse(UpdateStockRequest request, Product updatedProduct) {
+                Integer previousQuantity = updatedProduct.getQuantity() + request.quantity();
                 return new UpdateStockResponse(
-                                sku,
-                                product.getQuantity(),
-                                movementType.name(),
+                                updatedProduct.getSku(),
+                                previousQuantity,
+                                updatedProduct.getQuantity(),
+                                request.movementType().name(),
                                 "Estoque atualizado com sucesso.");
         }
 
@@ -132,7 +134,7 @@ public class ProductController {
                                 request.description(),
                                 request.price(),
                                 request.quantity(),
-                                new Category(request.categoryId()));
+                                new Category(request.categoryId(), null, null));
 
         }
 

@@ -32,7 +32,7 @@ public class CategoryClientAdapter implements CategoryFeignPort {
     }
 
     @Override
-    public Category updateCategory(Long id, Category category) {
+    public Category updateCategory(String id, Category category) {
         log.debug("Iniciando processo de atualização de category: {}", category.getName());
         ResponseEntity<InventoryCategoryResponse> response = inventoryFeignClient.updateCategory(id, categoryToInventoryCategoryRequest(category));
         InventoryCategoryResponse responseBody = response.getBody();
@@ -49,7 +49,7 @@ public class CategoryClientAdapter implements CategoryFeignPort {
     }
 
     @Override
-    public Category findById(Long id) {
+    public Category findById(String id) {
         log.debug("Iniciando processo de busca de category por ID: {}", id);
         ResponseEntity<InventoryCategoryResponse> response = inventoryFeignClient.getCategoryById(id);
         log.debug("Category encontrado: {}", response.getBody());

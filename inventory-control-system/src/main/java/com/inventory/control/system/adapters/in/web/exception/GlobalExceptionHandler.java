@@ -9,10 +9,15 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     /**
      * Intercepta erros puristas de regra de negócio do Domínio (BusinessException)
@@ -52,15 +57,15 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
-        String defaultMessage = "Ocorreu um erro inesperado ao processar a requisição. Tente novamente mais tarde. ";
-        ErrorResponse errorResponse = new ErrorResponse(
-            HttpStatus.INTERNAL_SERVER_ERROR.value(),
-            "Erro Interno no Servidor",
-            defaultMessage.concat(ex.getMessage())
-            
-        );
-
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    log.error("Erro inesperado ao processar requisição", ex);
+    ErrorResponse errorResponse = new ErrorResponse(
+        HttpStatus.INTERNAL_SERVER_ERROR.value(),
+        "Erro Interno no Servidor",
+        "Ocorreu um erro interno no sistema. Por favor, tente novamente mais tarde."
+    );
+    
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)

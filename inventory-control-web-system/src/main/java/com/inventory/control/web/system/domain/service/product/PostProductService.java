@@ -18,7 +18,7 @@ public class PostProductService implements PostProductUseCase {
 
     @Override
     public Product execute(Product product) {
-        log.info("Executando caso de uso para criação do produto {}.", product.getName());
+        log.info("Executando caso de uso para criação do produto SKU: {}.", product.getSku());
 
         Product createdProduct = productFeignPort.saveProduct(product);
 
