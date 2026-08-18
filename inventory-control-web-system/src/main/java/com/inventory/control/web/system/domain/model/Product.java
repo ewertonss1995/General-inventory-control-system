@@ -3,7 +3,7 @@ package com.inventory.control.web.system.domain.model;
 import java.math.BigDecimal;
 
 public class Product {
-    private Long id;
+    private String id;
     private String sku;
     private String name;
     private String description;
@@ -12,7 +12,7 @@ public class Product {
     private Category category;
 
     public Product(
-        Long id, 
+        String id, 
         String sku, 
         String name, 
         String description, 
@@ -43,7 +43,7 @@ public class Product {
             this.category = category;
     }
      
-    public Long getId() { return id; }
+    public String getId() { return id; }
     public String getSku() { return sku; }
     public String getName() { return name; }
     public String getDescription() { return description; }

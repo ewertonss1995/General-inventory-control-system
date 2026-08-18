@@ -1,18 +1,20 @@
 package com.inventory.control.system.adapters.out.database;
 
-import com.inventory.control.system.adapters.out.database.entities.CategoryEntity;
-import com.inventory.control.system.adapters.out.database.entities.ProductEntity;
-import com.inventory.control.system.adapters.out.database.repository.ProductRepository;
+import com.inventory.control.system.adapters.out.exception.PersistenceException;
+import com.inventory.control.system.adapters.out.database.mongodb.documents.CategoryInfo;
+import com.inventory.control.system.adapters.out.database.mongodb.documents.ProductDocument;
+import com.inventory.control.system.adapters.out.database.mongodb.repository.MongoProductRepository;
+import com.inventory.control.system.adapters.out.database.postgres.repository.PostgresStockRepository;
+import com.inventory.control.system.adapters.out.database.postgres.entities.StockBalanceEntity;
 import com.inventory.control.system.domain.model.Category;
 import com.inventory.control.system.domain.model.Product;
 import com.inventory.control.system.ports.out.ProductRepositoryPort;
-
-import jakarta.persistence.PersistenceException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
@@ -23,153 +25,180 @@ public class ProductDatabaseAdapter implements ProductRepositoryPort {
 
     private static final Logger log = LoggerFactory.getLogger(ProductDatabaseAdapter.class);
 
-    private final ProductRepository repository;
+    private final MongoProductRepository mongoRepository;
+    private final PostgresStockRepository postgresRepository;
 
-    public ProductDatabaseAdapter(ProductRepository repository) {
-        this.repository = repository;
+    public ProductDatabaseAdapter(MongoProductRepository mongoRepository, PostgresStockRepository postgresRepository) {
+        this.mongoRepository = mongoRepository;
+        this.postgresRepository = postgresRepository;
     }
 
     @Override
+    @Transactional
     public Product saveProduct(Product product) {
-        log.debug("Mapeando produto domínio para entidade de banco. SKU: {}", product.getSku());
+        log.debug("Mapeando produto do domínio para documento MongoDB e entidade PostgreSQL. SKU: {}", product.getSku());
 
         try {
-            ProductEntity entity = mapProductToEntity(product);
+            ProductDocument document = mapDomainToDocument(product);
+            log.info("Persistindo dados de catálogo do produto no MongoDB. SKU: {}", product.getSku());
+            ProductDocument savedDocument = Objects.requireNonNull(mongoRepository.save(document));
+            log.info("Catálogo persistido no MongoDB com sucesso. Mongo ID: {} | SKU: {}", savedDocument.getId(), savedDocument.getSku());
 
-            log.info("Persistindo novo produto no banco de dados. SKU: {}", product.getSku());
-            ProductEntity saved = Objects.requireNonNull(repository.save(entity));
+            StockBalanceEntity stockEntity = new StockBalanceEntity(
+                    savedDocument.getId(),
+                    savedDocument.getSku(),
+                    product.getQuantity() != null ? product.getQuantity() : 0
+            );
+            log.info("Persistindo saldo de estoque no PostgreSQL. ProductID: {} | SKU: {}", savedDocument.getId(), savedDocument.getSku());
+            StockBalanceEntity savedStock = Objects.requireNonNull(postgresRepository.save(stockEntity));
+            log.info("Saldo persistido no PostgreSQL com sucesso. Stock Balance ID: {} | Qtd: {}", savedStock.getId(), savedStock.getQuantity());
 
-            log.info("Produto persistido com sucesso no banco de dados. ID: {} | SKU: {}", saved.getId(),
-                    saved.getSku());
-
-            return mapEntityToProduct(saved);
-
-        } catch (DataAccessException e) {
-            log.error("Erro ao salvar produto no banco de dados. SKU: {} | Erro: {}", product.getSku(), e.getMessage());
-            throw new PersistenceException("Erro ao salvar produto no banco de dados.", e);
-        }
-    }
-
-    @Override
-    public Product updateProduct(Product product) {
-        log.debug("Mapeando atualização de produto para entidade de banco. SKU: {}", product.getSku());
-
-        try {
-            ProductEntity entity = mapProductToEntity(product);
-
-            log.info("Atualizando registro do produto no banco de dados. SKU: {}", product.getSku());
-            ProductEntity updated = Objects.requireNonNull(repository.save(entity));
-
-            log.info("Produto atualizado com sucesso no banco de dados. ID: {} | SKU: {}", updated.getId(),
-                    updated.getSku());
-                    
-            return mapEntityToProduct(updated);
+            return mapToDomain(savedDocument, savedStock.getQuantity());
 
         } catch (DataAccessException e) {
-            log.error("Erro ao atualizar produto no banco de dados. SKU: {} | Erro: {}", product.getSku(),
-                    e.getMessage());
-            throw new PersistenceException("Erro ao atualizar produto no banco de dados.", e);
+            log.error("Erro ao salvar produto na persistência poliglota. SKU: {} | Erro: {}", product.getSku(), e.getMessage(), e);
+            throw new PersistenceException("Erro ao salvar produto no banco de dados (MongoDB/PostgreSQL).", e);
         }
     }
 
     @Override
     public boolean existsBySku(String sku) {
-        log.debug("Verificando existência do produto no banco pelo SKU: {}", sku);
+        log.debug("Verificando existência do produto no MongoDB pelo SKU: {}", sku);
 
         try {
-            boolean exists = repository.existsBySkuIgnoreCase(sku);
-
-            log.debug("Resultado da verificação do SKU '{}': {}", sku, exists);
+            boolean exists = mongoRepository.existsBySkuIgnoreCase(sku);
+            log.debug("Resultado da verificação do SKU '{}' no MongoDB: {}", sku, exists);
             return exists;
 
         } catch (DataAccessException e) {
             log.error("Erro ao verificar a existência do produto pelo SKU: {}. Motivo: {}", sku, e.getMessage(), e);
-            throw new PersistenceException("Falha ao consultar existência do produto no banco de dados.", e);
-        }
-    }
-
-    @Override
-    public List<Product> findAll() {
-        log.info("Consultando todos os produtos na base de dados.");
-
-        try {
-            List<Product> productList = repository.findAll().stream()
-                    .map(entity -> {
-                        log.debug("Mapeando entidade de banco para domínio. ID: {} | SKU: {}", entity.getId(),
-                                entity.getSku());
-                        return mapEntityToProduct(entity);
-                    })
-                    .toList();
-
-            log.debug("Consulta findAll finalizada.");
-            return productList;
-
-        } catch (DataAccessException e) {
-            log.error("Erro ao consultar produtos no banco de dados. Erro: {}", e.getMessage());
-            throw new PersistenceException("Erro ao consultar produtos no banco de dados.", e);
+            throw new PersistenceException("Falha ao consultar existência do produto no MongoDB.", e);
         }
     }
 
     @Override
     public Optional<Product> findBySku(String sku) {
-        log.debug("Buscando produto no banco de dados pelo SKU: {}", sku);
+        log.debug("Buscando produto composto (Mongo + Postgres) pelo SKU: {}", sku);
 
         try {
-            Optional<ProductEntity> entityOptional = repository.findBySkuIgnoreCase(sku);
+            Optional<ProductDocument> docOpt = mongoRepository.findBySkuIgnoreCase(sku);
 
-            if (entityOptional.isEmpty()) {
-                log.debug("Nenhum produto encontrado no banco para o SKU: {}", sku);
+            if (docOpt.isEmpty()) {
+                log.debug("Nenhum produto encontrado no MongoDB para o SKU: {}", sku);
                 return Optional.empty();
             }
 
-            ProductEntity entity = entityOptional.get();
-            log.debug("Produto encontrado no banco. Mapeando para domínio. ID: {} | SKU: {}", entity.getId(),
-                    entity.getSku());
+            ProductDocument doc = docOpt.get();
+            log.debug("Produto encontrado no MongoDB. ID: {}. Consultando saldo no PostgreSQL...", doc.getId());
 
-            return Optional.of(mapEntityToProduct(entity));
+            Integer quantity = postgresRepository.findByProductId(doc.getId())
+                    .map(StockBalanceEntity::getQuantity)
+                    .orElseGet(() -> {
+                        log.warn("Nenhum registro de estoque encontrado no PostgreSQL para o Product ID: {}. Assumindo saldo 0.", doc.getId());
+                        return 0;
+                    });
+
+            return Optional.of(mapToDomain(doc, quantity));
 
         } catch (DataAccessException e) {
-            log.error("Erro ao buscar produto no banco pelo SKU: {}. Motivo: {}", sku, e.getMessage(), e);
-            throw new PersistenceException("Falha ao consultar produto no banco de dados.", e);
+            log.error("Erro ao buscar produto composto pelo SKU: {}. Motivo: {}", sku, e.getMessage(), e);
+            throw new PersistenceException("Falha ao consultar produto na persistência poliglota.", e);
         }
     }
 
-    private ProductEntity mapProductToEntity(Product productdomain) {
-        CategoryEntity category = null;
-        if (productdomain.getCategory() != null) {
-            category = new CategoryEntity(
-                    productdomain.getCategory().getId() != null ? productdomain.getCategory().getId() : null,
-                    productdomain.getCategory().getName() != null ? productdomain.getCategory().getName() : null,
-                    productdomain.getCategory().getDescription() != null ? productdomain.getCategory().getDescription()
-                            : null);
-        }
+    @Override
+    public List<Product> findAll() {
+        log.info("Consultando todos os produtos na base de dados poliglota.");
 
-        return new ProductEntity(
-                productdomain.getId() != null ? productdomain.getId() : null,
-                productdomain.getSku() != null ? productdomain.getSku() : null,
-                productdomain.getName() != null ? productdomain.getName() : null,
-                productdomain.getDescription() != null ? productdomain.getDescription() : null,
-                productdomain.getPrice() != null ? productdomain.getPrice() : null,
-                productdomain.getQuantity() != null ? productdomain.getQuantity() : null,
-                category);
+        try {
+            List<Product> products = mongoRepository.findAll().stream()
+                    .map(doc -> {
+                        log.debug("Buscando saldo no Postgres para o produto Mongo ID: {} | SKU: {}", doc.getId(), doc.getSku());
+                        Integer quantity = postgresRepository.findByProductId(doc.getId())
+                                .map(StockBalanceEntity::getQuantity)
+                                .orElse(0);
+                        return mapToDomain(doc, quantity);
+                    })
+                    .toList();
+
+            log.info("Consulta findAll finalizada. Total de produtos retornados: {}", products.size());
+            return products;
+
+        } catch (DataAccessException e) {
+            log.error("Erro ao consultar todos os produtos no banco poliglota. Erro: {}", e.getMessage(), e);
+            throw new PersistenceException("Erro ao consultar lista de produtos no banco de dados.", e);
+        }
     }
 
-    private Product mapEntityToProduct(ProductEntity entity) {
+    @Override
+    @Transactional
+    public Product updateProduct(Product product) {
+        log.debug("Iniciando atualização do produto. SKU: {}", product.getSku());
+
+        try {
+            ProductDocument doc = mapDomainToDocument(product);
+            log.info("Atualizando documento no MongoDB. SKU: {}", product.getSku());
+            ProductDocument updatedDoc = Objects.requireNonNull(mongoRepository.save(doc));
+
+            StockBalanceEntity stock = postgresRepository.findByProductId(updatedDoc.getId())
+                    .orElseGet(() -> {
+                        log.warn("Registro de estoque não encontrado para atualização no PostgreSQL. Criando novo saldo para ProductID: {}", updatedDoc.getId());
+                        return new StockBalanceEntity(updatedDoc.getId(), updatedDoc.getSku(), 0);
+                    });
+
+            if (product.getQuantity() != null) {
+                log.info("Atualizando quantidade em estoque no PostgreSQL. Novo saldo: {}", product.getQuantity());
+                stock.setQuantity(product.getQuantity());
+                postgresRepository.save(stock);
+            }
+
+            log.info("Produto atualizado com sucesso nas duas bases. ID: {} | SKU: {}", updatedDoc.getId(), updatedDoc.getSku());
+            return mapToDomain(updatedDoc, stock.getQuantity());
+
+        } catch (DataAccessException e) {
+            log.error("Erro ao atualizar produto no banco de dados. SKU: {} | Erro: {}", product.getSku(), e.getMessage(), e);
+            throw new PersistenceException("Erro ao atualizar produto no banco de dados poliglota.", e);
+        }
+    }
+
+    private ProductDocument mapDomainToDocument(Product product) {
+        CategoryInfo categoryInfo = null;
+        if (product.getCategory() != null) {
+            categoryInfo = new CategoryInfo(
+                    product.getCategory().getId(),
+                    product.getCategory().getName(),
+                    product.getCategory().getDescription()
+            );
+        }
+
+        return new ProductDocument(
+                product.getId(),
+                product.getSku(),
+                product.getName(),
+                product.getDescription(),
+                product.getPrice(),
+                categoryInfo
+        );
+    }
+
+    private Product mapToDomain(ProductDocument doc, Integer quantity) {
         Category category = null;
-        if (entity.getCategory() != null) {
+        if (doc.getCategory() != null) {
             category = new Category(
-                    entity.getCategory().getId() != null ? entity.getCategory().getId() : null,
-                    entity.getCategory().getName() != null ? entity.getCategory().getName() : null,
-                    entity.getCategory().getDescription() != null ? entity.getCategory().getDescription() : null);
+                    doc.getCategory().getId(),
+                    doc.getCategory().getName(),
+                    doc.getCategory().getDescription()
+            );
         }
 
         return new Product(
-                entity.getId() != null ? entity.getId() : null,
-                entity.getSku() != null ? entity.getSku() : null,
-                entity.getName() != null ? entity.getName() : null,
-                entity.getDescription() != null ? entity.getDescription() : null,
-                entity.getPrice() != null ? entity.getPrice() : null,
-                entity.getQuantity() != null ? entity.getQuantity() : null,
-                category);
+                doc.getId(),
+                doc.getSku(),
+                doc.getName(),
+                doc.getDescription(),
+                doc.getPrice(),
+                quantity,
+                category
+        );
     }
 }

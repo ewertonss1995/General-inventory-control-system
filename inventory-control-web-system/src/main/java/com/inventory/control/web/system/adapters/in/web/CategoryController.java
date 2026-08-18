@@ -66,7 +66,7 @@ public class CategoryController {
 
     @PutMapping("/update/{id}")
     public ResponseEntity<CategoryResponse> updateCategory(
-            @PathVariable Long id,
+            @PathVariable String id,
             @RequestBody @Valid CategoryRequest request) {
 
         log.info("Requisição recebida para atualizar categoria com ID: {}", id);
@@ -97,7 +97,7 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CategoryResponse> getCategoryById(@PathVariable Long id) {
+    public ResponseEntity<CategoryResponse> getCategoryById(@PathVariable String id) {
         log.info("Requisição recebida para buscar categoria por ID: {}", id);
 
         Category category = getCategoryUseCase.findById(id);

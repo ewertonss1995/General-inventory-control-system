@@ -30,10 +30,11 @@ public class GetCategoryService implements GetCategoryUseCase {
     }
 
     @Override
-    public Category findById(Long id) {
+    public Category findById(String id) {
         log.info("Executando caso de uso para listar categoria ID {}.", id);
 
-        Category category = CategoryFeignPort.findById(id);
+        String categoryId = id.trim();
+        Category category = CategoryFeignPort.findById(categoryId);
 
         log.info("Consulta de categoria ID {} concluida.", category.getId());
 

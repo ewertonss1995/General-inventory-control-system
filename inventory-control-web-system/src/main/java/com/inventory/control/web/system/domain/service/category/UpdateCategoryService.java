@@ -18,10 +18,11 @@ public class UpdateCategoryService implements UpdateCategoryUseCase {
     }
 
     @Override
-    public Category execute(Long id, Category category) {
+    public Category execute(String id, Category category) {
         log.info("Executando caso de uso para atualização de categoria com ID: {}", category.getId());
-;
-        Category updatedCategory = categoryFeignPort.updateCategory(id, category);
+
+        String categoryId = id.trim();
+        Category updatedCategory = categoryFeignPort.updateCategory(categoryId, category);
 
         log.info("Categoria com ID '{}' atualizada com sucesso.", updatedCategory.getId());
 

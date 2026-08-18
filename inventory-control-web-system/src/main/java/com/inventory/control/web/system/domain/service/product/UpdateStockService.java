@@ -28,7 +28,7 @@ public class UpdateStockService implements UpdateStockUseCase {
         UpdateStock updatedStock = productFeignPort.updateProductStock(skuFormatted, input);
 
         log.info("Movimentação de estoque concluída com sucesso. SKU: {} | Novo saldo: {}", 
-                skuFormatted, updatedStock.quantity());
+                skuFormatted, updatedStock.newQuantity());
 
         return updatedStock;
     }
