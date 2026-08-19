@@ -37,34 +37,20 @@
         </dependency>
 
 
-		<!-- Spring Security -->
+		<!-- Spring Security & OAuth2-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
-
-		<!-- Java JWT (JJWT) para validação do token -->
 		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-api</artifactId>
-			<version>0.11.5</version>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-impl</artifactId>
-			<version>0.11.5</version>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-jackson</artifactId>
-			<version>0.11.5</version>
-			<scope>runtime</scope>
-		</dependency>
-
+		
+		<!-- Flyway -->
 		<dependency>
             <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId> <!-- Controle profissional de migrations -->
+            <artifactId>flyway-core</artifactId>
         </dependency>
 
         <!-- Extensão do Flyway para suporte ao Postgres -->
