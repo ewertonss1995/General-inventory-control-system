@@ -13,19 +13,6 @@
 	<version>1.0.0</version>
 	<name>Auth Service</name>
 	<description>Serviço de Autenticação e Autorização para o Controle de Estoque</description>
-	<url/>
-	<licenses>
-		<license/>
-	</licenses>
-	<developers>
-		<developer/>
-	</developers>
-	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
-	</scm>
 	<properties>
 		<java.version>17</java.version>
 	</properties>
@@ -42,7 +29,7 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId> <!-- Probes do Kubernetes -->
+            <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
 		<!-- Spring Security & OAuth2 JWT -->
@@ -50,23 +37,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
-		<dependency>
-    		<groupId>io.jsonwebtoken</groupId>
-    		<artifactId>jjwt-api</artifactId>
-    		<version>0.11.5</version>
-		</dependency>
-		<dependency>
-    		<groupId>io.jsonwebtoken</groupId>
-    		<artifactId>jjwt-impl</artifactId>
-    		<version>0.11.5</version>
-    		<scope>runtime</scope>
-		</dependency>
-		<dependency>
-    		<groupId>io.jsonwebtoken</groupId>
-    		<artifactId>jjwt-jackson</artifactId>
-    		<version>0.11.5</version>
-    		<scope>runtime</scope>
-		</dependency>
+
+        <!-- OAuth2 Resource Server (Nativo Spring) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+        </dependency>
 
 		<!-- Banco de Dados & Persistência (SQL Server) -->
         <dependency>
@@ -76,7 +52,7 @@
 
         <dependency>
             <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId> <!-- Controle profissional de migrations -->
+            <artifactId>flyway-core</artifactId>
         </dependency>
         
         <!-- Extensão do Flyway para suporte ao Postgres -->
