@@ -4,8 +4,8 @@ server:
 spring:
   application:
     name: auth-service
-  # profiles:
-  #   active: ${SPRING_PROFILES_ACTIVE:dev}
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
 
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:5432/${DB_NAME:auth_db}

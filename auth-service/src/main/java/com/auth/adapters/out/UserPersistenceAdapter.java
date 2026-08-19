@@ -40,6 +40,7 @@ public class UserPersistenceAdapter implements UserRepositoryPort {
 
                     return new User(
                             userEntity.getId(),
+                            userEntity.getUsername(),
                             userEntity.getEmail(),
                             userEntity.isActive(),
                             userEntity.getPassword(),
