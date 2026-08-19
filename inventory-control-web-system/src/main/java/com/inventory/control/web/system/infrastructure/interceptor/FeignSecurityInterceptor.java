@@ -1,10 +1,11 @@
-package com.inventory.control.web.system.infrastructure.security;
+package com.inventory.control.web.system.infrastructure.interceptor;
 
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import org.slf4j.MDC;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -25,10 +26,8 @@ public class FeignSecurityInterceptor implements RequestInterceptor {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication != null && authentication.getCredentials() instanceof String token) {
-            if (StringUtils.hasText(token)) {
-                template.header(AUTHORIZATION_HEADER, String.format("%s %s", BEARER_TOKEN_TYPE, token));
-            }
+        if (authentication != null && authentication.getPrincipal() instanceof Jwt jwt) {
+            template.header(AUTHORIZATION_HEADER, String.format("%s %s", BEARER_TOKEN_TYPE, jwt.getTokenValue()));
         }
     }
 }
