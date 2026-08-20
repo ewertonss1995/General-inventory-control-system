@@ -11,6 +11,8 @@ public class Product {
     private Integer quantity;
     private Category category;
 
+    public Product(){}
+
     public Product(
         String id, 
         String sku, 

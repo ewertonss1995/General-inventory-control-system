@@ -1,5 +1,6 @@
 package com.inventory.control.web.system.adapters.in.web;
 
+import com.inventory.control.web.system.adapters.in.web.mapper.ProductMapper;
 import com.inventory.control.web.system.domain.model.Category;
 import com.inventory.control.web.system.domain.model.Product;
 import com.inventory.control.web.system.domain.model.UpdateStock;
@@ -17,8 +18,6 @@ import com.inventory.control.web.system.adapters.in.web.dto.response.UpdateStock
 
 import jakarta.validation.Valid;
 
-import java.util.List;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,6 +29,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,16 +40,19 @@ public class ProductController {
 
     private static final Logger log = LoggerFactory.getLogger(ProductController.class);
 
+    private final ProductMapper mapper;
     private final GetProductUseCase getProductUseCase;
     private final PostProductUseCase postProductUseCase;
     private final UpdateProductUseCase updateProductUseCase;
     private final UpdateStockUseCase updateStockUseCase;
 
     public ProductController(
+            ProductMapper mapper,
             GetProductUseCase getProductUseCase,
             PostProductUseCase postProductUseCase,
             UpdateProductUseCase updateProductUseCase,
             UpdateStockUseCase updateStockUseCase) {
+        this.mapper = mapper;
         this.getProductUseCase = getProductUseCase;
         this.postProductUseCase = postProductUseCase;
         this.updateProductUseCase = updateProductUseCase;
@@ -60,7 +64,7 @@ public class ProductController {
         log.info("Requisição recebida para criação de produto: " + request.name());
 
         SaveProductResponse response = toSaveProductResponse(
-                postProductUseCase.execute(toProduct(request)));
+                postProductUseCase.execute(mapper.toProduct(request)));
 
         log.info("Produto com SKU: {} criado com sucesso. ID: {}", response.sku(), response.id());
 
@@ -74,7 +78,7 @@ public class ProductController {
 
         log.info("Requisição recebida para atualizar produto com SKU: {}", sku);
 
-        Product productUpdated = updateProductUseCase.execute(sku, toProduct(request));
+        Product productUpdated = updateProductUseCase.execute(sku, mapper.toProduct(request));
 
         log.info("Produto com SKU: {} atualizado com sucesso.", sku);
         return ResponseEntity.ok(toSaveProductResponse(productUpdated));
@@ -114,16 +118,6 @@ public class ProductController {
                 updatedStock.newQuantity());
 
         return ResponseEntity.ok(toUpdateStockResponse(updatedStock));
-    }
-
-    private Product toProduct(ProductRequest request) {
-        return new Product(
-                request.sku(),
-                request.name(),
-                request.description(),
-                request.price(),
-                request.quantity(),
-                new Category(request.categoryId(), null, null));
     }
 
     private SaveProductResponse toSaveProductResponse(Product product) {
