@@ -7,10 +7,22 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Version;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import java.time.Instant;
 import java.util.UUID;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "tb_stock_balance")
 public class StockBalanceEntity {
@@ -34,13 +46,14 @@ public class StockBalanceEntity {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
-    public StockBalanceEntity() {}
-
-    public StockBalanceEntity(String productId, String sku, Integer quantity) {
-        this.productId = productId;
-        this.sku = sku;
-        this.quantity = quantity;
-        this.updatedAt = Instant.now();
+    @PrePersist
+    public void onCreate() {
+        if (this.updatedAt == null) {
+            this.updatedAt = Instant.now();
+        }
+        if (this.version == null) {
+            this.version = 0L;
+        }
     }
 
     @PreUpdate
@@ -48,11 +61,4 @@ public class StockBalanceEntity {
         this.updatedAt = Instant.now();
     }
 
-    public UUID getId() { return id; }
-    public String getProductId() { return productId; }
-    public String getSku() { return sku; }
-    public Integer getQuantity() { return quantity; }
-    public void setQuantity(Integer quantity) { this.quantity = quantity; }
-    public Long getVersion() { return version; }
-    public Instant getUpdatedAt() { return updatedAt; }
 }

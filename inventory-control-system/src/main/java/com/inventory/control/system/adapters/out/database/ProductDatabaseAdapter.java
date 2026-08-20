@@ -1,5 +1,6 @@
 package com.inventory.control.system.adapters.out.database;
 
+import com.inventory.control.system.adapters.in.web.mapper.ProductMapper;
 import com.inventory.control.system.adapters.out.exception.PersistenceException;
 import com.inventory.control.system.adapters.out.database.mongodb.documents.CategoryInfo;
 import com.inventory.control.system.adapters.out.database.mongodb.documents.ProductDocument;
@@ -25,10 +26,12 @@ public class ProductDatabaseAdapter implements ProductRepositoryPort {
 
     private static final Logger log = LoggerFactory.getLogger(ProductDatabaseAdapter.class);
 
+    private final ProductMapper mapper;
     private final MongoProductRepository mongoRepository;
     private final PostgresStockRepository postgresRepository;
 
-    public ProductDatabaseAdapter(MongoProductRepository mongoRepository, PostgresStockRepository postgresRepository) {
+    public ProductDatabaseAdapter(ProductMapper mapper, MongoProductRepository mongoRepository, PostgresStockRepository postgresRepository) {
+        this.mapper = mapper;
         this.mongoRepository = mongoRepository;
         this.postgresRepository = postgresRepository;
     }
@@ -39,21 +42,22 @@ public class ProductDatabaseAdapter implements ProductRepositoryPort {
         log.debug("Mapeando produto do domínio para documento MongoDB e entidade PostgreSQL. SKU: {}", product.getSku());
 
         try {
-            ProductDocument document = mapDomainToDocument(product);
+            ProductDocument document = mapper.toProductDocument(product);
             log.info("Persistindo dados de catálogo do produto no MongoDB. SKU: {}", product.getSku());
             ProductDocument savedDocument = Objects.requireNonNull(mongoRepository.save(document));
             log.info("Catálogo persistido no MongoDB com sucesso. Mongo ID: {} | SKU: {}", savedDocument.getId(), savedDocument.getSku());
 
-            StockBalanceEntity stockEntity = new StockBalanceEntity(
-                    savedDocument.getId(),
-                    savedDocument.getSku(),
-                    product.getQuantity() != null ? product.getQuantity() : 0
-            );
+            StockBalanceEntity stockEntity = StockBalanceEntity.builder()
+                        .productId(savedDocument.getId())
+                        .sku(savedDocument.getSku())
+                        .quantity(product.getQuantity() != null ? product.getQuantity() : 0)
+                        .build();
+
             log.info("Persistindo saldo de estoque no PostgreSQL. ProductID: {} | SKU: {}", savedDocument.getId(), savedDocument.getSku());
             StockBalanceEntity savedStock = Objects.requireNonNull(postgresRepository.save(stockEntity));
             log.info("Saldo persistido no PostgreSQL com sucesso. Stock Balance ID: {} | Qtd: {}", savedStock.getId(), savedStock.getQuantity());
 
-            return mapToDomain(savedDocument, savedStock.getQuantity());
+            return mapper.toProductDomain(savedDocument, savedStock.getQuantity());
 
         } catch (DataAccessException e) {
             log.error("Erro ao salvar produto na persistência poliglota. SKU: {} | Erro: {}", product.getSku(), e.getMessage(), e);
@@ -98,7 +102,7 @@ public class ProductDatabaseAdapter implements ProductRepositoryPort {
                         return 0;
                     });
 
-            return Optional.of(mapToDomain(doc, quantity));
+            return Optional.of(mapper.toProductDomain(doc, quantity));
 
         } catch (DataAccessException e) {
             log.error("Erro ao buscar produto composto pelo SKU: {}. Motivo: {}", sku, e.getMessage(), e);
@@ -117,7 +121,7 @@ public class ProductDatabaseAdapter implements ProductRepositoryPort {
                         Integer quantity = postgresRepository.findByProductId(doc.getId())
                                 .map(StockBalanceEntity::getQuantity)
                                 .orElse(0);
-                        return mapToDomain(doc, quantity);
+                        return mapper.toProductDomain(doc, quantity);
                     })
                     .toList();
 
@@ -136,14 +140,18 @@ public class ProductDatabaseAdapter implements ProductRepositoryPort {
         log.debug("Iniciando atualização do produto. SKU: {}", product.getSku());
 
         try {
-            ProductDocument doc = mapDomainToDocument(product);
+            ProductDocument doc = mapper.toProductDocument(product);
             log.info("Atualizando documento no MongoDB. SKU: {}", product.getSku());
             ProductDocument updatedDoc = Objects.requireNonNull(mongoRepository.save(doc));
 
             StockBalanceEntity stock = postgresRepository.findByProductId(updatedDoc.getId())
                     .orElseGet(() -> {
                         log.warn("Registro de estoque não encontrado para atualização no PostgreSQL. Criando novo saldo para ProductID: {}", updatedDoc.getId());
-                        return new StockBalanceEntity(updatedDoc.getId(), updatedDoc.getSku(), 0);
+                        return StockBalanceEntity.builder()
+                        .productId(updatedDoc.getId())
+                        .sku(updatedDoc.getSku())
+                        .quantity(0)
+                        .build();
                     });
 
             if (product.getQuantity() != null) {
@@ -153,7 +161,7 @@ public class ProductDatabaseAdapter implements ProductRepositoryPort {
             }
 
             log.info("Produto atualizado com sucesso nas duas bases. ID: {} | SKU: {}", updatedDoc.getId(), updatedDoc.getSku());
-            return mapToDomain(updatedDoc, stock.getQuantity());
+            return mapper.toProductDomain(updatedDoc, stock.getQuantity());
 
         } catch (DataAccessException e) {
             log.error("Erro ao atualizar produto no banco de dados. SKU: {} | Erro: {}", product.getSku(), e.getMessage(), e);
@@ -161,44 +169,4 @@ public class ProductDatabaseAdapter implements ProductRepositoryPort {
         }
     }
 
-    private ProductDocument mapDomainToDocument(Product product) {
-        CategoryInfo categoryInfo = null;
-        if (product.getCategory() != null) {
-            categoryInfo = new CategoryInfo(
-                    product.getCategory().getId(),
-                    product.getCategory().getName(),
-                    product.getCategory().getDescription()
-            );
-        }
-
-        return new ProductDocument(
-                product.getId(),
-                product.getSku(),
-                product.getName(),
-                product.getDescription(),
-                product.getPrice(),
-                categoryInfo
-        );
-    }
-
-    private Product mapToDomain(ProductDocument doc, Integer quantity) {
-        Category category = null;
-        if (doc.getCategory() != null) {
-            category = new Category(
-                    doc.getCategory().getId(),
-                    doc.getCategory().getName(),
-                    doc.getCategory().getDescription()
-            );
-        }
-
-        return new Product(
-                doc.getId(),
-                doc.getSku(),
-                doc.getName(),
-                doc.getDescription(),
-                doc.getPrice(),
-                quantity,
-                category
-        );
-    }
 }
