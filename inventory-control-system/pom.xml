@@ -83,7 +83,7 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!-- MapStruct -->
+		<!-- Lombok -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
