@@ -67,16 +67,20 @@ services:
     ports:
       - "8081:8081"
     environment:
-      - DB_HOST=postgres-db
+      # Variáveis do Postgres
+      - POSTGRES_DB_HOST=postgres-db
       - POSTGRES_DB_NAME=inventory_db
-      - DB_USERNAME=postgres
-      - DB_PASSWORD=SenhaSuperSegura123!
+      - POSTGRES_DB_USERNAME=postgres
+      - POSTGRES_DB_PASSWORD=SenhaSuperSegura123!
+      - POSTGRES_DB_PORT=5432
+      # Variáveis do MongoDB
       - MONGO_HOST=mongodb
       - MONGO_PORT=27017
       - MONGO_USERNAME=admin
       - MONGO_PASSWORD=SenhaSuperSegura123!
       - MONGO_DB_NAME=inventory_db
       - MONGO_AUTH_DB=admin
+      # Configurações do Hibernate
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
     depends_on:
       postgres-db:
