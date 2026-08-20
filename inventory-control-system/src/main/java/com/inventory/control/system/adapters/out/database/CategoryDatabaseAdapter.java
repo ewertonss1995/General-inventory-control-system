@@ -1,5 +1,6 @@
 package com.inventory.control.system.adapters.out.database;
 
+import com.inventory.control.system.adapters.in.web.mapper.CategoryMapper;
 import com.inventory.control.system.adapters.out.exception.PersistenceException;
 import com.inventory.control.system.adapters.out.database.mongodb.documents.CategoryDocument;
 import com.inventory.control.system.adapters.out.database.mongodb.repository.MongoCategoryRepository;
@@ -19,9 +20,11 @@ public class CategoryDatabaseAdapter implements CategoryRepositoryPort {
 
     private static final Logger log = LoggerFactory.getLogger(CategoryDatabaseAdapter.class);
 
+    private final CategoryMapper mapper;
     private final MongoCategoryRepository repository;
 
-    public CategoryDatabaseAdapter(MongoCategoryRepository repository) {
+    public CategoryDatabaseAdapter(CategoryMapper mapper, MongoCategoryRepository repository) {
+        this.mapper = mapper;
         this.repository = repository;
     }
 
@@ -30,13 +33,13 @@ public class CategoryDatabaseAdapter implements CategoryRepositoryPort {
         log.debug("Mapeando categoria domínio para documento do MongoDB. Nome: {}", category.getName());
 
         try {
-            CategoryDocument document = mapCategoryToDocument(category);
+            CategoryDocument document = mapper.toDocument(category);
 
             log.info("Persistindo nova categoria no MongoDB. Nome: {}", category.getName());
             CategoryDocument saved = Objects.requireNonNull(repository.save(document));
 
             log.info("Categoria persistida com sucesso no MongoDB. ID: {} | Nome: {}", saved.getId(), saved.getName());
-            return mapDocumentToCategory(saved);
+            return mapper.toDomain(saved);
 
         } catch (DataAccessException e) {
             log.error("Erro ao salvar categoria no MongoDB. Nome: {} | Erro: {}", category.getName(), e.getMessage(), e);
@@ -49,13 +52,13 @@ public class CategoryDatabaseAdapter implements CategoryRepositoryPort {
         log.debug("Mapeando atualização de categoria para documento MongoDB. ID: {}", category.getId());
 
         try {
-            CategoryDocument document = mapCategoryToDocument(category);
+            CategoryDocument document = mapper.toDocument(category);
 
             log.info("Atualizando registro da categoria no MongoDB. ID: {} | Nome: {}", category.getId(), category.getName());
             CategoryDocument saved = Objects.requireNonNull(repository.save(document));
 
             log.info("Categoria atualizada com sucesso no MongoDB. ID: {} | Nome: {}", saved.getId(), saved.getName());
-            return mapDocumentToCategory(saved);
+            return mapper.toDomain(saved);
 
         } catch (DataAccessException e) {
             log.error("Erro ao atualizar categoria no MongoDB. ID: {} | Nome: {} | Erro: {}", category.getId(), category.getName(), e.getMessage(), e);
@@ -86,7 +89,7 @@ public class CategoryDatabaseAdapter implements CategoryRepositoryPort {
             List<Category> categories = repository.findAll().stream()
                     .map(document -> {
                         log.debug("Mapeando documento MongoDB para domínio. ID: {} | Nome: {}", document.getId(), document.getName());
-                        return mapDocumentToCategory(document);
+                        return mapper.toDomain(document);
                     })
                     .toList();
 
@@ -106,7 +109,7 @@ public class CategoryDatabaseAdapter implements CategoryRepositoryPort {
             Optional<Category> category = repository.findById(id)
                     .map(document -> {
                         log.debug("Categoria encontrada no MongoDB. Mapeando para domínio. ID: {} | Nome: {}", document.getId(), document.getName());
-                        return mapDocumentToCategory(document);
+                        return mapper.toDomain(document);
                     });
 
             if (category.isPresent()) {
@@ -120,21 +123,5 @@ public class CategoryDatabaseAdapter implements CategoryRepositoryPort {
             log.error("Erro ao buscar categoria pelo ID no MongoDB: {}. Erro: {}", id, e.getMessage(), e);
             throw new PersistenceException("Erro ao buscar categoria pelo ID no banco de dados MongoDB.", e);
         }
-    }
-
-    private CategoryDocument mapCategoryToDocument(Category category) {
-        return new CategoryDocument(
-                category.getId(),
-                category.getName(),
-                category.getDescription()
-        );
-    }
-
-    private Category mapDocumentToCategory(CategoryDocument document) {
-        return new Category(
-                document.getId(),
-                document.getName(),
-                document.getDescription()
-        );
     }
 }

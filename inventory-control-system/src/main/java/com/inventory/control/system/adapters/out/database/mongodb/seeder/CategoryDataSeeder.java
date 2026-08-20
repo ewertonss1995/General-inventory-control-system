@@ -23,12 +23,24 @@ public class CategoryDataSeeder implements CommandLineRunner {
     @Override
     public void run(String... args) {
         log.info("Iniciando verificação do seed de categorias no MongoDB...");
-
+        
         List<CategoryDocument> defaultCategories = List.of(
-                new CategoryDocument(null, "Eletrônicos", "Dispositivos eletrônicos, componentes e acessórios"),
-                new CategoryDocument(null, "Periféricos", "Teclados, mouses, monitores e periféricos de informática"),
-                new CategoryDocument(null, "Móveis de Escritório", "Cadeiras ergonômicas, mesas e organizadores"),
-                new CategoryDocument(null, "Acessórios de Rede", "Cabos, roteadores, switches e adaptadores")
+            CategoryDocument.builder()
+            .name("Eletrônicos")
+            .description("Dispositivos eletrônicos, componentes e acessórios")
+            .build(),
+        CategoryDocument.builder()
+            .name("Periféricos")
+            .description("Teclados, mouses, monitores e periféricos de informática")
+            .build(),
+        CategoryDocument.builder()
+            .name("Móveis de Escritório")
+            .description("Cadeiras ergonômicas, mesas e organizadores")
+            .build(),
+        CategoryDocument.builder()
+            .name("Acessórios de Rede")
+            .description("Cabos, roteadores, switches e adaptadores")
+            .build()
         );
 
         int addedCount = 0;
