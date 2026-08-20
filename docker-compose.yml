@@ -54,8 +54,13 @@ services:
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
     depends_on:
       postgres-db:
-        condition: service_healthy
-      
+        condition: service_healthy   
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 8082 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s      
     networks:
       - inventory-network
 
@@ -87,6 +92,12 @@ services:
         condition: service_healthy
       mongodb:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 8081 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
     networks:
       - inventory-network
 
@@ -101,8 +112,10 @@ services:
       - AUTH_SERVICE_URL=http://auth-service:8082
       - INVENTORY_CONTROL_SYSTEM_URL=http://inventory-control-system:8081
     depends_on:
-      - auth-service
-      - inventory-control-system
+      auth-service:
+        condition: service_healthy
+      inventory-control-system:
+        condition: service_healthy
     networks:
       - inventory-network
 
