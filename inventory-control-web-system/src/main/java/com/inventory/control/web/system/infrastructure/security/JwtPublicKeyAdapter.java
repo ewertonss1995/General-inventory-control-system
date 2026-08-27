@@ -13,14 +13,9 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 @Component
 public class JwtPublicKeyAdapter implements JwtPublicKeyPort {
     
-    private static final Logger log = LoggerFactory.getLogger(JwtPublicKeyAdapter.class);
-
     @Value("${jwt.public-key-path}")
     private Resource publicKeyResource;
 

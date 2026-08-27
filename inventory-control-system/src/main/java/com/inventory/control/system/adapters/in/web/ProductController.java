@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.inventory.control.system.adapters.in.web.mapper.ProductMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,15 +39,17 @@ public class ProductController {
 
         private static final Logger log = LoggerFactory.getLogger(ProductController.class);
 
+        private final ProductMapper mapper;
         private final CreateProductUseCase createProductUseCase;
-        private final GetProductUseCase findProductUseCase;
+        private final GetProductUseCase getProductUseCase;
         private final UpdateStockUseCase updateStockUseCase;
         private final UpdateProductUseCase updateProductUseCase;
 
-        public ProductController(CreateProductUseCase createProductUseCase, GetProductUseCase findProductUseCase,
+        public ProductController(ProductMapper mapper, CreateProductUseCase createProductUseCase, GetProductUseCase getProductUseCase,
                         UpdateStockUseCase updateStockUseCase, UpdateProductUseCase updateProductUseCase) {
+                this.mapper = mapper;
                 this.createProductUseCase = createProductUseCase;
-                this.findProductUseCase = findProductUseCase;
+                this.getProductUseCase = getProductUseCase;
                 this.updateStockUseCase = updateStockUseCase;
                 this.updateProductUseCase = updateProductUseCase;
         }
@@ -55,11 +58,11 @@ public class ProductController {
         public ResponseEntity<SaveProductResponse> createProduct(@RequestBody @Valid ProductRequest request) {
                 log.info("Requisição recebida para criar produto: {}", request.sku());
 
-                Product productCreated = createProductUseCase.execute(toProduct(request));
+                Product productCreated = createProductUseCase.execute(mapper.toProduct(request));
 
                 log.info("Produto com SKU: {} criado com sucesso. ID: {}", productCreated.getSku(),
                                 productCreated.getId());
-                return ResponseEntity.status(HttpStatus.CREATED).body(toSaveProductResponse(productCreated));
+                return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toSaveProductResponse(productCreated));
         }
 
         @PutMapping("/update/{sku}")
@@ -69,32 +72,30 @@ public class ProductController {
 
                 log.info("Requisição recebida para atualizar produto com SKU: {}", sku);
 
-                Product productUpdated = updateProductUseCase.execute(sku, toProduct(request));
+                Product productUpdated = updateProductUseCase.execute(sku, mapper.toProduct(request));
 
                 log.info("Produto com SKU: {} atualizado com sucesso.", sku);
-                return ResponseEntity.ok(toSaveProductResponse(productUpdated));
+                return ResponseEntity.ok(mapper.toSaveProductResponse(productUpdated));
         }
 
         @GetMapping
         public ResponseEntity<List<ProductResponse>> getAllProducts() {
                 log.info("Requisição recebida para listar todos os produtos.");
 
-                List<ProductResponse> products = findProductUseCase.findAll().stream()
-                                .map(this::toProductResponse)
-                                .toList();
+                List<Product> products = getProductUseCase.findAll();
 
                 log.info("Busca realizada com sucesso. Total de produtos encontrados: {}", products.size());
-                return ResponseEntity.ok(products);
+                return ResponseEntity.ok(mapper.toProductResponseList(products));
         }
 
         @GetMapping("/{sku}")
         public ResponseEntity<ProductResponse> getProductBySku(@PathVariable String sku) {
                 log.info("Requisição recebida para buscar produto por SKU: {}", sku);
 
-                Product product = findProductUseCase.findBySku(sku);
+                Product product = getProductUseCase.findBySku(sku);
 
                 log.info("Produto com SKU: {} localizado com sucesso.", sku);
-                return ResponseEntity.ok(toProductResponse(product));
+                return ResponseEntity.ok(mapper.toProductResponse(product));
         }
 
         @PatchMapping("/{sku}/stock")
@@ -105,79 +106,11 @@ public class ProductController {
                 log.info("Requisição recebida para alteração de estoque. SKU: {} | Tipo: {} | Quantidade: {}",
                                 sku, request.movementType(), request.quantity());
 
-                Product updatedProduct = updateStockUseCase.execute(sku, toUpdateStockInput(request));
+                Product updatedProduct = updateStockUseCase.execute(sku, mapper.toUpdateStockInput(request));
 
                 log.info("Estoque do produto SKU: {} atualizado com sucesso. Novo saldo: {}", sku,
                                 updatedProduct.getQuantity());
 
-                return ResponseEntity.ok(toUpdateStockResponse(request, updatedProduct));
-        }
-
-        private UpdateStockResponse toUpdateStockResponse(UpdateStockRequest request, Product updatedProduct) {
-                Integer previousQuantity = updatedProduct.getQuantity() + request.quantity();
-                return new UpdateStockResponse(
-                                updatedProduct.getSku(),
-                                previousQuantity,
-                                updatedProduct.getQuantity(),
-                                request.movementType().name(),
-                                "Estoque atualizado com sucesso.");
-        }
-
-        private UpdateStockInput toUpdateStockInput(UpdateStockRequest request) {
-                return new UpdateStockInput(request.quantity(), request.movementType());
-        }
-
-        private Product toProduct(ProductRequest request) {
-                return new Product(
-                                request.sku(),
-                                request.name(),
-                                request.description(),
-                                request.price(),
-                                request.quantity(),
-                                new Category(request.categoryId(), null, null));
-
-        }
-
-        private ProductResponse toProductResponse(Product product) {
-
-                if (product.getCategory() == null) {
-                        return new ProductResponse(
-                                        product.getId(),
-                                        product.getSku(),
-                                        product.getName(),
-                                        product.getDescription(),
-                                        product.getPrice(),
-                                        product.getQuantity(),
-                                        null);
-                }
-
-                return new ProductResponse(
-                                product.getId(),
-                                product.getSku(),
-                                product.getName(),
-                                product.getDescription(),
-                                product.getPrice(),
-                                product.getQuantity(),
-                                new CategoryResponse(
-                                                product.getCategory().getId() != null ? product.getCategory().getId()
-                                                                : null,
-                                                product.getCategory().getName() != null
-                                                                ? product.getCategory().getName()
-                                                                : null,
-                                                product.getCategory().getDescription() != null
-                                                                ? product.getCategory().getDescription()
-                                                                : null));
-
-        }
-
-        private SaveProductResponse toSaveProductResponse(Product product) {
-                return new SaveProductResponse(
-                                product.getId(),
-                                product.getSku(),
-                                product.getName(),
-                                product.getDescription(),
-                                product.getPrice(),
-                                product.getQuantity(),
-                                product.getCategory() != null ? product.getCategory().getName() : "<category_name>");
+                return ResponseEntity.ok(mapper.toUpdateStockResponse(request, updatedProduct));
         }
 }

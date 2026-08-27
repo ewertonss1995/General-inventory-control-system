@@ -1,5 +1,6 @@
 package com.inventory.control.web.system.adapters.out.auth;
 
+import com.inventory.control.web.system.adapters.in.web.mapper.AuthenticateMapper;
 import com.inventory.control.web.system.domain.model.LoginUser;
 import com.inventory.control.web.system.domain.model.RegisterUser;
 import com.inventory.control.web.system.domain.model.TokenUser;
@@ -16,9 +17,11 @@ public class AuthUserAdapter implements AuthenticateFeignPort {
 
     private static final Logger log = LoggerFactory.getLogger(AuthUserAdapter.class);
 
+    private final AuthenticateMapper mapper;
     private final AuthFeignClient authFeignClient;
 
-    public AuthUserAdapter(AuthFeignClient authFeignClient) {
+    public AuthUserAdapter(AuthenticateMapper mapper, AuthFeignClient authFeignClient) {
+        this.mapper = mapper;
         this.authFeignClient = authFeignClient;
     }
 
@@ -35,10 +38,7 @@ public class AuthUserAdapter implements AuthenticateFeignPort {
         log.debug("Iniciando processo de login de usuário: {} no serviço de autenticação",
                 loginUser.getUsernameOrEmail());
         ResponseEntity<TokenResponse> responseToken = authFeignClient.login(loginUser);
-        return mapToTokenUser(responseToken.getBody());
+        return mapper.toTokenUser(responseToken.getBody());
     }
 
-    private TokenUser mapToTokenUser(TokenResponse tokenResponse) {
-        return new TokenUser(tokenResponse.accessToken(), tokenResponse.tokenType(), tokenResponse.expiresInSeconds());
-    }
 }
