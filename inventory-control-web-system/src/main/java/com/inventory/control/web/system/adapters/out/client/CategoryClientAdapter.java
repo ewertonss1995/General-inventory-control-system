@@ -1,5 +1,6 @@
 package com.inventory.control.web.system.adapters.out.client;
 
+import com.inventory.control.web.system.adapters.out.mapper.InventoryCategoryMapper;
 import com.inventory.control.web.system.adapters.out.client.dto.request.InventoryCategoryRequest;
 import com.inventory.control.web.system.adapters.out.client.dto.response.InventoryCategoryResponse;
 import com.inventory.control.web.system.domain.model.Category;
@@ -16,28 +17,30 @@ public class CategoryClientAdapter implements CategoryFeignPort {
 
     private static final Logger log = LoggerFactory.getLogger(CategoryClientAdapter.class);
 
+    private final InventoryCategoryMapper mapper;
     private final InventoryFeignClient inventoryFeignClient;
 
-    public CategoryClientAdapter(InventoryFeignClient inventoryFeignClient) {
+    public CategoryClientAdapter(InventoryCategoryMapper mapper, InventoryFeignClient inventoryFeignClient) {
+        this.mapper = mapper;
         this.inventoryFeignClient = inventoryFeignClient;
     }
 
     @Override
     public Category saveCategory(Category category) {
         log.debug("Iniciando processo de salvamento de categoria: {}", category.getName());
-        ResponseEntity<InventoryCategoryResponse> response = inventoryFeignClient.createCategory(categoryToInventoryCategoryRequest(category));
+        ResponseEntity<InventoryCategoryResponse> response = inventoryFeignClient.createCategory(mapper.categoryToInventoryCategoryRequest(category));
         InventoryCategoryResponse responseBody = response.getBody();
         log.debug("Produto salvo com sucesso: {}", responseBody);
-        return toCategory(responseBody);
+        return mapper.toCategory(responseBody);
     }
 
     @Override
     public Category updateCategory(String id, Category category) {
         log.debug("Iniciando processo de atualização de category: {}", category.getName());
-        ResponseEntity<InventoryCategoryResponse> response = inventoryFeignClient.updateCategory(id, categoryToInventoryCategoryRequest(category));
+        ResponseEntity<InventoryCategoryResponse> response = inventoryFeignClient.updateCategory(id, mapper.categoryToInventoryCategoryRequest(category));
         InventoryCategoryResponse responseBody = response.getBody();
         log.debug("Category atualizada com sucesso: {}", responseBody);
-        return toCategory(responseBody);
+        return mapper.toCategory(responseBody);
     }
 
     @Override
@@ -45,7 +48,7 @@ public class CategoryClientAdapter implements CategoryFeignPort {
         log.debug("Iniciando processo de busca de todos os categories");
         ResponseEntity<List<InventoryCategoryResponse>> response = inventoryFeignClient.getAllCategories();
         log.debug("Categories encontrados: {}", response.getBody());
-        return toCategoryList(response.getBody());
+        return mapper.toCategoryList(response.getBody());
     }
 
     @Override
@@ -53,24 +56,6 @@ public class CategoryClientAdapter implements CategoryFeignPort {
         log.debug("Iniciando processo de busca de category por ID: {}", id);
         ResponseEntity<InventoryCategoryResponse> response = inventoryFeignClient.getCategoryById(id);
         log.debug("Category encontrado: {}", response.getBody());
-        return toCategory(response.getBody());
-    }
-
-    private Category toCategory(InventoryCategoryResponse categoryResponse) {
-        return new Category(
-            categoryResponse.id(), 
-            categoryResponse.name(), 
-            categoryResponse.description());
-    }
-
-    private List<Category> toCategoryList(List<InventoryCategoryResponse> categoryListResponse) {
-        return categoryListResponse.stream()
-        .map(this::toCategory)
-        .toList();
-    }
-
-    private InventoryCategoryRequest categoryToInventoryCategoryRequest(Category category) {
-        return new InventoryCategoryRequest(category.getName(), category.getDescription());
-
+        return mapper.toCategory(response.getBody());
     }
 }

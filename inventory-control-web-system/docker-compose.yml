@@ -1,27 +1,23 @@
 services:
-  postgres-db:
+  postgres:
     image: postgres:15-alpine
-    container_name: inventory_postgres
     restart: always
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=SenhaSuperSegura123!
-      - POSTGRES_DB=auth_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: SenhaSuperSegura123!
+      POSTGRES_DB: auth_db
     ports:
       - "5433:5432"
+    volumes:
+      - bff_postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d auth_db && psql -U postgres -d auth_db -c \"SELECT 1 FROM pg_database WHERE datname = 'inventory_db'\" | grep -q 1 || psql -U postgres -d auth_db -c \"CREATE DATABASE inventory_db;\""]
-      interval: 10s
+      interval: 5s
       timeout: 5s
       retries: 5
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - inventory-network
 
   mongodb:
     image: mongo:7.0
-    container_name: inventory_mongodb
     restart: always
     environment:
       MONGO_INITDB_DATABASE: inventory_db
@@ -29,51 +25,46 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: SenhaSuperSegura123!
     ports:
       - "27018:27017"
+    volumes:
+      - bff_mongo_data:/data/db
     healthcheck:
       test: ["CMD", "mongosh", "-u", "admin", "-p", "SenhaSuperSegura123!", "--authenticationDatabase", "admin", "--eval", "db.adminCommand('ping')"]
       interval: 5s
       timeout: 5s
       retries: 5
-    volumes:
-      - mongo_data:/data/db
-    networks:
-      - inventory-network
 
   auth-service:
     build:
-      context: ./auth-service
+      context: ../auth-service
       dockerfile: Dockerfile
-    container_name: auth-service
     ports:
       - "8082:8082"
     environment:
-      - DB_HOST=postgres-db
-      - DB_NAME=auth_db
-      - DB_USERNAME=postgres
-      - DB_PASSWORD=SenhaSuperSegura123!
+      - POSTGRES_DB_HOST=postgres
+      - POSTGRES_DB_NAME=auth_db
+      - POSTGRES_DB_USERNAME=postgres
+      - POSTGRES_DB_PASSWORD=SenhaSuperSegura123!
+      - POSTGRES_DB_PORT=5432
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
     depends_on:
-      postgres-db:
-        condition: service_healthy   
+      postgres:
+        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "nc -z localhost 8082 || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 30s      
-    networks:
-      - inventory-network
+      start_period: 30s
 
   inventory-control-system:
     build:
-      context: ./inventory-control-system
+      context: ../inventory-control-system
       dockerfile: Dockerfile
-    container_name: inventory-control-system
     ports:
       - "8081:8081"
     environment:
       # Variáveis do Postgres
-      - POSTGRES_DB_HOST=postgres-db
+      - POSTGRES_DB_HOST=postgres
       - POSTGRES_DB_NAME=inventory_db
       - POSTGRES_DB_USERNAME=postgres
       - POSTGRES_DB_PASSWORD=SenhaSuperSegura123!
@@ -88,7 +79,7 @@ services:
       # Configurações do Hibernate
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
     depends_on:
-      postgres-db:
+      postgres:
         condition: service_healthy
       mongodb:
         condition: service_healthy
@@ -98,31 +89,7 @@ services:
       timeout: 5s
       retries: 5
       start_period: 40s
-    networks:
-      - inventory-network
-
-  inventory-control-web-system:
-    build:
-      context: ./inventory-control-web-system
-      dockerfile: Dockerfile
-    container_name: inventory-control-web-system
-    ports:
-      - "8080:8080"
-    environment:
-      - AUTH_SERVICE_URL=http://auth-service:8082
-      - INVENTORY_CONTROL_SYSTEM_URL=http://inventory-control-system:8081
-    depends_on:
-      auth-service:
-        condition: service_healthy
-      inventory-control-system:
-        condition: service_healthy
-    networks:
-      - inventory-network
-
-networks:
-  inventory-network:
-    driver: bridge
 
 volumes:
-  postgres_data:
-  mongo_data:
+  bff_postgres_data:
+  bff_mongo_data:

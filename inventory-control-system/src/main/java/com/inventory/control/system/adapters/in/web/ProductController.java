@@ -114,4 +114,3 @@ public class ProductController {
                 return ResponseEntity.ok(mapper.toUpdateStockResponse(request, updatedProduct));
         }
 }
-
