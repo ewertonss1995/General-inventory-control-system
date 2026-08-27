@@ -52,4 +52,11 @@ public class Product {
     public BigDecimal getPrice() { return price; }
     public Integer getQuantity() { return quantity; }
     public Category getCategory() { return category; }
+    public void setId(String id) { this.id = id; }
+    public void setSku(String sku) { this.sku = sku != null ? sku.toUpperCase() : null; }
+    public void setName(String name) { this.name = name; }
+    public void setDescription(String description) { this.description = description; }
+    public void setPrice(BigDecimal price) { this.price = price; }
+    public void setQuantity(Integer quantity) { this.quantity = quantity; }
+    public void setCategory(Category category) { this.category = category; }
 }

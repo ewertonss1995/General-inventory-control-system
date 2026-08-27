@@ -26,7 +26,7 @@ public interface ProductMapper {
     UpdateStockInput toUpdateStockInput(UpdateStockRequest request);
 
     @Mapping(target = "sku", source = "updatedProduct.sku")
-    @Mapping(target = "previousQuantity", expression = "java(updatedProduct.getQuantity() + request.quantity())")
+    @Mapping(target = "previousQuantity", expression = "java(calculatePreviousQuantity(request, updatedProduct))")    
     @Mapping(target = "newQuantity", source = "updatedProduct.quantity")
     @Mapping(target = "movementType", source = "request.movementType")
     @Mapping(target = "message", constant = "Estoque atualizado com sucesso.")
@@ -52,6 +52,21 @@ public interface ProductMapper {
         Category category = new Category();
         category.setId(categoryId);
         return category;
+    }
+
+    default Integer calculatePreviousQuantity(UpdateStockRequest request, Product updatedProduct) {
+        if (updatedProduct == null || updatedProduct.getQuantity() == null || 
+            request == null || request.quantity() == null) {
+            return 0;
+        }
+
+        int currentQuantity = updatedProduct.getQuantity();
+        int movementQuantity = request.quantity();
+
+        return switch (request.movementType()) {
+            case IN -> currentQuantity - movementQuantity;
+            case OUT -> currentQuantity + movementQuantity;
+        };
     }
 
     // === Mapeamentos da Camada de Persistência (MongoDB) ===

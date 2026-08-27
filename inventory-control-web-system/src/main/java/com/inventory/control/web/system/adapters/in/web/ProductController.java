@@ -1,17 +1,14 @@
 package com.inventory.control.web.system.adapters.in.web;
 
 import com.inventory.control.web.system.adapters.in.web.mapper.ProductMapper;
-import com.inventory.control.web.system.domain.model.Category;
 import com.inventory.control.web.system.domain.model.Product;
 import com.inventory.control.web.system.domain.model.UpdateStock;
-import com.inventory.control.web.system.domain.model.UpdateStockInput;
 import com.inventory.control.web.system.ports.in.product.GetProductUseCase;
 import com.inventory.control.web.system.ports.in.product.PostProductUseCase;
 import com.inventory.control.web.system.ports.in.product.UpdateProductUseCase;
 import com.inventory.control.web.system.ports.in.product.UpdateStockUseCase;
 import com.inventory.control.web.system.adapters.in.web.dto.request.ProductRequest;
 import com.inventory.control.web.system.adapters.in.web.dto.request.UpdateStockRequest;
-import com.inventory.control.web.system.adapters.in.web.dto.response.CategoryResponse;
 import com.inventory.control.web.system.adapters.in.web.dto.response.ProductResponse;
 import com.inventory.control.web.system.adapters.in.web.dto.response.SaveProductResponse;
 import com.inventory.control.web.system.adapters.in.web.dto.response.UpdateStockResponse;
@@ -61,14 +58,13 @@ public class ProductController {
 
     @PostMapping("/save")
     public ResponseEntity<SaveProductResponse> createProduct(@RequestBody @Valid ProductRequest request) {
-        log.info("Requisição recebida para criação de produto: " + request.name());
+        log.info("Requisição recebida para criação de produto: " + request.sku());
 
-        SaveProductResponse response = mapper.toSaveProductResponse(
-                postProductUseCase.execute(mapper.toProduct(request)));
+        Product productDomain = postProductUseCase.execute(mapper.toProduct(request));
 
-        log.info("Produto com SKU: {} criado com sucesso. ID: {}", response.sku(), response.id());
+        log.info("Produto com SKU: {} criado com sucesso. ID: {}", productDomain.getSku(), productDomain.getId());
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toSaveProductResponse(productDomain));
     }
 
     @PutMapping("/update/{sku}")
@@ -115,7 +111,7 @@ public class ProductController {
         UpdateStock updatedStock = updateStockUseCase.execute(sku, mapper.toUpdateStockRequest(request));
 
         log.info("Estoque do produto SKU: {} atualizado com sucesso. Novo saldo: {}", sku,
-                updatedStock.newQuantity());
+                updatedStock.getNewQuantity());
 
         return ResponseEntity.ok(mapper.toUpdateStockResponse(updatedStock));
     }

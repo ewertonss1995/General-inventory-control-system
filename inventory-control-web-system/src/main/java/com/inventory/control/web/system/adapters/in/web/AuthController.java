@@ -3,8 +3,6 @@ package com.inventory.control.web.system.adapters.in.web;
 import com.inventory.control.web.system.adapters.in.web.dto.request.LoginRequest;
 import com.inventory.control.web.system.adapters.in.web.dto.request.RegisterUserRequest;
 import com.inventory.control.web.system.adapters.in.web.dto.response.TokenResponse;
-import com.inventory.control.web.system.domain.model.LoginUser;
-import com.inventory.control.web.system.domain.model.RegisterUser;
 import com.inventory.control.web.system.domain.model.TokenUser;
 import com.inventory.control.web.system.ports.in.authenticate.LoginUserUseCase;
 import com.inventory.control.web.system.ports.in.authenticate.RegisterUserUseCase;

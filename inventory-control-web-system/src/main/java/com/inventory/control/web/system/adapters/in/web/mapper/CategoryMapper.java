@@ -1,14 +1,9 @@
 package com.inventory.control.web.system.adapters.in.web.mapper;
 
-import com.inventory.control.web.system.adapters.in.web.dto.request.ProductRequest;
-import com.inventory.control.web.system.adapters.in.web.dto.request.UpdateStockRequest;
-import com.inventory.control.web.system.adapters.in.web.dto.response.SaveProductResponse;
-import com.inventory.control.web.system.adapters.in.web.dto.response.ProductResponse;
-import com.inventory.control.web.system.adapters.in.web.dto.response.UpdateStockResponse;
+import com.inventory.control.web.system.adapters.in.web.dto.request.CategoryRequest;
+import com.inventory.control.web.system.adapters.in.web.dto.response.CategoryResponse;
 
-import com.inventory.control.web.system.domain.model.Product;
-import com.inventory.control.web.system.domain.model.UpdateStockInput;
-import com.inventory.control.web.system.domain.model.UpdateStock;
+import com.inventory.control.web.system.domain.model.Category;
 
 import java.util.List;
 
@@ -19,16 +14,9 @@ import org.mapstruct.Mapping;
 public interface CategoryMapper {
 
     @Mapping(target = "id", ignore = true) 
-    Product toProduct(ProductRequest request);
+    Category toCategory(CategoryRequest request);
 
-    @Mapping(target = "categoryName", source = "category.name")
-    SaveProductResponse toSaveProductResponse(Product product);
-    
-    ProductResponse toProductResponse(Product product);
+    CategoryResponse toCategoryResponse(Category category);
 
-    List<ProductResponse> toProductResponseList(List<Product> productList);
-
-    UpdateStockInput toUpdateStockRequest(UpdateStockRequest request);
-
-    UpdateStockResponse toUpdateStockResponse(UpdateStock updatedStock);
+    List<CategoryResponse> toCategoryResponseList(List<Category> categoryList);
 }

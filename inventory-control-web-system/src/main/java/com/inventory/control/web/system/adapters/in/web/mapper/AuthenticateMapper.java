@@ -8,11 +8,11 @@ import com.inventory.control.web.system.domain.model.LoginUser;
 import com.inventory.control.web.system.domain.model.TokenUser;
 
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface AuthenticateMapper { 
     RegisterUser toRegisterUser(RegisterUserRequest request);
     LoginUser toLoginUser(LoginRequest request);
     TokenResponse toTokenResponse(TokenUser tokenUser);
+    TokenUser toTokenUser(TokenResponse tokenResponse);
 }
