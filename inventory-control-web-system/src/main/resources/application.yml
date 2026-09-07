@@ -14,5 +14,15 @@ logging:
   level:
     com.inventory.control.web.system.infrastructure.integration.client: DEBUG
 
+# 📊 Métrica e Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,prometheus"
+  metrics:
+    tags:
+      application: ${spring.application.name}
+      
 jwt:
   public-key-path: classpath:certs/app.pub 

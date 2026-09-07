@@ -115,6 +115,19 @@
             <artifactId>bucket4j-core</artifactId>
             <version>8.10.1</version>
         </dependency>
+
+        <!-- 1. Spring Boot Actuator: Cria a infraestrutura HTTP de endpoints de gerenciamento -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- 2. Micrometer Prometheus Registry: Traduz as métricas internas para o formato texto do Prometheus -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+        
     </dependencies>
 
     <dependencyManagement>

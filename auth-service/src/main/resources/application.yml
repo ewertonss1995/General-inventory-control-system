@@ -4,8 +4,8 @@ server:
 spring:
   application:
     name: auth-service
-  profiles:
-    active: ${SPRING_PROFILES_ACTIVE:dev}
+  # profiles:
+  #   active: ${SPRING_PROFILES_ACTIVE:dev}
 
   datasource:
     url: jdbc:postgresql://${POSTGRES_DB_HOST:localhost}:${POSTGRES_DB_PORT:5433}/${POSTGRES_DB_NAME:auth_db}
@@ -20,15 +20,15 @@ spring:
     enabled: true
     baseline-on-migrate: true
 
-# Configurações do Spring Security Actuator e Exposições de Métricas
+# 📊 Métrica e Actuator
 management:
   endpoints:
     web:
       exposure:
-        include: health, info, prometheus
-  endpoint:
-    health:
-      show-details: always
+        include: "health,prometheus"
+  metrics:
+    tags:
+      application: ${spring.application.name}
 
 # Swagger / OpenAPI customizado para o time de desenvolvimento
 springdoc:
