@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 public class GetProductService implements GetProductUseCase {
 
@@ -26,47 +27,45 @@ public class GetProductService implements GetProductUseCase {
 
     @Override
     public List<Product> findAll() {
-        return Timer.builder("usecase.product.get.time")
-                .description("Tempo de execução do caso de uso para listar todos os produtos")
-                .tag("layer", "usecase")
-                .tag("operation", "findAll")
-                .register(meterRegistry)
-                .record(() -> {
-                    log.info("Executando caso de uso para listar todos os produtos.");
+        return executeWithTimer("findAll", () -> {
+            log.info("Executando caso de uso para listar todos os produtos.");
 
-                    List<Product> products = productRepositoryPort.findAll();
+            List<Product> products = productRepositoryPort.findAll();
+            meterRegistry.summary("usecase.product.findall.result.size").record(products.size());
 
-                    meterRegistry.summary("usecase.product.findall.result.size").record(products.size());
-
-                    log.info("Consulta de produtos concluída. Total retornado: {}", products.size());
-                    return products;
-                });
+            log.info("Consulta de produtos concluída. Total retornado: {}", products.size());
+            return products;
+        });
     }
 
     @Override
     public Product findBySku(String sku) {
-        return Timer.builder("usecase.product.get.time")
-                .description("Tempo de execução do caso de uso para buscar produto por SKU")
+        return executeWithTimer("findById", () -> {
+            if (sku == null || sku.isBlank()) {
+                log.warn("Tentativa de busca com SKU nulo ou em branco. SKU recebido: '{}'", sku);
+                recordFailure("empty_sku");
+                throw new BusinessException("O SKU informado para busca não pode ser nulo ou vazio.");
+            }
+
+            String formattedSku = sku.trim().toUpperCase();
+            log.info("Executando caso de uso para buscar produto pelo SKU: {}", formattedSku);
+
+            return productRepositoryPort.findBySku(formattedSku)
+                    .orElseThrow(() -> {
+                        log.warn("Falha na busca de produto: SKU '{}' não encontrado.", formattedSku);
+                        recordFailure("product_not_found");
+                        return new ResourceNotFoundException("Produto não encontrado para o SKU: " + formattedSku);
+                    });
+        });
+    }
+
+    private <T> T executeWithTimer(String operation, Supplier<T> supplier) {
+        return Timer.builder("usecase.category.time")
+                .description("Tempo de execução dos casos de uso de busca de categoria")
                 .tag("layer", "usecase")
-                .tag("operation", "findBySku")
+                .tag("operation", operation)
                 .register(meterRegistry)
-                .record(() -> {
-                    if (sku == null || sku.isBlank()) {
-                        log.warn("Tentativa de busca com SKU nulo ou em branco. SKU recebido: '{}'", sku);
-                        recordFailure("empty_sku");
-                        throw new BusinessException("O SKU informado para busca não pode ser nulo ou vazio.");
-                    }
-
-                    String formattedSku = sku.trim().toUpperCase();
-                    log.info("Executando caso de uso para buscar produto pelo SKU: {}", formattedSku);
-
-                    return productRepositoryPort.findBySku(formattedSku)
-                            .orElseThrow(() -> {
-                                log.warn("Falha na busca de produto: SKU '{}' não encontrado.", formattedSku);
-                                recordFailure("product_not_found");
-                                return new ResourceNotFoundException("Produto não encontrado para o SKU: " + formattedSku);
-                            });
-                });
+                .record(supplier);
     }
 
     private void recordFailure(String reason) {
