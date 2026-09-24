@@ -1,7 +1,8 @@
 services:
   postgres-db:
     image: postgres:15-alpine
-    container_name: inventory_postgres
+    container_name: postgres
+    restart: no
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=SenhaSuperSegura123!
@@ -22,7 +23,8 @@ services:
 
   mongodb:
     image: mongo:7.0
-    container_name: inventory_mongodb
+    container_name: mongodb
+    restart: no
     environment:
       MONGO_INITDB_DATABASE: inventory_db
       MONGO_INITDB_ROOT_USERNAME: admin
@@ -55,6 +57,7 @@ services:
       - POSTGRES_DB_PASSWORD=SenhaSuperSegura123!
       - POSTGRES_DB_PORT=5432
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - MANAGEMENT_OTLP_TRACING_ENDPOINT=http://tempo:4318/v1/traces
     depends_on:
       postgres-db:
         condition: service_healthy   
@@ -88,6 +91,7 @@ services:
       - MONGO_DB_NAME=inventory_db
       - MONGO_AUTH_DB=admin
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - MANAGEMENT_OTLP_TRACING_ENDPOINT=http://tempo:4318/v1/traces
     depends_on:
       postgres-db:
         condition: service_healthy
@@ -112,6 +116,7 @@ services:
     environment:
       - AUTH_SERVICE_URL=http://auth-service:8082
       - INVENTORY_CONTROL_SYSTEM_URL=http://inventory-control-system:8081
+      - MANAGEMENT_OTLP_TRACING_ENDPOINT=http://tempo:4318/v1/traces
     depends_on:
       auth-service:
         condition: service_healthy
@@ -126,29 +131,67 @@ services:
     networks:
       - inventory-network
 
+  # -------------------------------------------------------------
+  # 1. METRICS PATTERN: PROMETHEUS (Coleta e guarda métricas)
+  # -------------------------------------------------------------
   prometheus:
-    image: prom/prometheus:v2.45.0
-    container_name: inventory-prometheus
+    image: prom/prometheus:v2.53.0
+    container_name: prometheus
     ports:
       - "9090:9090"
     volumes:
-      - ./docs/prometheus.yml:/etc/prometheus/prometheus.yml
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - ./docs/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
     networks:
       - inventory-network
 
+  # -------------------------------------------------------------
+  # 2. DISTRIBUTED TRACING: GRAFANA TEMPO (Guarda os rastros/traces)
+  # -------------------------------------------------------------
+  tempo:
+    image: grafana/tempo:2.4.1
+    container_name: tempo
+    command: [ "-config.file=/etc/tempo.yaml" ]
+    volumes:
+      - ./docs/tempo.yml:/etc/tempo.yaml:ro
+    ports:
+      - "4318:4318" # OTLP HTTP receiver
+      - "3200:3200" # Tempo UI/API
+    networks:
+      - inventory-network
+
+  # -------------------------------------------------------------
+  # 3. LOG AGGREGATION: GRAFANA LOKI (Centraliza e indexa os logs)
+  # -------------------------------------------------------------
+  loki:
+    image: grafana/loki:2.9.8
+    container_name: loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./docs/local-config.yaml:/etc/loki/local-config.yml:ro
+    networks:
+      - inventory-network
+
+  # -------------------------------------------------------------
+  # VISUALIZAÇÃO UNIFICADA: GRAFANA
+  # -------------------------------------------------------------
   grafana:
-    image: grafana/grafana:10.0.0
-    container_name: inventory-grafana
+    image: grafana/grafana:11.0.0
+    container_name: grafana
     ports:
       - "3001:3000"
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=SenhaSuperSegura123!
     volumes:
       - grafana_data:/var/lib/grafana
+      - ./docs/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
     depends_on:
       - prometheus
+      - tempo
+      - loki
     networks:
       - inventory-network
 

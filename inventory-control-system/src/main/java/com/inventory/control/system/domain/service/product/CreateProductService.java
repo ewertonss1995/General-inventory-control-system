@@ -7,6 +7,8 @@ import com.inventory.control.system.domain.model.Product;
 import com.inventory.control.system.ports.in.product.CreateProductUseCase;
 import com.inventory.control.system.ports.out.CategoryRepositoryPort;
 import com.inventory.control.system.ports.out.ProductRepositoryPort;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,50 +18,79 @@ public class CreateProductService implements CreateProductUseCase {
 
     private final ProductRepositoryPort productRepositoryPort;
     private final CategoryRepositoryPort categoryRepositoryPort;
+    private final MeterRegistry meterRegistry;
 
-    public CreateProductService(ProductRepositoryPort productRepositoryPort, CategoryRepositoryPort categoryRepositoryPort) {
+    public CreateProductService(ProductRepositoryPort productRepositoryPort, 
+                                CategoryRepositoryPort categoryRepositoryPort, 
+                                MeterRegistry meterRegistry) {
         this.productRepositoryPort = productRepositoryPort;
         this.categoryRepositoryPort = categoryRepositoryPort;
+        this.meterRegistry = meterRegistry;
     }
 
-@Override
+    @Override
     public Product execute(Product product) {
-        if (product.getCategory() == null || product.getCategory().getId() == null) {
-            log.warn("Falha ao criar produto SKU '{}': Categoria ou ID da categoria é nulo.", product.getSku());
-            throw new BusinessException("É necessário informar uma categoria válida para o produto.");
-        }
+        return Timer.builder("usecase.product.create.time")
+                .description("Tempo de execução do caso de uso de criação de produto")
+                .tag("layer", "usecase")
+                .register(meterRegistry)
+                .record(() -> {
+                    if (product.getSku() == null || product.getSku().isBlank()) {
+                        log.warn("Falha ao criar produto: SKU informado é nulo ou vazio.");
+                        recordFailure("empty_sku");
+                        throw new BusinessException("O SKU do produto é obrigatório para criação.");
+                    }
 
-        String categoryId = product.getCategory().getId().trim();
-        log.info("Iniciando processo de criação de produto. SKU: {} | Categoria ID: {}", 
-                product.getSku(), categoryId);
+                    if (product.getCategory() == null || product.getCategory().getId() == null) {
+                        log.warn("Falha ao criar produto SKU '{}': Categoria ou ID da categoria é nulo.", product.getSku());
+                        recordFailure("invalid_category");
+                        throw new BusinessException("É necessário informar uma categoria válida para o produto.");
+                    }
 
-        if (productRepositoryPort.existsBySku(product.getSku())) {
-            log.warn("Falha ao criar produto: SKU '{}' já está cadastrado no sistema.", product.getSku());
-            throw new BusinessException("SKU já cadastrado: " + product.getSku());
-        }
+                    String formattedSku = product.getSku().trim().toUpperCase();
+                    String categoryId = product.getCategory().getId().trim();
+                    log.info("Iniciando processo de criação de produto. SKU: {} | Categoria ID: {}", 
+                            formattedSku, categoryId);
 
-        Category category = categoryRepositoryPort.findById(categoryId)
-                .orElseThrow(() -> {
-                    log.warn("Falha ao criar produto SKU '{}': Categoria ID {} não encontrada.", 
-                            product.getSku(), categoryId);
-                    return new ResourceNotFoundException("Categoria não encontrada com o ID: " + categoryId);
+                    if (productRepositoryPort.existsBySku(formattedSku)) {
+                        log.warn("Falha ao criar produto: SKU '{}' já está cadastrado no sistema.", formattedSku);
+                        recordFailure("duplicate_sku");
+                        throw new BusinessException("SKU já cadastrado: " + formattedSku);
+                    }
+
+                    Category category = categoryRepositoryPort.findById(categoryId)
+                            .orElseThrow(() -> {
+                                log.warn("Falha ao criar produto SKU '{}': Categoria ID {} não encontrada.", 
+                                        formattedSku, categoryId);
+                                recordFailure("category_not_found");
+                                return new ResourceNotFoundException("Categoria não encontrada com o ID: " + categoryId);
+                            });
+
+                    log.debug("Categoria ID {} encontrada. Vinculando ao produto SKU '{}'.", category.getId(), formattedSku);
+
+                    Product newProduct = new Product(
+                        formattedSku, 
+                        product.getName(), 
+                        product.getDescription(), 
+                        product.getPrice(), 
+                        product.getQuantity(),
+                        new Category(category.getId(), category.getName(), category.getDescription()) 
+                    );
+                    
+                    Product savedProduct = productRepositoryPort.saveProduct(newProduct);
+
+                    log.info("Produto com SKU '{}' criado com sucesso. ID gerado: {}", savedProduct.getSku(), savedProduct.getId());
+                    
+                    meterRegistry.counter("business.product.created.total", 
+                            "category_name", category.getName() != null ? category.getName() : "unknown").increment();
+
+                    return savedProduct;
                 });
+    }
 
-        log.debug("Categoria ID {} encontrada. Vinculando ao produto SKU '{}'.", category.getId(), product.getSku());
-
-        Product newProduct = new Product(
-            product.getSku(), 
-            product.getName(), 
-            product.getDescription(), 
-            product.getPrice(), 
-            product.getQuantity(),
-            new Category(category.getId(), category.getName(), category.getDescription()) 
-        );
-        
-        Product savedProduct = productRepositoryPort.saveProduct(newProduct);
-
-        log.info("Produto com SKU '{}' criado com sucesso. ID gerado: {}", savedProduct.getSku(), savedProduct.getId());
-
-        return savedProduct;
+    private void recordFailure(String reason) {
+        meterRegistry.counter("business.product.creation.failures", 
+                "layer", "usecase",
+                "reason", reason).increment();
     }
 }

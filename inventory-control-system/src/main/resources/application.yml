@@ -42,16 +42,30 @@ spring:
     baseline-on-migrate: true
     locations: classpath:db/migration
 
-# 📊 Métrica e Actuator
+# 📊 Observabilidade
 management:
   endpoints:
     web:
       exposure:
-        include: "health,prometheus"
+        include: "health,info,prometheus,metrics"
   metrics:
     tags:
       application: ${spring.application.name}
+  tracing:
+    sampling:
+      probability: 1.0 # 100% de amostragem de rastros
+    otlp:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4317} # Endpoint onde o Grafana Tempo recebe rastros OTLP
+  prometheus:
+    metrics:
+      export:
+        enabled: true
 
+# Configuração do padrão do Log no Console
+logging:
+  pattern: 
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+    
 # 🔐 JWT
 jwt:
   public-key-path: ${JWT_PUBLIC_KEY_PATH:classpath:certs/app.pub}
