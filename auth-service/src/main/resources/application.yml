@@ -4,8 +4,8 @@ server:
 spring:
   application:
     name: auth-service
-  profiles:
-    active: ${SPRING_PROFILES_ACTIVE:dev}
+  # profiles:
+  #   active: ${SPRING_PROFILES_ACTIVE:dev}
 
   datasource:
     url: jdbc:postgresql://${POSTGRES_DB_HOST:localhost}:${POSTGRES_DB_PORT:5433}/${POSTGRES_DB_NAME:auth_db}
@@ -20,15 +20,29 @@ spring:
     enabled: true
     baseline-on-migrate: true
 
-# Configurações do Spring Security Actuator e Exposições de Métricas
+# 📊 Observabilidade
 management:
   endpoints:
     web:
       exposure:
-        include: health, info, prometheus
-  endpoint:
-    health:
-      show-details: always
+        include: "health,info,prometheus,metrics"
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  tracing:
+    sampling:
+      probability: 1.0 # 100% de amostragem de rastros
+    otlp:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4317} # Endpoint onde o Grafana Tempo recebe rastros OTLP
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+# Configuração do padrão do Log no Console
+logging:
+  pattern: 
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
 
 # Swagger / OpenAPI customizado para o time de desenvolvimento
 springdoc:
@@ -44,10 +58,3 @@ jwt:
   public-key-path: classpath:certs/app.pub
   expiration-ms: 86400000
 
-logging:
-  level:
-    root: INFO # Nível geral do ecossistema (Spring, Hibernate, etc.)
-    com.auth: DEBUG # Nível detalhado para o seu código
-    # org.hibernate.SQL: DEBUG # Exibe as queries SQL no console
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

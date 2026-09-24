@@ -25,14 +25,22 @@
 			<artifactId>spring-boot-starter</artifactId>
 		</dependency>
 
-		<!-- Spring Boot Web & Actuator -->
+		<!-- Spring Boot Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+
+        <!-- 1. Spring Boot Actuator: Cria a infraestrutura HTTP de endpoints de gerenciamento -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- 2. Micrometer Prometheus Registry: Traduz as métricas internas para o formato texto do Prometheus -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
 
 		<!-- Spring Security & OAuth2 JWT -->
@@ -84,7 +92,7 @@
             <version>2.5.0</version>
         </dependency>
 
-<!-- Testes -->
+        <!-- Testes -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -94,13 +102,6 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
-        </dependency>
-
-        <!-- Banco de Dados em memória (H2) -->
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>runtime</scope>
         </dependency>
 
         <!-- Lombok -->
@@ -117,6 +118,32 @@
 			<artifactId>mapstruct</artifactId>
 			<version>${org.mapstruct.version}</version>
 		</dependency>
+
+        <!-- DEPENDENCIAS PARA OBSERVABILIDADE -->
+
+        <!-- 1. Spring Boot Actuator: Cria a infraestrutura HTTP de endpoints de gerenciamento -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- 2. Micrometer Prometheus Registry: Traduz as métricas internas para o formato texto do Prometheus -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+
+        <!-- 2. TRACING: Micrometer Tracing + OpenTelemetry (OTel) -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-otel</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-exporter-otlp</artifactId>
+        </dependency>
+        <!-- ////////////////////////////////////////////////////////////////////////////////////////////////// -->
+
 	</dependencies>
 
 <build>

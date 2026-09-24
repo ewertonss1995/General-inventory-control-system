@@ -36,7 +36,7 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
-                                "/h2-console/**"
+                                "/actuator/**"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/v1/products/**", "/v1/categories/**")
                             .hasAnyAuthority("ROLE_ADMIN", "ROLE_MANAGER", "ROLE_OPERATOR")
