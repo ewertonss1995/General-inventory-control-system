@@ -24,6 +24,7 @@ import com.inventory.control.web.system.ports.out.AuthenticateFeignPort;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import io.micrometer.core.instrument.MeterRegistry;
 
 @Configuration
 public class BeanConfig {
@@ -34,44 +35,44 @@ public class BeanConfig {
     }
 
     @Bean
-    public RegisterUserUseCase registerUserUseCase(AuthenticateFeignPort authenticateFeignPort) {
-        return new RegisterUserService(authenticateFeignPort);
+    public RegisterUserUseCase registerUserUseCase(AuthenticateFeignPort authenticateFeignPort, MeterRegistry meterRegistry) {
+        return new RegisterUserService(authenticateFeignPort, meterRegistry);
     }
 
     @Bean
-    public GetProductUseCase getProductUseCase(ProductFeignPort productFeignPort) {
-        return new GetProductService(productFeignPort);
+    public GetProductUseCase getProductUseCase(ProductFeignPort productFeignPort, MeterRegistry meterRegistry) {
+        return new GetProductService(productFeignPort, meterRegistry);
     }
 
     @Bean
     public PostProductUseCase postProductUseCase(ProductFeignPort productFeignPort,
-            CategoryFeignPort categoryFeignPort) {
-        return new PostProductService(productFeignPort);
+            CategoryFeignPort categoryFeignPort, MeterRegistry meterRegistry) {
+        return new PostProductService(productFeignPort, meterRegistry);
     }
 
     @Bean
     public UpdateProductUseCase updateProductUseCase(ProductFeignPort productFeignPort,
-            CategoryFeignPort categoryFeignPort) {
-        return new UpdateProductService(productFeignPort);
+            CategoryFeignPort categoryFeignPort, MeterRegistry meterRegistry) {
+        return new UpdateProductService(productFeignPort, meterRegistry);
     }
 
     @Bean
-    public UpdateStockUseCase updateStockUseCase(ProductFeignPort productFeignPort) {
-        return new UpdateStockService(productFeignPort);
+    public UpdateStockUseCase updateStockUseCase(ProductFeignPort productFeignPort, MeterRegistry meterRegistry) {
+        return new UpdateStockService(productFeignPort, meterRegistry);
     }
 
     @Bean
-    public GetCategoryUseCase getCategoryUseCase(CategoryFeignPort CategoryFeignPort) {
-        return new GetCategoryService(CategoryFeignPort);
+    public GetCategoryUseCase getCategoryUseCase(CategoryFeignPort CategoryFeignPort, MeterRegistry meterRegistry) {
+        return new GetCategoryService(CategoryFeignPort, meterRegistry);
     }
 
     @Bean
-    public PostCategoryUseCase postCategoryUseCase(CategoryFeignPort categoryFeignPort) {
-        return new PostCategoryService(categoryFeignPort);
+    public PostCategoryUseCase postCategoryUseCase(CategoryFeignPort categoryFeignPort, MeterRegistry meterRegistry) {
+        return new PostCategoryService(categoryFeignPort, meterRegistry);
     }
 
     @Bean
-    public UpdateCategoryUseCase updateCategoryUseCase(CategoryFeignPort categoryFeignPort) {
-        return new UpdateCategoryService(categoryFeignPort);
+    public UpdateCategoryUseCase updateCategoryUseCase(CategoryFeignPort categoryFeignPort, MeterRegistry meterRegistry) {
+        return new UpdateCategoryService(categoryFeignPort, meterRegistry);
     }
 }
