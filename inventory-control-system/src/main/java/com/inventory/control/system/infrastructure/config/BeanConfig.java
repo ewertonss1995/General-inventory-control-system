@@ -16,6 +16,7 @@ import com.inventory.control.system.ports.in.product.UpdateProductUseCase;
 import com.inventory.control.system.ports.in.product.UpdateStockUseCase;
 import com.inventory.control.system.ports.out.CategoryRepositoryPort;
 import com.inventory.control.system.ports.out.ProductRepositoryPort;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -23,37 +24,41 @@ import org.springframework.context.annotation.Configuration;
 public class BeanConfig {
 
     @Bean
-    public CreateProductUseCase createProductUseCase(ProductRepositoryPort productRepositoryPort, CategoryRepositoryPort categoryRepositoryPort) {
-        return new CreateProductService(productRepositoryPort, categoryRepositoryPort);
+    public CreateProductUseCase createProductUseCase(ProductRepositoryPort productRepositoryPort, 
+                                                     CategoryRepositoryPort categoryRepositoryPort, 
+                                                     MeterRegistry meterRegistry) {
+        return new CreateProductService(productRepositoryPort, categoryRepositoryPort, meterRegistry);
     }
 
     @Bean
-    public GetProductUseCase findProductUseCase(ProductRepositoryPort productRepositoryPort) {
-        return new GetProductService(productRepositoryPort);
+    public GetProductUseCase findProductUseCase(ProductRepositoryPort productRepositoryPort, MeterRegistry meterRegistry) {
+        return new GetProductService(productRepositoryPort, meterRegistry);
     }
 
     @Bean
-    public UpdateStockUseCase updateStockUseCase(ProductRepositoryPort productRepositoryPort) {
-        return new UpdateStockService(productRepositoryPort);
+    public UpdateStockUseCase updateStockUseCase(ProductRepositoryPort productRepositoryPort, MeterRegistry meterRegistry) {
+        return new UpdateStockService(productRepositoryPort, meterRegistry);
     }
 
     @Bean
-    public UpdateProductUseCase updateProductUseCase(ProductRepositoryPort productRepositoryPort, CategoryRepositoryPort categoryRepositoryPort) {
-        return new UpdateProductService(productRepositoryPort, categoryRepositoryPort);
+    public UpdateProductUseCase updateProductUseCase(ProductRepositoryPort productRepositoryPort, 
+                                                     CategoryRepositoryPort categoryRepositoryPort, 
+                                                     MeterRegistry meterRegistry) {
+        return new UpdateProductService(productRepositoryPort, categoryRepositoryPort, meterRegistry);
     }
 
     @Bean
-    public CreateCategoryUseCase createCategoryUseCase(CategoryRepositoryPort categoryRepositoryPort) {
-        return new CreateCategoryService(categoryRepositoryPort);
+    public CreateCategoryUseCase createCategoryUseCase(CategoryRepositoryPort categoryRepositoryPort, MeterRegistry meterRegistry) {
+        return new CreateCategoryService(categoryRepositoryPort, meterRegistry);
     }
 
     @Bean
-    public GetCategoryUseCase getCategoryUseCase(CategoryRepositoryPort categoryRepositoryPort) {
-        return new GetCategoryService(categoryRepositoryPort);
+    public GetCategoryUseCase getCategoryUseCase(CategoryRepositoryPort categoryRepositoryPort, MeterRegistry meterRegistry) {
+        return new GetCategoryService(categoryRepositoryPort, meterRegistry);
     }
 
     @Bean
-    public UpdateCategoryUseCase updateCategoryUseCase(CategoryRepositoryPort categoryRepositoryPort) {
-        return new UpdateCategoryService(categoryRepositoryPort);
+    public UpdateCategoryUseCase updateCategoryUseCase(CategoryRepositoryPort categoryRepositoryPort, MeterRegistry meterRegistry) {
+        return new UpdateCategoryService(categoryRepositoryPort, meterRegistry);
     }
 }

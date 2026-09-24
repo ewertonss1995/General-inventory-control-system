@@ -5,6 +5,8 @@ import com.inventory.control.system.domain.exception.ResourceNotFoundException;
 import com.inventory.control.system.domain.model.Product;
 import com.inventory.control.system.ports.in.product.GetProductUseCase;
 import com.inventory.control.system.ports.out.ProductRepositoryPort;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,35 +17,61 @@ public class GetProductService implements GetProductUseCase {
     private static final Logger log = LoggerFactory.getLogger(GetProductService.class);
 
     private final ProductRepositoryPort productRepositoryPort;
+    private final MeterRegistry meterRegistry;
 
-    public GetProductService(ProductRepositoryPort productRepositoryPort) {
+    public GetProductService(ProductRepositoryPort productRepositoryPort, MeterRegistry meterRegistry) {
         this.productRepositoryPort = productRepositoryPort;
+        this.meterRegistry = meterRegistry;
     }
 
-@Override
+    @Override
     public List<Product> findAll() {
-        log.info("Executando caso de uso para listar todos os produtos.");
+        return Timer.builder("usecase.product.get.time")
+                .description("Tempo de execução do caso de uso para listar todos os produtos")
+                .tag("layer", "usecase")
+                .tag("operation", "findAll")
+                .register(meterRegistry)
+                .record(() -> {
+                    log.info("Executando caso de uso para listar todos os produtos.");
 
-        List<Product> products = productRepositoryPort.findAll();
+                    List<Product> products = productRepositoryPort.findAll();
 
-        log.info("Consulta de produtos concluída. Total retornado: {}", products.size());
-        return products;
+                    meterRegistry.summary("usecase.product.findall.result.size").record(products.size());
+
+                    log.info("Consulta de produtos concluída. Total retornado: {}", products.size());
+                    return products;
+                });
     }
 
     @Override
     public Product findBySku(String sku) {
-        if (sku == null || sku.isBlank()) {
-            log.warn("Tentativa de busca com SKU nulo ou em branco. SKU recebido: '{}'", sku);
-            throw new BusinessException("O SKU informado para busca não pode ser nulo ou vazio.");
-        }
+        return Timer.builder("usecase.product.get.time")
+                .description("Tempo de execução do caso de uso para buscar produto por SKU")
+                .tag("layer", "usecase")
+                .tag("operation", "findBySku")
+                .register(meterRegistry)
+                .record(() -> {
+                    if (sku == null || sku.isBlank()) {
+                        log.warn("Tentativa de busca com SKU nulo ou em branco. SKU recebido: '{}'", sku);
+                        recordFailure("empty_sku");
+                        throw new BusinessException("O SKU informado para busca não pode ser nulo ou vazio.");
+                    }
 
-        String formattedSku = sku.trim().toUpperCase();
-        log.info("Executando caso de uso para buscar produto pelo SKU: {}", formattedSku);
+                    String formattedSku = sku.trim().toUpperCase();
+                    log.info("Executando caso de uso para buscar produto pelo SKU: {}", formattedSku);
 
-        return productRepositoryPort.findBySku(formattedSku)
-                .orElseThrow(() -> {
-                    log.warn("Falha na busca de produto: SKU '{}' não encontrado.", formattedSku);
-                    return new ResourceNotFoundException("Produto não encontrado para o SKU: " + formattedSku);
+                    return productRepositoryPort.findBySku(formattedSku)
+                            .orElseThrow(() -> {
+                                log.warn("Falha na busca de produto: SKU '{}' não encontrado.", formattedSku);
+                                recordFailure("product_not_found");
+                                return new ResourceNotFoundException("Produto não encontrado para o SKU: " + formattedSku);
+                            });
                 });
+    }
+
+    private void recordFailure(String reason) {
+        meterRegistry.counter("business.product.get.failures",
+                "layer", "usecase",
+                "reason", reason).increment();
     }
 }
