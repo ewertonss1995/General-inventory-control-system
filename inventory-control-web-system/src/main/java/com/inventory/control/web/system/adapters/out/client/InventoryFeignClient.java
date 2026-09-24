@@ -44,12 +44,12 @@ public interface InventoryFeignClient {
     ResponseEntity<InventoryCategoryResponse> createCategory(@RequestBody InventoryCategoryRequest request);
 
     @PutMapping("/v1/categories/update/{id}")
-    ResponseEntity<InventoryCategoryResponse> updateCategory(@PathVariable("id") Long id, @RequestBody InventoryCategoryRequest request);
+    ResponseEntity<InventoryCategoryResponse> updateCategory(@PathVariable("id") String id, @RequestBody InventoryCategoryRequest request);
 
     @GetMapping("/v1/categories")
     ResponseEntity<List<InventoryCategoryResponse>> getAllCategories();
 
     @GetMapping("/v1/categories/{id}")
-    ResponseEntity<InventoryCategoryResponse> getCategoryById(@PathVariable("id") Long id);
+    ResponseEntity<InventoryCategoryResponse> getCategoryById(@PathVariable("id") String id);
 
 }

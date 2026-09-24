@@ -6,22 +6,41 @@ spring:
     name: inventory-control-system
   # profiles:
   #   active: ${SPRING_PROFILES_ACTIVE:dev}
-    
+
+  # 🐘 Configuração PostgreSQL (Saldo Transacional e Ledger)
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:5432/${DB_NAME:product_db}
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:SenhaSuperSegura123!}
+    url: jdbc:postgresql://${POSTGRES_DB_HOST:localhost}:${POSTGRES_DB_PORT:5433}/${POSTGRES_DB_NAME:inventory_db}
+    username: ${POSTGRES_DB_USERNAME:postgres}
+    password: ${POSTGRES_DB_PASSWORD:SenhaSuperSegura123!}
     driver-class-name: org.postgresql.Driver
-    
+    hikari:
+      maximum-pool-size: ${POSTGRES_DB_POOL_MAX_SIZE:10}
+      minimum-idle: ${POSTGRES_DB_POOL_MIN_IDLE:5}
+      idle-timeout: 300000
+      connection-timeout: 20000
+
   jpa:
+    open-in-view: false
     hibernate:
       ddl-auto: validate
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 25
+        order_inserts: true
+        order_updates: true
 
+  # 🍃 Configuração MongoDB (Catálogo de Produtos e Categorias)
+  data:
+    mongodb:
+      uri: mongodb://${MONGO_USERNAME:admin}:${MONGO_PASSWORD:SenhaSuperSegura123!}@${MONGO_HOST:localhost}:${MONGO_PORT:27018}/${MONGO_DB_NAME:inventory_db}?authSource=${MONGO_AUTH_DB:admin}
+      auto-index-creation: true
+
+  # ✈️ Migration PostgreSQL
   flyway:
     enabled: true
     baseline-on-migrate: true
-    # locations: classpath:db/migration
+    locations: classpath:db/migration
 
 jwt:
-  public-key-path: classpath:certs/app.pub 
+  public-key-path: ${JWT_PUBLIC_KEY_PATH:classpath:certs/app.pub}

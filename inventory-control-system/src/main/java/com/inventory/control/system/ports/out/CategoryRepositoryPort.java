@@ -5,9 +5,9 @@ import java.util.Optional;
 import java.util.List;
 
 public interface CategoryRepositoryPort {
-    Optional<Category> findById(Long id);
+    Optional<Category> findById(String id);
     Category saveCategory(Category category);
     Category updateCategory(Category category);
-    boolean existsById(Long id);
+    boolean existsById(String id);
     List<Category> findAll();
 }

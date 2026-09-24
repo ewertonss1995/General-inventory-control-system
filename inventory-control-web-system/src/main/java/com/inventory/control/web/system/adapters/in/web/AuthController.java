@@ -3,11 +3,10 @@ package com.inventory.control.web.system.adapters.in.web;
 import com.inventory.control.web.system.adapters.in.web.dto.request.LoginRequest;
 import com.inventory.control.web.system.adapters.in.web.dto.request.RegisterUserRequest;
 import com.inventory.control.web.system.adapters.in.web.dto.response.TokenResponse;
-import com.inventory.control.web.system.domain.model.LoginUser;
-import com.inventory.control.web.system.domain.model.RegisterUser;
 import com.inventory.control.web.system.domain.model.TokenUser;
 import com.inventory.control.web.system.ports.in.authenticate.LoginUserUseCase;
 import com.inventory.control.web.system.ports.in.authenticate.RegisterUserUseCase;
+import com.inventory.control.web.system.adapters.in.web.mapper.AuthenticateMapper;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,10 +23,12 @@ import org.slf4j.LoggerFactory;
 public class AuthController {
     private static final Logger log = LoggerFactory.getLogger(AuthController.class);
 
+    private final AuthenticateMapper mapper;
     private final LoginUserUseCase loginUserUseCase;
     private final RegisterUserUseCase registerUserUseCase;
 
-    public AuthController(LoginUserUseCase loginUserUseCase, RegisterUserUseCase registerUserUseCase) {
+    public AuthController(AuthenticateMapper mapper, LoginUserUseCase loginUserUseCase, RegisterUserUseCase registerUserUseCase) {
+        this.mapper = mapper;
         this.loginUserUseCase = loginUserUseCase;
         this.registerUserUseCase = registerUserUseCase;
     }
@@ -36,25 +37,13 @@ public class AuthController {
     @ResponseStatus(HttpStatus.CREATED)
     public void registerUser(@Valid @RequestBody RegisterUserRequest request) {
         log.info("Iniciando processo de registro de usuário: " + request.username());
-        registerUserUseCase.execute(mapToRegisterUser(request));
+        registerUserUseCase.execute(mapper.toRegisterUser(request));
     }
 
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest request) {
         log.info("Iniciando processo de login de usuário: " + request.usernameOrEmail());
-        TokenUser response = loginUserUseCase.execute(mapToLoginUser(request));
-        return ResponseEntity.ok(mapToTokenResponse(response));
-    }
-
-    private RegisterUser mapToRegisterUser(RegisterUserRequest request) {
-        return new RegisterUser(request.username(), request.email(), request.password());
-    }
-
-    private LoginUser mapToLoginUser(LoginRequest request) {
-        return new LoginUser(request.usernameOrEmail(), request.password());
-    }
-
-    private TokenResponse mapToTokenResponse(TokenUser tokenUser) {
-        return new TokenResponse(tokenUser.accessToken(), tokenUser.tokenType(), tokenUser.expiresInSeconds());
+        TokenUser response = loginUserUseCase.execute(mapper.toLoginUser(request));
+        return ResponseEntity.ok(mapper.toTokenResponse(response));
     }
 }

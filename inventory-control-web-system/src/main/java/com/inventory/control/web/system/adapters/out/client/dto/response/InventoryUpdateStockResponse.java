@@ -1,7 +1,9 @@
 package com.inventory.control.web.system.adapters.out.client.dto.response;
 
 public record InventoryUpdateStockResponse(
-    Integer quantity, 
+    String sku,
+    Integer previousQuantity, 
+    Integer newQuantity, 
     String movementType, 
     String message) 
 {}
