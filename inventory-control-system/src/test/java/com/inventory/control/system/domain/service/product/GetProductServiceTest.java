@@ -18,6 +18,7 @@ import java.util.Optional;
 
 import static com.inventory.control.system.mocks.CategoryMockFactory.createCategoryWithId;
 import static com.inventory.control.system.mocks.ProductMockFactory.DEFAULT_SKU;
+import static com.inventory.control.system.mocks.ProductMockFactory.DEFAULT_QUANTITY;
 import static com.inventory.control.system.mocks.ProductMockFactory.createProduct;
 import static com.inventory.control.system.mocks.ProductMockFactory.createProductWithId;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -58,7 +59,7 @@ class GetProductServiceTest {
     @Test
     void shouldFindAllProductsSuccessfully() {
         Product productOne = createProductWithId();
-        Product productTwo = createProduct("66b4f1a2e3b0c44298fc1d00", SECONDARY_SKU, createCategoryWithId());
+        Product productTwo = createProduct("66b4f1a2e3b0c44298fc1d00", SECONDARY_SKU, createCategoryWithId(), DEFAULT_QUANTITY);
         List<Product> expectedProducts = List.of(productOne, productTwo);
 
         when(productRepositoryPort.findAll()).thenReturn(expectedProducts);

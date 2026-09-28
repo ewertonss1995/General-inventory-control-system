@@ -21,21 +21,25 @@ public final class ProductMockFactory {
     }
 
     public static Product createProductWithId() {
-        return createProduct(DEFAULT_PRODUCT_ID, DEFAULT_SKU, createCategoryWithId());
+        return createProduct(DEFAULT_PRODUCT_ID, DEFAULT_SKU, createCategoryWithId(), DEFAULT_QUANTITY);
     }
 
     public static Product createProductWithoutId() {
-        return createProduct(null, DEFAULT_SKU, createCategoryWithId());
+        return createProduct(null, DEFAULT_SKU, createCategoryWithId(), DEFAULT_QUANTITY);
     }
 
-    public static Product createProduct(String id, String sku, Category category) {
+    public static Product createProductWithoutQuantity() {
+        return createProduct(DEFAULT_PRODUCT_ID, DEFAULT_SKU, createCategoryWithId(), null);
+    }
+
+    public static Product createProduct(String id, String sku, Category category, Integer quantity) {
         return new Product(
                 id,
                 sku,
                 DEFAULT_PRODUCT_NAME,
                 DEFAULT_PRODUCT_DESCRIPTION,
                 DEFAULT_PRICE,
-                DEFAULT_QUANTITY,
+                quantity,
                 category
         );
     }

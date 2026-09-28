@@ -18,6 +18,7 @@ import static com.inventory.control.system.mocks.CategoryMockFactory.DEFAULT_CAT
 import static com.inventory.control.system.mocks.CategoryMockFactory.createCategoryWithId;
 import static com.inventory.control.system.mocks.ProductMockFactory.DEFAULT_LOWERCASE_SKU;
 import static com.inventory.control.system.mocks.ProductMockFactory.DEFAULT_SKU;
+import static com.inventory.control.system.mocks.ProductMockFactory.DEFAULT_QUANTITY;
 import static com.inventory.control.system.mocks.ProductMockFactory.createProduct;
 import static com.inventory.control.system.mocks.ProductMockFactory.createProductWithId;
 import static com.inventory.control.system.mocks.ProductMockFactory.createProductWithoutId;
@@ -86,7 +87,7 @@ class CreateProductServiceTest {
         Category categoryWithSpaces = new Category();
         categoryWithSpaces.setId(CATEGORY_ID_WITH_SPACES);
 
-        Product inputProduct = createProduct(null, DEFAULT_LOWERCASE_SKU, categoryWithSpaces);
+        Product inputProduct = createProduct(null, DEFAULT_LOWERCASE_SKU, categoryWithSpaces, DEFAULT_QUANTITY);
         Product savedProduct = createProductWithId();
 
         when(productRepositoryPort.existsBySku(DEFAULT_SKU)).thenReturn(false);
@@ -103,7 +104,7 @@ class CreateProductServiceTest {
 
     @Test
     void shouldThrowBusinessExceptionAndIncrementMetricWhenSkuIsNull() {
-        Product inputProduct = createProduct(null, null, createCategoryWithId());
+        Product inputProduct = createProduct(null, null, createCategoryWithId(), DEFAULT_QUANTITY);
 
         BusinessException exception = assertThrows(
                 BusinessException.class,
@@ -117,7 +118,7 @@ class CreateProductServiceTest {
 
     @Test
     void shouldThrowBusinessExceptionAndIncrementMetricWhenSkuIsBlank() {
-        Product inputProduct = createProduct(null, BLANK_STRING, createCategoryWithId());
+        Product inputProduct = createProduct(null, BLANK_STRING, createCategoryWithId(), DEFAULT_QUANTITY);
 
         BusinessException exception = assertThrows(
                 BusinessException.class,
@@ -131,7 +132,7 @@ class CreateProductServiceTest {
 
     @Test
     void shouldThrowBusinessExceptionAndIncrementMetricWhenCategoryIsNull() {
-        Product inputProduct = createProduct(null, DEFAULT_SKU, null);
+        Product inputProduct = createProduct(null, DEFAULT_SKU, null, DEFAULT_QUANTITY);
 
         BusinessException exception = assertThrows(
                 BusinessException.class,
@@ -145,7 +146,7 @@ class CreateProductServiceTest {
 
     @Test
     void shouldThrowBusinessExceptionAndIncrementMetricWhenCategoryIdIsNull() {
-        Product inputProduct = createProduct(null, DEFAULT_SKU, new Category());
+        Product inputProduct = createProduct(null, DEFAULT_SKU, new Category(), DEFAULT_QUANTITY);
 
         BusinessException exception = assertThrows(
                 BusinessException.class,

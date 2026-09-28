@@ -20,6 +20,7 @@ import static com.inventory.control.system.mocks.CategoryMockFactory.DEFAULT_CAT
 import static com.inventory.control.system.mocks.CategoryMockFactory.createCategoryWithId;
 import static com.inventory.control.system.mocks.ProductMockFactory.DEFAULT_LOWERCASE_SKU;
 import static com.inventory.control.system.mocks.ProductMockFactory.DEFAULT_PRODUCT_ID;
+import static com.inventory.control.system.mocks.ProductMockFactory.DEFAULT_QUANTITY;
 import static com.inventory.control.system.mocks.ProductMockFactory.DEFAULT_SKU;
 import static com.inventory.control.system.mocks.ProductMockFactory.createProduct;
 import static com.inventory.control.system.mocks.ProductMockFactory.createProductWithId;
@@ -134,7 +135,7 @@ class UpdateProductServiceTest {
 
     @Test
     void shouldThrowBusinessExceptionAndIncrementMetricWhenCategoryIsNull() {
-        Product updateRequest = createProduct(null, DEFAULT_SKU, null);
+        Product updateRequest = createProduct(null, DEFAULT_SKU, null, DEFAULT_QUANTITY);
 
         BusinessException exception = assertThrows(
                 BusinessException.class,
@@ -148,7 +149,7 @@ class UpdateProductServiceTest {
 
     @Test
     void shouldThrowBusinessExceptionAndIncrementMetricWhenCategoryIdIsNull() {
-        Product updateRequest = createProduct(null, DEFAULT_SKU, new Category());
+        Product updateRequest = createProduct(null, DEFAULT_SKU, new Category(), DEFAULT_QUANTITY);
 
         BusinessException exception = assertThrows(
                 BusinessException.class,

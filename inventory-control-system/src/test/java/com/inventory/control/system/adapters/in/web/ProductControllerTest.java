@@ -17,7 +17,6 @@ import com.inventory.control.system.ports.in.product.CreateProductUseCase;
 import com.inventory.control.system.ports.in.product.GetProductUseCase;
 import com.inventory.control.system.ports.in.product.UpdateProductUseCase;
 import com.inventory.control.system.ports.in.product.UpdateStockUseCase;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -78,7 +77,6 @@ class ProductControllerTest {
     private UpdateProductUseCase updateProductUseCase;
 
     @Test
-    @DisplayName("Deve criar produto com sucesso e retornar HTTP 201 Created")
     void shouldCreateProductSuccessfully() throws Exception {
         ProductRequest request = new ProductRequest(SKU, NAME, DESCRIPTION, PRICE, QUANTITY, CATEGORY_ID);
         Product productDomain = createDummyProduct();
@@ -108,7 +106,6 @@ class ProductControllerTest {
     }
 
     @Test
-    @DisplayName("Deve retornar HTTP 400 Bad Request ao tentar criar produto com corpo inválido")
     void shouldReturnBadRequestWhenCreateProductRequestIsInvalid() throws Exception {
         ProductRequest invalidRequest = new ProductRequest(null, "", null, null, null, null);
 
@@ -122,7 +119,6 @@ class ProductControllerTest {
     }
 
     @Test
-    @DisplayName("Deve atualizar produto com sucesso e retornar HTTP 200 OK")
     void shouldUpdateProductSuccessfully() throws Exception {
         ProductRequest request = new ProductRequest(SKU, NAME, DESCRIPTION, PRICE, QUANTITY, CATEGORY_ID);
         Product productDomain = createDummyProduct();
@@ -149,7 +145,6 @@ class ProductControllerTest {
     }
 
     @Test
-    @DisplayName("Deve listar todos os produtos com sucesso e retornar HTTP 200 OK")
     void shouldGetAllProductsSuccessfully() throws Exception {
         Product productDomain = createDummyProduct();
         CategoryResponse categoryResponse = new CategoryResponse(CATEGORY_ID, CATEGORY_NAME, "Teclados e mouses");
@@ -173,7 +168,6 @@ class ProductControllerTest {
     }
 
     @Test
-    @DisplayName("Deve buscar produto por SKU com sucesso e retornar HTTP 200 OK")
     void shouldGetProductBySkuSuccessfully() throws Exception {
         Product productDomain = createDummyProduct();
         CategoryResponse categoryResponse = new CategoryResponse(CATEGORY_ID, CATEGORY_NAME, "Teclados e mouses");
@@ -196,7 +190,6 @@ class ProductControllerTest {
     }
 
     @Test
-    @DisplayName("Deve retornar HTTP 404 Not Found quando produto não for encontrado por SKU")
     void shouldReturnNotFoundWhenProductDoesNotExist() throws Exception {
         when(getProductUseCase.findBySku(SKU)).thenThrow(new ResourceNotFoundException("Produto não encontrado."));
 
@@ -208,7 +201,6 @@ class ProductControllerTest {
     }
 
     @Test
-    @DisplayName("Deve atualizar estoque do produto com sucesso e retornar HTTP 200 OK")
     void shouldUpdateProductStockSuccessfully() throws Exception {
         UpdateStockRequest request = new UpdateStockRequest(5, StockMovementType.IN);
         UpdateStockInput stockInput = new UpdateStockInput(5, StockMovementType.IN);
@@ -238,7 +230,6 @@ class ProductControllerTest {
     }
 
     @Test
-    @DisplayName("Deve retornar HTTP 400 Bad Request ao tentar atualizar estoque com dados inválidos")
     void shouldReturnBadRequestWhenUpdateStockRequestIsInvalid() throws Exception {
         UpdateStockRequest invalidRequest = new UpdateStockRequest(null, null);
 

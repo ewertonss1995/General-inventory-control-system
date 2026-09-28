@@ -9,7 +9,6 @@ import com.inventory.control.system.domain.model.Category;
 import com.inventory.control.system.ports.in.category.CreateCategoryUseCase;
 import com.inventory.control.system.ports.in.category.GetCategoryUseCase;
 import com.inventory.control.system.ports.in.category.UpdateCategoryUseCase;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -60,7 +59,6 @@ class CategoryControllerTest {
     private UpdateCategoryUseCase updateCategoryUseCase;
 
     @Test
-    @DisplayName("Deve criar categoria com sucesso e retornar HTTP 201 Created")
     void shouldCreateCategorySuccessfully() throws Exception {
         CategoryRequest request = new CategoryRequest(CATEGORY_NAME, CATEGORY_DESCRIPTION);
         Category categoryDomain = new Category(CATEGORY_ID, CATEGORY_NAME, CATEGORY_DESCRIPTION);
@@ -85,7 +83,6 @@ class CategoryControllerTest {
     }
 
     @Test
-    @DisplayName("Deve retornar HTTP 400 Bad Request ao tentar criar categoria com nome nulo")
     void shouldReturnBadRequestWhenCategoryNameIsNull() throws Exception {
         CategoryRequest invalidRequest = new CategoryRequest(null, CATEGORY_DESCRIPTION);
 
@@ -99,7 +96,6 @@ class CategoryControllerTest {
     }
 
     @Test
-    @DisplayName("Deve atualizar categoria com sucesso e retornar HTTP 200 OK")
     void shouldUpdateCategorySuccessfully() throws Exception {
         CategoryRequest request = new CategoryRequest(CATEGORY_NAME, CATEGORY_DESCRIPTION);
         Category categoryDomain = new Category(CATEGORY_ID, CATEGORY_NAME, CATEGORY_DESCRIPTION);
@@ -124,7 +120,6 @@ class CategoryControllerTest {
     }
 
     @Test
-    @DisplayName("Deve retornar HTTP 400 Bad Request ao tentar atualizar categoria com nome nulo")
     void shouldReturnBadRequestWhenUpdateCategoryNameIsNull() throws Exception {
         CategoryRequest invalidRequest = new CategoryRequest(null, CATEGORY_DESCRIPTION);
 
@@ -138,7 +133,6 @@ class CategoryControllerTest {
     }
 
     @Test
-    @DisplayName("Deve listar todas as categorias com sucesso e retornar HTTP 200 OK")
     void shouldGetAllCategoriesSuccessfully() throws Exception {
         Category categoryDomain = new Category(CATEGORY_ID, CATEGORY_NAME, CATEGORY_DESCRIPTION);
         CategoryResponse response = new CategoryResponse(CATEGORY_ID, CATEGORY_NAME, CATEGORY_DESCRIPTION);
@@ -159,7 +153,6 @@ class CategoryControllerTest {
     }
 
     @Test
-    @DisplayName("Deve buscar categoria por ID com sucesso e retornar HTTP 200 OK")
     void shouldGetCategoryByIdSuccessfully() throws Exception {
         Category categoryDomain = new Category(CATEGORY_ID, CATEGORY_NAME, CATEGORY_DESCRIPTION);
         CategoryResponse response = new CategoryResponse(CATEGORY_ID, CATEGORY_NAME, CATEGORY_DESCRIPTION);
@@ -179,7 +172,6 @@ class CategoryControllerTest {
     }
 
     @Test
-    @DisplayName("Deve retornar HTTP 404 Not Found quando categoria não for encontrada por ID")
     void shouldReturnNotFoundWhenCategoryDoesNotExist() throws Exception {
         when(getCategoryUseCase.findById(CATEGORY_ID)).thenThrow(new ResourceNotFoundException("Categoria não encontrada."));
 
