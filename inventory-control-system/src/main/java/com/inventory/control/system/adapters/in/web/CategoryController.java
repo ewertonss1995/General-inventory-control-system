@@ -1,6 +1,6 @@
 package com.inventory.control.system.adapters.in.web;
 
-import java.util.List;
+import com.inventory.control.system.adapters.in.web.mapper.CategoryMapper;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +19,8 @@ import com.inventory.control.system.ports.in.category.CreateCategoryUseCase;
 import com.inventory.control.system.ports.in.category.GetCategoryUseCase;
 import com.inventory.control.system.ports.in.category.UpdateCategoryUseCase;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,14 +32,17 @@ public class CategoryController {
 
     private static final Logger log = LoggerFactory.getLogger(CategoryController.class);
 
+    private final CategoryMapper mapper;
     private final CreateCategoryUseCase createCategoryUseCase;
     private final GetCategoryUseCase getCategoryUseCase;
     private final UpdateCategoryUseCase updateCategoryUseCase;
 
     public CategoryController(
+        CategoryMapper mapper,
         CreateCategoryUseCase createCategoryUseCase, 
         GetCategoryUseCase getCategoryUseCase,
         UpdateCategoryUseCase updateCategoryUseCase) {
+            this.mapper = mapper;
                 this.createCategoryUseCase = createCategoryUseCase;
                 this.getCategoryUseCase = getCategoryUseCase;
                 this.updateCategoryUseCase = updateCategoryUseCase;
@@ -47,10 +52,10 @@ public class CategoryController {
     public ResponseEntity<CategoryResponse> createCategory(@RequestBody @Valid CategoryRequest request) {
         log.info("Requisição recebida para criar categoria: {}", request.name());
 
-        Category category = createCategoryUseCase.execute(toCategory(request));
+        Category category = createCategoryUseCase.execute(mapper.toCategory(request));
 
         log.info("Categoria criada com sucesso. ID: {}", category.getId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(toCategoryResponse(category));
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toCategoryResponse(category));
     }
 
     @PutMapping("/update/{id}")
@@ -60,22 +65,20 @@ public class CategoryController {
 
         log.info("Requisição recebida para atualizar categoria com ID: {}", id);
 
-        Category category =  updateCategoryUseCase.execute(id, toCategory(request));
+        Category category =  updateCategoryUseCase.execute(id, mapper.toCategory(request));
 
         log.info("Categoria com ID: {} atualizada com sucesso.", id);
-        return ResponseEntity.ok(toCategoryResponse(category));
+        return ResponseEntity.ok(mapper.toCategoryResponse(category));
     }
 
     @GetMapping
     public ResponseEntity<List<CategoryResponse>> getAllCategories() {
         log.info("Requisição recebida para listar todas as categorias.");
 
-        List<CategoryResponse> categories = getCategoryUseCase.findAll().stream()
-                .map(this::toCategoryResponse)
-                .toList();
+        List<Category> categories = getCategoryUseCase.findAll();
                 
         log.info("Busca realizada com sucesso. Total de categorias encontradas: {}", categories.size());
-        return ResponseEntity.ok(categories);
+        return ResponseEntity.ok(mapper.toCategoryResponseList(categories));
     }
 
     @GetMapping("/{id}")
@@ -85,20 +88,7 @@ public class CategoryController {
         Category category = getCategoryUseCase.findById(id);
 
         log.info("Categoria com ID: {} localizada com sucesso.", id);
-        return ResponseEntity.ok(toCategoryResponse(category));
+        return ResponseEntity.ok(mapper.toCategoryResponse(category));
     }
 
-    private Category toCategory(CategoryRequest request) {
-        return new Category(null, request.name(), request.description());
-    }
-
-    private CategoryResponse toCategoryResponse(Category category) {
-        CategoryResponse categoryResponse = new CategoryResponse(
-                category.getId(),
-                category.getName(),
-                category.getDescription()
-        );
-
-        return categoryResponse;
-    }
 }

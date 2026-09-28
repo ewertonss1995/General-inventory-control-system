@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(IntegrationException.class)
     public ResponseEntity<ErrorResponse> handleIntegrationException(IntegrationException ex, HttpServletRequest request) {
-        log.error("Exceção de Integração capturada | Status: {} | Mensagem: {}", ex.getStatus(), ex.getMessage());
+        log.error("Exceção de Integração capturada | Status: {} | Mensagem: {}", ex.getStatus(), ex.getMessage(), ex);
 
         ErrorResponse error = ErrorResponse.of(
                 ex.getStatus(),
@@ -46,7 +46,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException ex, HttpServletRequest request) {
-        log.error("Regra de negócio violada: {}", ex.getMessage());
+        log.error("Regra de negócio violada: {}", ex.getMessage(), ex);
 
         HttpStatus status = HttpStatus.BAD_REQUEST;
         ErrorResponse error = ErrorResponse.of(
@@ -65,7 +65,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex, HttpServletRequest request) {
-        log.error("Recurso não encontrado: {}", ex.getMessage());
+        log.error("Recurso não encontrado: {}", ex.getMessage(), ex);
 
         HttpStatus status = HttpStatus.NOT_FOUND;
         ErrorResponse error = ErrorResponse.of(
@@ -88,7 +88,7 @@ public class GlobalExceptionHandler {
                 .map(field -> new ErrorResponse.FieldError(field.getField(), field.getDefaultMessage()))
                 .toList();
 
-        log.error("Erro de validação nos dados de entrada para a rota {}: {} erro(s)", request.getRequestURI(), fieldErrors.size());
+        log.error("Erro de validação nos dados de entrada para a rota {}: {} erro(s)", request.getRequestURI(), fieldErrors.size(), ex);
 
         HttpStatus status = HttpStatus.BAD_REQUEST;
         ErrorResponse error = ErrorResponse.ofValidation(
