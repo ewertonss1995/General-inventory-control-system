@@ -1,7 +1,7 @@
 package com.inventory.control.system.infrastructure.config;
 
-import com.inventory.control.system.domain.service.category.CreateCategoryService;
 import com.inventory.control.system.domain.service.category.GetCategoryService;
+import com.inventory.control.system.domain.service.category.CreateCategoryService;
 import com.inventory.control.system.domain.service.category.UpdateCategoryService;
 import com.inventory.control.system.domain.service.product.CreateProductService;
 import com.inventory.control.system.domain.service.product.GetProductService;
@@ -25,9 +25,9 @@ public class BeanConfig {
 
     @Bean
     public CreateProductUseCase createProductUseCase(ProductRepositoryPort productRepositoryPort, 
-                                                     CategoryRepositoryPort categoryRepositoryPort, 
+                                                     GetCategoryUseCase getCategoryUseCase, 
                                                      MeterRegistry meterRegistry) {
-        return new CreateProductService(productRepositoryPort, categoryRepositoryPort, meterRegistry);
+        return new CreateProductService(productRepositoryPort, getCategoryUseCase, meterRegistry);
     }
 
     @Bean
@@ -42,9 +42,9 @@ public class BeanConfig {
 
     @Bean
     public UpdateProductUseCase updateProductUseCase(ProductRepositoryPort productRepositoryPort, 
-                                                     CategoryRepositoryPort categoryRepositoryPort, 
+                                                     GetCategoryUseCase getCategoryUseCase, 
                                                      MeterRegistry meterRegistry) {
-        return new UpdateProductService(productRepositoryPort, categoryRepositoryPort, meterRegistry);
+        return new UpdateProductService(productRepositoryPort, getCategoryUseCase, meterRegistry);
     }
 
     @Bean
