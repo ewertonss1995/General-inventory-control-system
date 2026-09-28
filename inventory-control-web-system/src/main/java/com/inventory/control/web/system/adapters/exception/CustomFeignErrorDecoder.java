@@ -1,9 +1,7 @@
-package com.inventory.control.web.system.infrastructure.decoder;
-
-import com.inventory.control.web.system.adapters.exception.IntegrationException;
-import com.inventory.control.web.system.adapters.in.web.dto.response.ErrorResponse;
+package com.inventory.control.web.system.adapters.exception;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.inventory.control.web.system.adapters.in.web.dto.response.ErrorResponse;
 import feign.Response;
 import feign.codec.ErrorDecoder;
 import org.springframework.stereotype.Component;

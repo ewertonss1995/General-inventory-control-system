@@ -15,8 +15,6 @@ import com.auth.ports.out.RoleRepositoryPort;
 import com.auth.ports.out.JwtTokenProviderPort;
 import com.auth.ports.out.PasswordEncoderPort;
 
-import io.micrometer.core.instrument.MeterRegistry;
-
 @Configuration
 public class BeanConfig {
     
@@ -24,33 +22,30 @@ public class BeanConfig {
     public LoginUserUseCase loginUserUseCase(
         UserRepositoryPort userRepositoryPort,
         PasswordEncoderPort passwordEncoderPort, 
-        TokenUseCase tokenUseCase, 
-        MeterRegistry meterRegistry) {
+        TokenUseCase tokenUseCase) {
         
         return new LoginUserService(
-            userRepositoryPort, passwordEncoderPort, tokenUseCase, meterRegistry);
+            userRepositoryPort, passwordEncoderPort, tokenUseCase);
     }
 
     @Bean
     public RegisterUserUseCase registerUserUseCase(
         RoleRepositoryPort roleRepositoryPort,
         UserRepositoryPort userRepositoryPort,
-        PasswordEncoderPort passwordEncoderPort,
-        MeterRegistry meterRegistry) {
+        PasswordEncoderPort passwordEncoderPort) {
 
         RegisterUserUseCase domainService = new RegisterUserService(
                 roleRepositoryPort, 
                 userRepositoryPort, 
-                passwordEncoderPort,
-                meterRegistry
+                passwordEncoderPort
         );
 
         return new TransactionalRegisterUserDecorator(domainService);
     }
 
     @Bean
-    public TokenUseCase tokenUseCase(JwtTokenProviderPort jwtTokenProviderPort, MeterRegistry meterRegistry) {
-        return new TokenService(jwtTokenProviderPort, meterRegistry);
+    public TokenUseCase tokenUseCase(JwtTokenProviderPort jwtTokenProviderPort) {
+        return new TokenService(jwtTokenProviderPort);
     }
 
 }

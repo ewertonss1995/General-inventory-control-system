@@ -14,7 +14,6 @@ public class User {
 
     public User(UUID id, String username, String email, boolean active, String password, Set<Role> roles) {
         this.id = id;
-        this.username = username;
         this.email = email;
         this.active = active;
         this.password = password;
@@ -23,7 +22,6 @@ public class User {
 
     public User(UUID id, String email, boolean active, String password, Set<Role> roles) {
         this.id = id;
-        this.username = username;
         this.email = email;
         this.active = active;
         this.password = password;
@@ -31,8 +29,8 @@ public class User {
     }
 
      public User(String username, String email, String password, Set<Role> roles) {
-        this.username = username;
         this.email = email;
+        this.active = active;
         this.password = password;
         this.roles = roles;
     }

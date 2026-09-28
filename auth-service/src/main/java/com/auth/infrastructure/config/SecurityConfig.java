@@ -1,69 +1,53 @@
-package com.auth.infrastructure.security;
+package com.auth.infrastructure.config;
 
-import com.auth.infrastructure.security.JwtTokenProvider;
+import com.auth.infrastructure.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    public SecurityConfig(JwtTokenProvider jwtTokenProvider) {
-        this.jwtTokenProvider = jwtTokenProvider;
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Endpoints Públicos
+                        // 1. Liberar endpoints de Login, Cadastro, Public Key e Swagger
                         .requestMatchers(
-                                "/v1/auth/**",
-                                "/actuator/**",
-                                "/v3/api-docs/**",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html"
-                        ).permitAll()
+                            "/v1/auth/**", "/actuator/**", "/h2-console/**",
+                            "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html" 
+                            ).permitAll()
 
-                        // Endpoints de Gestão de Usuários
-                        .requestMatchers(HttpMethod.GET, "/v1/users/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_MANAGER")
-                        .requestMatchers(HttpMethod.POST, "/v1/users/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_MANAGER")
-                        .requestMatchers(HttpMethod.DELETE, "/v1/users/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_MANAGER")
+                        // 2. Se houver rotas internas protegidas no Auth-Service (ex: Gestão de Usuários)
+                        // .requestMatchers(HttpMethod.GET, "/v1/users/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_MANAGER")
+                        // .requestMatchers(HttpMethod.POST, "/v1/users/**").hasAuthority("ROLE_ADMIN")
+                        // .requestMatchers(HttpMethod.DELETE, "/v1/users/**").hasAuthority("ROLE_ADMIN")
 
                         .anyRequest().authenticated()
                 )
-                .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> jwt
-                                .decoder(jwtDecoder())
-                                .jwtAuthenticationConverter(new CustomJwtAuthenticationConverter())
-                        )
-                )
-                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
+                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
-    }
-
-    @Bean
-    public JwtDecoder jwtDecoder() {
-        return NimbusJwtDecoder.withPublicKey(jwtTokenProvider.getPublicKey()).build();
     }
 
     @Bean
