@@ -82,6 +82,11 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
 
 		<!-- Lombok -->
 		<dependency>
@@ -165,6 +170,8 @@
                     <exclude>**/config/**</exclude>
                     <exclude>**/security/**</exclude>
                     <exclude>**/exception/**</exclude>
+                    <exclude>**/mapper/**</exclude>
+                    <exclude>**/seeder/**</exclude>
                     <exclude>**/dto/**</exclude>
                     <exclude>**/model/**</exclude>
                     <exclude>**/documents/**</exclude>
