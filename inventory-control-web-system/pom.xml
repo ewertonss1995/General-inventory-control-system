@@ -186,6 +186,8 @@
                     <exclude>**/dto/**</exclude>
                     <exclude>**/model/**</exclude>
                     <exclude>**/*MapperImpl.class</exclude>
+                    <exclude>**/AuthFeignClient.class</exclude>
+                    <exclude>**/InventoryFeignClient.class</exclude>
                     <exclude>**/InventoryControlWebSystemApplication.class</exclude>
                 </excludes>
             </configuration>
