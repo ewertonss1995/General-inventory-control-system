@@ -108,13 +108,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
-        
-        <!-- Bucket4j para controle de Rate Limiting e proteção de endpoints -->
-        <dependency>
-            <groupId>com.bucket4j</groupId>
-            <artifactId>bucket4j-core</artifactId>
-            <version>8.10.1</version>
-        </dependency>
 
         <!-- DEPENDENCIAS PARA OBSERVABILIDADE -->
 
