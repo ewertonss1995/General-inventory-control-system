@@ -14,13 +14,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 
-import static com.inventory.control.web.system.adapters.out.auth.AuthUserMockFactory.DEFAULT_TOKEN;
-
-import static com.inventory.control.web.system.adapters.out.auth.AuthUserMockFactory.DEFAULT_TOKEN_TYPE;
-import static com.inventory.control.web.system.adapters.out.auth.AuthUserMockFactory.createLoginUser;
-import static com.inventory.control.web.system.adapters.out.auth.AuthUserMockFactory.createRegisterUser;
-import static com.inventory.control.web.system.adapters.out.auth.AuthUserMockFactory.createTokenResponse;
-import static com.inventory.control.web.system.adapters.out.auth.AuthUserMockFactory.createTokenUser;
+import static com.inventory.control.web.system.mocks.adapters.out.AuthUserMockFactory.DEFAULT_TOKEN;
+import static com.inventory.control.web.system.mocks.adapters.out.AuthUserMockFactory.DEFAULT_TOKEN_TYPE;
+import static com.inventory.control.web.system.mocks.adapters.out.AuthUserMockFactory.createLoginUser;
+import static com.inventory.control.web.system.mocks.adapters.out.AuthUserMockFactory.createRegisterUser;
+import static com.inventory.control.web.system.mocks.adapters.out.AuthUserMockFactory.createTokenResponse;
+import static com.inventory.control.web.system.mocks.adapters.out.AuthUserMockFactory.createTokenUser;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

@@ -20,7 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static com.inventory.control.web.system.adapters.in.web.AuthWebMockFactory.*;
+import static com.inventory.control.web.system.mocks.adapters.in.AuthWebMockFactory.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;

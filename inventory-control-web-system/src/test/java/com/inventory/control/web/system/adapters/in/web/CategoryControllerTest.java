@@ -19,11 +19,11 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
-import static com.inventory.control.web.system.adapters.in.web.CategoryWebMockFactory.DEFAULT_CATEGORY_ID;
-import static com.inventory.control.web.system.adapters.in.web.CategoryWebMockFactory.DEFAULT_NAME;
-import static com.inventory.control.web.system.adapters.in.web.CategoryWebMockFactory.createCategoryDomain;
-import static com.inventory.control.web.system.adapters.in.web.CategoryWebMockFactory.createCategoryResponse;
-import static com.inventory.control.web.system.adapters.in.web.CategoryWebMockFactory.createValidCategoryRequest;
+import static com.inventory.control.web.system.mocks.adapters.in.CategoryWebMockFactory.DEFAULT_CATEGORY_ID;
+import static com.inventory.control.web.system.mocks.adapters.in.CategoryWebMockFactory.DEFAULT_NAME;
+import static com.inventory.control.web.system.mocks.adapters.in.CategoryWebMockFactory.createCategoryDomain;
+import static com.inventory.control.web.system.mocks.adapters.in.CategoryWebMockFactory.createCategoryResponse;
+import static com.inventory.control.web.system.mocks.adapters.in.CategoryWebMockFactory.createValidCategoryRequest;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
