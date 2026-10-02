@@ -23,7 +23,6 @@ public class User {
 
     public User(UUID id, String email, boolean active, String password, Set<Role> roles) {
         this.id = id;
-        this.username = username;
         this.email = email;
         this.active = active;
         this.password = password;
@@ -59,5 +58,6 @@ public class User {
 
     public void setPassword(String password) { this.password = password; }
     public void setRoles(Set<Role> roles) { this.roles = roles; }
+    public void setActive(boolean active) { this.active = active; }
 
 }

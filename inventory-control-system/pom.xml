@@ -82,6 +82,11 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
 
 		<!-- Lombok -->
 		<dependency>
@@ -153,6 +158,68 @@
                     </path>
                 </annotationProcessorPaths>
             </configuration>
+        </plugin>
+
+        <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>0.8.12</version>
+            <!-- CONFIGURAÇÃO GLOBAL DE EXCLUDES PARA O JACOCO -->
+            <configuration>
+                <excludes>
+                    <exclude>**/config/**</exclude>
+                    <exclude>**/security/**</exclude>
+                    <exclude>**/exception/**</exclude>
+                    <exclude>**/mapper/**</exclude>
+                    <exclude>**/seeder/**</exclude>
+                    <exclude>**/dto/**</exclude>
+                    <exclude>**/model/**</exclude>
+                    <exclude>**/documents/**</exclude>
+                    <exclude>**/entities/**</exclude>
+                    <exclude>**/*MapperImpl.class</exclude>
+                    <exclude>**/InventoryControlSystemApplication.class</exclude>
+                </excludes>
+            </configuration>
+            <executions>
+                <!-- Prepara o agente do JaCoCo para coletar a cobertura durante os testes -->
+                <execution>
+                    <id>prepare-agent</id>
+                    <goals>
+                        <goal>prepare-agent</goal>
+                    </goals>
+                </execution>
+
+                <!-- Gera o relatório em HTML/XML após os testes -->
+                <execution>
+                    <id>report</id>
+                    <phase>test</phase>
+                    <goals>
+                        <goal>report</goal>
+                    </goals>
+                </execution>
+
+                <!-- Valida a cobertura de 90% na fase de verificação -->
+                <execution>
+                    <id>jacoco-check</id>
+                    <goals>
+                        <goal>check</goal>
+                    </goals>
+                    <configuration>
+                        <rules>
+                            <rule>
+                                <element>BUNDLE</element>
+                                <limits>
+                                    <limit>
+                                        <counter>LINE</counter>
+                                        <value>COVEREDRATIO</value>
+                                        <minimum>0.90</minimum>
+                                    </limit>
+                                </limits>
+                            </rule>
+                        </rules>
+                    </configuration>
+                </execution>
+            </executions>
         </plugin>
 
         <plugin>

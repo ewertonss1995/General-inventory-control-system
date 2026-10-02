@@ -3,6 +3,7 @@ package com.inventory.control.web.system.domain.service.product;
 import com.inventory.control.web.system.domain.model.Product;
 import com.inventory.control.web.system.ports.in.product.GetProductUseCase;
 import com.inventory.control.web.system.ports.out.ProductFeignPort;
+import com.inventory.control.web.system.domain.exception.BusinessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +31,12 @@ public class GetProductService implements GetProductUseCase {
     }
 
     @Override
-    public Product findBySku(String sku) { 
+    public Product findBySku(String sku) {
+        if (sku == null || sku.isBlank()) {
+            log.warn("Tentativa de busca com SKU nulo ou em branco. SKU recebido: '{}'", sku);
+            throw new BusinessException("O SKU informado para busca não pode ser nulo ou vazio.");
+        }
+
         String formattedSku = sku != null ? sku.trim().toUpperCase() : null;
         
         log.info("Executando caso de uso para buscar produto pelo SKU: {}", formattedSku);

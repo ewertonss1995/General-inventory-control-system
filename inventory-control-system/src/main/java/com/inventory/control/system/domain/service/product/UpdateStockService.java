@@ -5,6 +5,7 @@ import com.inventory.control.system.domain.model.Product;
 import com.inventory.control.system.domain.model.UpdateStockInput;
 import com.inventory.control.system.ports.in.product.UpdateStockUseCase;
 import com.inventory.control.system.ports.out.ProductRepositoryPort;
+import com.inventory.control.system.domain.exception.BusinessException;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import org.slf4j.Logger;
@@ -34,7 +35,7 @@ public class UpdateStockService implements UpdateStockUseCase {
                     if (Objects.isNull(sku) || sku.isBlank()) {
                         log.warn("Falha na atualização de estoque: SKU fornecido é nulo ou vazio.");
                         recordFailure("invalid_sku");
-                        throw new IllegalArgumentException("SKU não pode ser nulo ou vazio.");
+                        throw new BusinessException("SKU não pode ser nulo ou vazio.");
                     }
 
                     String formattedSku = sku.trim().toUpperCase();
