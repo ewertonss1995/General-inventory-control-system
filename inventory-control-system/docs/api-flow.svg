@@ -1,0 +1,74 @@
+<svg width="1360" height="760" viewBox="0 0 1360 760" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Fluxo de produto e estoque</title>
+  <desc id="desc">Fluxo de criação do produto e movimentação de estoque no backend.</desc>
+  <defs>
+    <linearGradient id="bg2" x1="0" x2="1">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#e2e8f0"/>
+    </linearGradient>
+    <marker id="arrow2" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L0,12 L12,6 z" fill="#334155"/>
+    </marker>
+    <style>
+      .title { font: 700 28px 'Segoe UI', Arial, sans-serif; fill: #0f172a; }
+      .label { font: 700 17px 'Segoe UI', Arial, sans-serif; fill: #0f172a; }
+      .small { font: 600 14px 'Segoe UI', Arial, sans-serif; fill: #334155; }
+      .step { font: 700 15px 'Segoe UI', Arial, sans-serif; fill: #0f172a; }
+      .line { stroke: #334155; stroke-width: 3; fill: none; marker-end: url(#arrow2); }
+      .dashed { stroke: #64748b; stroke-width: 2.5; fill: none; stroke-dasharray: 8 8; marker-end: url(#arrow2); }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1360" height="760" fill="url(#bg2)"/>
+  <text x="680" y="52" text-anchor="middle" class="title">Fluxo principal de produto e estoque</text>
+
+  <rect x="70" y="120" width="200" height="110" fill="#dbeafe" stroke="#2563eb" stroke-width="2" rx="18"/>
+  <text x="170" y="168" text-anchor="middle" class="label">1. Requisição</text>
+  <text x="170" y="198" text-anchor="middle" class="small">POST /v1/products/save</text>
+  <text x="170" y="219" text-anchor="middle" class="small">PATCH /v1/products/{sku}/stock</text>
+
+  <rect x="350" y="120" width="220" height="110" fill="#e2e8f0" stroke="#475569" stroke-width="2" rx="18"/>
+  <text x="460" y="168" text-anchor="middle" class="label">2. Controller</text>
+  <text x="460" y="198" text-anchor="middle" class="small">ProductController</text>
+  <text x="460" y="219" text-anchor="middle" class="small">Validação de DTO</text>
+
+  <rect x="660" y="120" width="220" height="110" fill="#bfdbfe" stroke="#2563eb" stroke-width="2" rx="18"/>
+  <text x="770" y="168" text-anchor="middle" class="label">3. Caso de uso</text>
+  <text x="770" y="198" text-anchor="middle" class="small">CreateProductService</text>
+  <text x="770" y="219" text-anchor="middle" class="small">UpdateStockService</text>
+
+  <rect x="970" y="120" width="260" height="110" fill="#dcfce7" stroke="#16a34a" stroke-width="2" rx="18"/>
+  <text x="1100" y="167" text-anchor="middle" class="label">4. Persistência</text>
+  <text x="1100" y="198" text-anchor="middle" class="small">MongoDB: products, categories</text>
+  <text x="1100" y="219" text-anchor="middle" class="small">PostgreSQL: stock balance</text>
+
+  <path class="line" d="M270 175 H350"/>
+  <path class="line" d="M570 175 H660"/>
+  <path class="line" d="M880 175 H970"/>
+
+  <rect x="170" y="350" width="220" height="120" fill="#ffedd5" stroke="#f59e0b" stroke-width="2" rx="18"/>
+  <text x="280" y="396" text-anchor="middle" class="label">5. Regra de negócio</text>
+  <text x="280" y="426" text-anchor="middle" class="small">SKU único</text>
+  <text x="280" y="448" text-anchor="middle" class="small">Categoria válida</text>
+
+  <rect x="490" y="350" width="260" height="120" fill="#f8fafc" stroke="#64748b" stroke-width="2" rx="18"/>
+  <text x="620" y="396" text-anchor="middle" class="label">6. Atualização de estoque</text>
+  <text x="620" y="426" text-anchor="middle" class="small">IN: soma</text>
+  <text x="620" y="448" text-anchor="middle" class="small">OUT: subtrai e valida saldo</text>
+
+  <rect x="840" y="350" width="240" height="120" fill="#e0f2fe" stroke="#0284c7" stroke-width="2" rx="18"/>
+  <text x="960" y="396" text-anchor="middle" class="label">7. Resposta</text>
+  <text x="960" y="426" text-anchor="middle" class="small">HTTP 200 / 201</text>
+  <text x="960" y="448" text-anchor="middle" class="small">Payload do produto/estoque</text>
+
+  <path class="line" d="M280 230 V350"/>
+  <path class="line" d="M620 230 V350"/>
+  <path class="line" d="M960 230 V350"/>
+
+  <path class="dashed" d="M390 410 H490"/>
+  <path class="dashed" d="M750 410 H840"/>
+
+  <rect x="170" y="560" width="980" height="110" fill="#f1f5f9" stroke="#475569" stroke-width="2" rx="18"/>
+  <text x="660" y="602" text-anchor="middle" class="label">Resultado esperado</text>
+  <text x="660" y="632" text-anchor="middle" class="small">Produto salvo corretamente, categoria vinculada e saldo de estoque validado com regras de negócio e auditoria.</text>
+</svg>
