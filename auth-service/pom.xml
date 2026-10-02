@@ -194,8 +194,9 @@
                     <exclude>**/mapper/**</exclude>
                     <exclude>**/dto/**</exclude>
                     <exclude>**/model/**</exclude>
+                    <exclude>**/entity/**</exclude>
                     <exclude>**/*MapperImpl.class</exclude>
-                    <exclude>**/AuthServiceApplicationTests.class</exclude>
+                    <exclude>**/AuthServiceApplication.class</exclude>
                 </excludes>
             </configuration>
             <executions>

@@ -4,7 +4,11 @@ import com.auth.adapters.in.web.dto.LoginRequest;
 import com.auth.adapters.in.web.dto.RegisterRequest;
 import com.auth.adapters.in.web.dto.TokenResponse;
 import com.auth.domain.model.Login;
+import com.auth.domain.model.Role;
 import com.auth.domain.model.User;
+
+import java.util.Set;
+import java.util.UUID;
 
 public final class AuthMockFactory {
 
@@ -49,10 +53,18 @@ public final class AuthMockFactory {
     }
 
     public static User createUser() {
+        return createUser("usuario_teste", "usuario@email.com", "senha123", true);
+    }
+
+    public static User createUser(String username, String email, String password, boolean active) {
+        Role defaultRole = new Role(UUID.randomUUID(), "ROLE_USER");
         return new User(
-                "usuario_teste",
-                "usuario@email.com",
-                "senha123"
+                UUID.randomUUID(),
+                username,
+                email,
+                active,
+                password,
+                Set.of(defaultRole)
         );
     }
 
