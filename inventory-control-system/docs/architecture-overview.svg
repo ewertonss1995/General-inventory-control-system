@@ -1,109 +1,116 @@
-<svg width="1400" height="820" viewBox="0 0 1400 820" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+<svg width="1600" height="980" viewBox="0 0 1600 980" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
   <title id="title">Arquitetura do Inventory Control System</title>
-  <desc id="desc">Diagrama da arquitetura do backend com clientes, API REST, camada de domínio, MongoDB, PostgreSQL, segurança e observabilidade.</desc>
+  <desc id="desc">Diagrama da arquitetura do backend com clientes, API REST, camada de aplicação, MongoDB, PostgreSQL, segurança e observabilidade.</desc>
 
   <defs>
-    <linearGradient id="bg" x1="0" x2="1">
+    <linearGradient id="bg" x1="0" x2="0" y1="0" y2="1">
       <stop offset="0%" stop-color="#f8fafc"/>
-      <stop offset="100%" stop-color="#e2e8f0"/>
+      <stop offset="100%" stop-color="#eef2f7"/>
     </linearGradient>
-    <linearGradient id="cardPrimary" x1="0" x2="1">
-      <stop offset="0%" stop-color="#0f172a"/>
-      <stop offset="100%" stop-color="#1e293b"/>
+    <linearGradient id="panel" x1="0" x2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#f3f7fb"/>
     </linearGradient>
-    <linearGradient id="cardSecondary" x1="0" x2="1">
+    <linearGradient id="primary" x1="0" x2="1">
+      <stop offset="0%" stop-color="#dfeafc"/>
+      <stop offset="100%" stop-color="#c9d9f5"/>
+    </linearGradient>
+    <linearGradient id="secondary" x1="0" x2="1">
       <stop offset="0%" stop-color="#dbeafe"/>
       <stop offset="100%" stop-color="#bfdbfe"/>
     </linearGradient>
-    <linearGradient id="cardGreen" x1="0" x2="1">
+    <linearGradient id="mongo" x1="0" x2="1">
       <stop offset="0%" stop-color="#dcfce7"/>
       <stop offset="100%" stop-color="#bbf7d0"/>
     </linearGradient>
-    <linearGradient id="cardOrange" x1="0" x2="1">
+    <linearGradient id="pg" x1="0" x2="1">
       <stop offset="0%" stop-color="#ffedd5"/>
       <stop offset="100%" stop-color="#fed7aa"/>
     </linearGradient>
-    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
       <path d="M0,0 L0,12 L12,6 z" fill="#475569"/>
     </marker>
     <style>
-      .title { font: 700 30px 'Segoe UI', Arial, sans-serif; fill: #0f172a; }
-      .subtitle { font: 600 16px 'Segoe UI', Arial, sans-serif; fill: #475569; }
-      .label { font: 700 17px 'Segoe UI', Arial, sans-serif; fill: #0f172a; }
-      .small { font: 600 13px 'Segoe UI', Arial, sans-serif; fill: #334155; }
-      .box { rx: 18; ry: 18; }
+      .title { font: 700 34px 'Segoe UI', Arial, sans-serif; fill: #f8fafc; }
+      .subtitle { font: 600 18px 'Segoe UI', Arial, sans-serif; fill: #cbd5e1; }
+      .label { font: 700 21px 'Segoe UI', Arial, sans-serif; fill: #0f172a; }
+      .small { font: 600 15px 'Segoe UI', Arial, sans-serif; fill: #334155; }
+      .card-title { font: 700 22px 'Segoe UI', Arial, sans-serif; fill: #0f172a; }
       .line { stroke: #475569; stroke-width: 3; fill: none; marker-end: url(#arrow); }
       .dashed { stroke: #64748b; stroke-width: 2.5; fill: none; stroke-dasharray: 8 8; marker-end: url(#arrow); }
     </style>
   </defs>
 
-  <rect x="0" y="0" width="1400" height="820" fill="url(#bg)"/>
-  <text x="700" y="60" text-anchor="middle" class="title">Inventory Control System</text>
-  <text x="700" y="90" text-anchor="middle" class="subtitle">Arquitetura de backend com catálogo em MongoDB, estoque em PostgreSQL e segurança JWT</text>
+  <rect x="0" y="0" width="1600" height="980" fill="url(#bg)"/>
+  <text x="120" y="80" class="title" style="fill: #0f172a;">Arquitetura do projeto</text>
 
-  <rect x="55" y="140" width="240" height="130" class="box" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
-  <text x="175" y="185" text-anchor="middle" class="label">Clientes / Apps</text>
-  <text x="175" y="215" text-anchor="middle" class="small">Web, Mobile ou integrações</text>
-  <text x="175" y="242" text-anchor="middle" class="small">HTTP REST / JWT</text>
+  <rect x="60" y="120" width="1480" height="770" fill="url(#panel)" rx="0"/>
+  <text x="800" y="180" text-anchor="middle" class="label" style="font-size: 26px; fill: #0f172a;">Inventory Control System</text>
+  <text x="800" y="210" text-anchor="middle" class="small" style="font-size: 16px; fill: #475569;">Arquitetura do backend com catálogo em MongoDB, estoque em PostgreSQL e segurança JWT</text>
 
-  <rect x="390" y="120" width="280" height="250" class="box" fill="url(#cardPrimary)" stroke="#0f172a" stroke-width="2"/>
-  <text x="530" y="165" text-anchor="middle" fill="#f8fafc" class="label">API REST</text>
-  <text x="530" y="195" text-anchor="middle" fill="#dbeafe" class="small">Controllers</text>
-  <text x="530" y="220" text-anchor="middle" fill="#dbeafe" class="small">CategoryController</text>
-  <text x="530" y="245" text-anchor="middle" fill="#dbeafe" class="small">ProductController</text>
-  <text x="530" y="280" text-anchor="middle" fill="#dbeafe" class="small">DTOs / Validations /</text>
-  <text x="530" y="305" text-anchor="middle" fill="#dbeafe" class="small">GlobalExceptionHandler</text>
+  <rect x="110" y="270" width="220" height="150" fill="#dbeafe" stroke="#2563eb" stroke-width="2" rx="20"/>
+  <text x="220" y="318" text-anchor="middle" class="card-title">Clientes / Apps</text>
+  <text x="220" y="354" text-anchor="middle" class="small">Web, mobile e integrações</text>
+  <text x="220" y="382" text-anchor="middle" class="small">HTTP REST + JWT</text>
 
-  <rect x="760" y="120" width="280" height="250" class="box" fill="url(#cardSecondary)" stroke="#3b82f6" stroke-width="2"/>
-  <text x="900" y="165" text-anchor="middle" class="label">Camada de Aplicação</text>
-  <text x="900" y="195" text-anchor="middle" class="small">Use Cases</text>
-  <text x="900" y="220" text-anchor="middle" class="small">Create / Get / Update</text>
-  <text x="900" y="245" text-anchor="middle" class="small">ProductService</text>
-  <text x="900" y="270" text-anchor="middle" class="small">CategoryService</text>
-  <text x="900" y="300" text-anchor="middle" class="small">Business Rules</text>
-  <text x="900" y="325" text-anchor="middle" class="small">Stock validation</text>
+  <rect x="390" y="250" width="280" height="240" fill="url(#primary)" stroke="#7aa4df" stroke-width="2" rx="22"/>
+  <text x="530" y="302" text-anchor="middle" fill="#0f172a" class="card-title">API REST</text>
+  <text x="530" y="336" text-anchor="middle" fill="#1e293b" class="small">Controllers</text>
+  <text x="530" y="364" text-anchor="middle" fill="#1e293b" class="small">CategoryController</text>
+  <text x="530" y="392" text-anchor="middle" fill="#1e293b" class="small">ProductController</text>
+  <text x="530" y="428" text-anchor="middle" fill="#1e293b" class="small">DTOs + validações</text>
+  <text x="530" y="456" text-anchor="middle" fill="#1e293b" class="small">GlobalExceptionHandler</text>
 
-  <rect x="1120" y="120" width="210" height="250" class="box" fill="url(#cardGreen)" stroke="#16a34a" stroke-width="2"/>
-  <text x="1225" y="165" text-anchor="middle" class="label">MongoDB</text>
-  <text x="1225" y="195" text-anchor="middle" class="small">products</text>
-  <text x="1225" y="220" text-anchor="middle" class="small">categories</text>
-  <text x="1225" y="250" text-anchor="middle" class="small">Documentos do</text>
-  <text x="1225" y="275" text-anchor="middle" class="small">catálogo</text>
-  <text x="1225" y="305" text-anchor="middle" class="small">Índices únicos</text>
+  <rect x="760" y="250" width="290" height="240" fill="url(#secondary)" stroke="#3b82f6" stroke-width="2" rx="22"/>
+  <text x="905" y="302" text-anchor="middle" class="card-title">Camada de Aplicação</text>
+  <text x="905" y="336" text-anchor="middle" class="small">Use Cases</text>
+  <text x="905" y="364" text-anchor="middle" class="small">Create / Get / Update</text>
+  <text x="905" y="392" text-anchor="middle" class="small">ProductService</text>
+  <text x="905" y="420" text-anchor="middle" class="small">CategoryService</text>
+  <text x="905" y="448" text-anchor="middle" class="small">Regras de negócio</text>
+  <text x="905" y="476" text-anchor="middle" class="small">Validação de estoque</text>
 
-  <rect x="390" y="440" width="300" height="220" class="box" fill="url(#cardOrange)" stroke="#f59e0b" stroke-width="2"/>
-  <text x="540" y="485" text-anchor="middle" class="label">PostgreSQL</text>
-  <text x="540" y="515" text-anchor="middle" class="small">tb_stock_balance</text>
-  <text x="540" y="540" text-anchor="middle" class="small">tb_stock_movement</text>
-  <text x="540" y="575" text-anchor="middle" class="small">Saldo do produto</text>
-  <text x="540" y="600" text-anchor="middle" class="small">Ledger e auditoria</text>
-  <text x="540" y="625" text-anchor="middle" class="small">Optimistic locking</text>
+  <rect x="1140" y="250" width="220" height="240" fill="url(#mongo)" stroke="#16a34a" stroke-width="2" rx="22"/>
+  <text x="1250" y="302" text-anchor="middle" class="card-title">MongoDB</text>
+  <text x="1250" y="336" text-anchor="middle" class="small">products</text>
+  <text x="1250" y="364" text-anchor="middle" class="small">categories</text>
+  <text x="1250" y="400" text-anchor="middle" class="small">Catálogo do sistema</text>
+  <text x="1250" y="428" text-anchor="middle" class="small">Documentos e índices</text>
+  <text x="1250" y="456" text-anchor="middle" class="small">Persistência operacional</text>
 
-  <rect x="760" y="440" width="300" height="220" class="box" fill="#e2e8f0" stroke="#64748b" stroke-width="2"/>
-  <text x="910" y="485" text-anchor="middle" class="label">Segurança / Infra</text>
-  <text x="910" y="515" text-anchor="middle" class="small">JWT validation</text>
-  <text x="910" y="540" text-anchor="middle" class="small">Roles: ADMIN / MANAGER / OPERATOR</text>
-  <text x="910" y="575" text-anchor="middle" class="small">SecurityConfig</text>
-  <text x="910" y="600" text-anchor="middle" class="small">CustomJwtAuthenticationConverter</text>
-  <text x="910" y="625" text-anchor="middle" class="small">Beans / Metrics / Tracing</text>
+  <rect x="410" y="560" width="310" height="230" fill="url(#pg)" stroke="#f59e0b" stroke-width="2" rx="22"/>
+  <text x="565" y="612" text-anchor="middle" class="card-title">PostgreSQL</text>
+  <text x="565" y="646" text-anchor="middle" class="small">tb_stock_balance</text>
+  <text x="565" y="674" text-anchor="middle" class="small">tb_stock_movement</text>
+  <text x="565" y="710" text-anchor="middle" class="small">Saldo do produto</text>
+  <text x="565" y="738" text-anchor="middle" class="small">Ledger / auditoria</text>
+  <text x="565" y="766" text-anchor="middle" class="small">Transações e consistência</text>
 
-  <rect x="1120" y="440" width="210" height="220" class="box" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
-  <text x="1225" y="485" text-anchor="middle" class="label">Observabilidade</text>
-  <text x="1225" y="515" text-anchor="middle" class="small">Actuator</text>
-  <text x="1225" y="540" text-anchor="middle" class="small">/actuator/health</text>
-  <text x="1225" y="565" text-anchor="middle" class="small">/actuator/prometheus</text>
-  <text x="1225" y="600" text-anchor="middle" class="small">Micrometer</text>
-  <text x="1225" y="625" text-anchor="middle" class="small">Tracing OTLP</text>
+  <rect x="785" y="560" width="310" height="230" fill="#e2e8f0" stroke="#64748b" stroke-width="2" rx="22"/>
+  <text x="940" y="612" text-anchor="middle" class="card-title">Segurança / Infra</text>
+  <text x="940" y="646" text-anchor="middle" class="small">JWT validation</text>
+  <text x="940" y="674" text-anchor="middle" class="small">Roles: ADMIN / MANAGER / OPERATOR</text>
+  <text x="940" y="710" text-anchor="middle" class="small">SecurityConfig</text>
+  <text x="940" y="738" text-anchor="middle" class="small">CustomJwtAuthenticationConverter</text>
+  <text x="940" y="766" text-anchor="middle" class="small">Beans + Micrometer + tracing</text>
 
-  <path class="line" d="M295 205 H390"/>
-  <path class="line" d="M670 245 H760"/>
-  <path class="line" d="M1040 245 H1120"/>
-  <path class="line" d="M540 370 V440"/>
-  <path class="line" d="M910 370 V440"/>
-  <path class="line" d="M1225 370 V440"/>
+  <rect x="1160" y="560" width="240" height="230" fill="#f1f5f9" stroke="#475569" stroke-width="2" rx="22"/>
+  <text x="1280" y="612" text-anchor="middle" class="card-title">Observabilidade</text>
+  <text x="1280" y="646" text-anchor="middle" class="small">Actuator</text>
+  <text x="1280" y="674" text-anchor="middle" class="small">/actuator/health</text>
+  <text x="1280" y="702" text-anchor="middle" class="small">/actuator/prometheus</text>
+  <text x="1280" y="738" text-anchor="middle" class="small">Micrometer</text>
+  <text x="1280" y="766" text-anchor="middle" class="small">Tracing OTLP</text>
 
-  <path class="dashed" d="M760 520 H690"/>
-  <path class="dashed" d="M690 520 L690 615 L760 615"/>
+  <path class="line" d="M330 345 H390"/>
+  <path class="line" d="M670 375 H760"/>
+  <path class="line" d="M1050 375 H1140"/>
+  <path class="line" d="M565 490 V560"/>
+  <path class="line" d="M940 490 V560"/>
+  <path class="line" d="M1280 490 V560"/>
 
-  <text x="700" y="760" text-anchor="middle" class="small">Fluxo de dados: Cliente → API REST → Casos de uso → Adaptadores → Bancos de dados e observabilidade</text>
+  <path class="dashed" d="M785 688 H720"/>
+  <path class="dashed" d="M720 688 L720 738 L785 738"/>
+
+  <text x="800" y="860" text-anchor="middle" class="small">Fluxo de dados: Cliente → API REST → Casos de uso → Adaptadores → Bancos de dados e observabilidade</text>
 </svg>
