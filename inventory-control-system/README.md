@@ -1,5 +1,11 @@
 # Inventory Control System
 
+[![Java](https://img.shields.io/badge/Java-17-ED8B00?logo=openjdk)](https://www.oracle.com/java/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.2-6DB33F?logo=springboot)](https://spring.io/projects/spring-boot)
+[![Spring Security](https://img.shields.io/badge/Spring%20Security-JWT-6DB33F?logo=springsecurity)](https://spring.io/projects/spring-security)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-4169E1?logo=postgresql)](https://www.postgresql.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-NoSQL-47A248?logo=mongodb)](https://www.mongodb.com/)
+
 Sistema backend para gestão de catálogo de produtos, categorias e controle de estoque em tempo real, desenvolvido com Java 17 e Spring Boot 3.3.2.
 
 O projeto adota uma abordagem de arquitetura hexagonal, separando domínio, casos de uso, adaptadores de entrada/saída e infraestrutura, com autenticação via JWT, persistência poliglota (MongoDB + PostgreSQL) e observabilidade com Micrometer, Prometheus e tracing OTLP.
@@ -31,6 +37,10 @@ Este backend foi projetado para atender cenários de gestão de estoque com foco
 ## Fluxo de negócio principal
 
 <img src="docs/api-flow.svg" alt="Fluxo de criação e atualização de produto e estoque" width="100%" />
+
+### Diagrama de sequência
+
+<img src="docs/sequence-diagram.svg" alt="Diagrama de sequência do fluxo de cadastro de produto e atualização de estoque" width="100%" />
 
 ### 1) Cadastro de categoria
 
@@ -104,7 +114,8 @@ inventory-control-system/
 ├── HELP.md
 ├── docs/
 │   ├── architecture-overview.svg
-│   └── api-flow.svg
+│   ├── api-flow.svg
+│   └── sequence-diagram.svg
 ├── target/
 └── README.md
 ```
