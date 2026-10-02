@@ -5,7 +5,7 @@ import com.inventory.control.system.domain.exception.ResourceNotFoundException;
 import com.inventory.control.system.domain.model.Category;
 import com.inventory.control.system.domain.model.Product;
 import com.inventory.control.system.ports.in.product.UpdateProductUseCase;
-import com.inventory.control.system.ports.out.CategoryRepositoryPort;
+import com.inventory.control.system.ports.in.category.GetCategoryUseCase;
 import com.inventory.control.system.ports.out.ProductRepositoryPort;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
@@ -17,14 +17,14 @@ public class UpdateProductService implements UpdateProductUseCase {
     private static final Logger log = LoggerFactory.getLogger(UpdateProductService.class);
 
     private final ProductRepositoryPort productRepositoryPort;
-    private final CategoryRepositoryPort categoryRepositoryPort;
+    private final GetCategoryUseCase getCategoryUseCase;
     private final MeterRegistry meterRegistry;
 
     public UpdateProductService(ProductRepositoryPort productRepositoryPort,
-                                CategoryRepositoryPort categoryRepositoryPort,
+                                GetCategoryUseCase getCategoryUseCase,
                                 MeterRegistry meterRegistry) {
         this.productRepositoryPort = productRepositoryPort;
-        this.categoryRepositoryPort = categoryRepositoryPort;
+        this.getCategoryUseCase = getCategoryUseCase;
         this.meterRegistry = meterRegistry;
     }
 
@@ -59,15 +59,7 @@ public class UpdateProductService implements UpdateProductUseCase {
                                 return new ResourceNotFoundException("Produto não encontrado para o SKU: " + formattedSku);
                             });
 
-                    Category category = categoryRepositoryPort.findById(product.getCategory().getId())
-                            .orElseThrow(() -> {
-                                log.warn("Falha na atualização do produto SKU '{}': Categoria ID {} não encontrada.",
-                                        formattedSku, product.getCategory().getId());
-                                recordFailure("category_not_found");
-                                return new ResourceNotFoundException(
-                                        "Categoria não encontrada com o ID: " + product.getCategory().getId());
-                            });
-
+                    Category category = getCategoryUseCase.findById(product.getCategory().getId());
                     log.debug("Categoria de ID {} validada com sucesso para o produto SKU '{}'.", category.getId(), formattedSku);
 
                     Product productToUpdate = new Product(

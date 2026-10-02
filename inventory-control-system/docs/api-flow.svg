@@ -1,0 +1,77 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Fluxo principal de produto e estoque</title>
+  <desc id="desc">Fluxo de criação e atualização de produto e estoque com validação de regras de negócio e persistência em MongoDB e PostgreSQL.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#e2e8f0"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,12 L12,6 z" fill="#334155"/>
+    </marker>
+    <style>
+      .title { font: 700 32px 'Segoe UI', Arial, sans-serif; fill: #0f172a; }
+      .label { font: 700 20px 'Segoe UI', Arial, sans-serif; fill: #0f172a; }
+      .small { font: 600 15px 'Segoe UI', Arial, sans-serif; fill: #334155; }
+      .line { stroke: #334155; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .dashed { stroke: #64748b; stroke-width: 2.5; fill: none; stroke-dasharray: 8 8; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1600" height="900" fill="url(#bg)"/>
+  <text x="800" y="58" text-anchor="middle" class="title">Fluxo principal de produto e estoque</text>
+
+  <rect x="70" y="120" width="220" height="120" fill="#dbeafe" stroke="#2563eb" stroke-width="2" rx="20"/>
+  <text x="180" y="170" text-anchor="middle" class="label">1. Requisição</text>
+  <text x="180" y="200" text-anchor="middle" class="small">POST /v1/products/save</text>
+  <text x="180" y="224" text-anchor="middle" class="small">PATCH /v1/products/{sku}/stock</text>
+
+  <rect x="360" y="120" width="240" height="120" fill="#e2e8f0" stroke="#475569" stroke-width="2" rx="20"/>
+  <text x="480" y="170" text-anchor="middle" class="label">2. Controller</text>
+  <text x="480" y="200" text-anchor="middle" class="small">ProductController</text>
+  <text x="480" y="224" text-anchor="middle" class="small">Validação de DTO</text>
+
+  <rect x="680" y="120" width="240" height="120" fill="#bfdbfe" stroke="#2563eb" stroke-width="2" rx="20"/>
+  <text x="800" y="170" text-anchor="middle" class="label">3. Caso de uso</text>
+  <text x="800" y="200" text-anchor="middle" class="small">CreateProductService</text>
+  <text x="800" y="224" text-anchor="middle" class="small">UpdateStockService</text>
+
+  <rect x="1000" y="120" width="280" height="120" fill="#dcfce7" stroke="#16a34a" stroke-width="2" rx="20"/>
+  <text x="1140" y="170" text-anchor="middle" class="label">4. Persistência</text>
+  <text x="1140" y="200" text-anchor="middle" class="small">MongoDB: products, categories</text>
+  <text x="1140" y="224" text-anchor="middle" class="small">PostgreSQL: stock balance</text>
+
+  <path class="line" d="M290 180 H360"/>
+  <path class="line" d="M600 180 H680"/>
+  <path class="line" d="M920 180 H1000"/>
+
+  <rect x="170" y="330" width="240" height="150" fill="#ffedd5" stroke="#f59e0b" stroke-width="2" rx="20"/>
+  <text x="290" y="380" text-anchor="middle" class="label">5. Regra de negócio</text>
+  <text x="290" y="412" text-anchor="middle" class="small">SKU único</text>
+  <text x="290" y="438" text-anchor="middle" class="small">Categoria válida</text>
+  <text x="290" y="464" text-anchor="middle" class="small">Saldo suficiente para OUT</text>
+
+  <rect x="500" y="330" width="300" height="150" fill="#f8fafc" stroke="#64748b" stroke-width="2" rx="20"/>
+  <text x="650" y="380" text-anchor="middle" class="label">6. Atualização de estoque</text>
+  <text x="650" y="412" text-anchor="middle" class="small">IN: soma ao saldo atual</text>
+  <text x="650" y="438" text-anchor="middle" class="small">OUT: subtrai e valida saldo</text>
+  <text x="650" y="464" text-anchor="middle" class="small">Registra movimentação</text>
+
+  <rect x="900" y="330" width="260" height="150" fill="#e0f2fe" stroke="#0284c7" stroke-width="2" rx="20"/>
+  <text x="1030" y="380" text-anchor="middle" class="label">7. Resposta</text>
+  <text x="1030" y="412" text-anchor="middle" class="small">HTTP 200 / 201</text>
+  <text x="1030" y="438" text-anchor="middle" class="small">Produto e saldo atualizados</text>
+  <text x="1030" y="464" text-anchor="middle" class="small">Payload do retorno</text>
+
+  <path class="line" d="M290 240 V330"/>
+  <path class="line" d="M650 240 V330"/>
+  <path class="line" d="M1030 240 V330"/>
+
+  <path class="dashed" d="M410 405 H500"/>
+  <path class="dashed" d="M800 405 H900"/>
+
+  <rect x="180" y="560" width="1180" height="170" fill="#f1f5f9" stroke="#475569" stroke-width="2" rx="22"/>
+  <text x="770" y="612" text-anchor="middle" class="label">Resultado esperado</text>
+  <text x="770" y="650" text-anchor="middle" class="small">Produto salvo corretamente, categoria vinculada e saldo de estoque validado com regras de negócio, auditoria e resposta consistente para o cliente.</text>
+  <text x="770" y="682" text-anchor="middle" class="small">A operação respeita integridade do catálogo, movimentos financeiros de estoque e autorização por perfil.</text>
+</svg>
