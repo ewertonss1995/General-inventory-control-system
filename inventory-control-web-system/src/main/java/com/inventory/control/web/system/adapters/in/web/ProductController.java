@@ -1,5 +1,11 @@
 package com.inventory.control.web.system.adapters.in.web;
 
+import com.inventory.control.web.system.adapters.in.web.api.ProductApi;
+import com.inventory.control.web.system.adapters.in.web.dto.request.ProductRequest;
+import com.inventory.control.web.system.adapters.in.web.dto.request.UpdateStockRequest;
+import com.inventory.control.web.system.adapters.in.web.dto.response.ProductResponse;
+import com.inventory.control.web.system.adapters.in.web.dto.response.SaveProductResponse;
+import com.inventory.control.web.system.adapters.in.web.dto.response.UpdateStockResponse;
 import com.inventory.control.web.system.adapters.in.web.mapper.ProductMapper;
 import com.inventory.control.web.system.domain.model.Product;
 import com.inventory.control.web.system.domain.model.UpdateStock;
@@ -7,14 +13,9 @@ import com.inventory.control.web.system.ports.in.product.GetProductUseCase;
 import com.inventory.control.web.system.ports.in.product.PostProductUseCase;
 import com.inventory.control.web.system.ports.in.product.UpdateProductUseCase;
 import com.inventory.control.web.system.ports.in.product.UpdateStockUseCase;
-import com.inventory.control.web.system.adapters.in.web.dto.request.ProductRequest;
-import com.inventory.control.web.system.adapters.in.web.dto.request.UpdateStockRequest;
-import com.inventory.control.web.system.adapters.in.web.dto.response.ProductResponse;
-import com.inventory.control.web.system.adapters.in.web.dto.response.SaveProductResponse;
-import com.inventory.control.web.system.adapters.in.web.dto.response.UpdateStockResponse;
-
 import jakarta.validation.Valid;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,12 +29,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 @RestController
 @RequestMapping("/api/v1/products")
-public class ProductController {
+public class ProductController implements ProductApi {
 
     private static final Logger log = LoggerFactory.getLogger(ProductController.class);
 
@@ -56,9 +54,10 @@ public class ProductController {
         this.updateStockUseCase = updateStockUseCase;
     }
 
+    @Override
     @PostMapping("/save")
     public ResponseEntity<SaveProductResponse> createProduct(@RequestBody @Valid ProductRequest request) {
-        log.info("Requisição recebida para criação de produto: " + request.sku());
+        log.info("Requisição recebida para criação de produto: {}", request.sku());
 
         Product productDomain = postProductUseCase.execute(mapper.toProduct(request));
 
@@ -67,6 +66,7 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toSaveProductResponse(productDomain));
     }
 
+    @Override
     @PutMapping("/update/{sku}")
     public ResponseEntity<SaveProductResponse> updateProduct(
             @PathVariable String sku,
@@ -80,6 +80,7 @@ public class ProductController {
         return ResponseEntity.ok(mapper.toSaveProductResponse(productUpdated));
     }
 
+    @Override
     @GetMapping
     public ResponseEntity<List<ProductResponse>> getAllProducts() {
         log.info("Requisição recebida para listar todos os produtos.");
@@ -90,6 +91,7 @@ public class ProductController {
         return ResponseEntity.ok(productResponses);
     }
 
+    @Override
     @GetMapping("/{sku}")
     public ResponseEntity<ProductResponse> getProductBySku(@PathVariable String sku) {
         log.info("Requisição recebida para buscar produto por SKU: {}", sku);
@@ -100,6 +102,7 @@ public class ProductController {
         return ResponseEntity.ok(mapper.toProductResponse(product));
     }
 
+    @Override
     @PatchMapping("/{sku}/stock")
     public ResponseEntity<UpdateStockResponse> updateProductStock(
             @PathVariable String sku,
