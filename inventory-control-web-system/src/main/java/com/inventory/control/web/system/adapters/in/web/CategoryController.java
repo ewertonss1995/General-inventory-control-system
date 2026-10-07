@@ -1,6 +1,16 @@
 package com.inventory.control.web.system.adapters.in.web;
 
+import com.inventory.control.web.system.adapters.in.web.api.CategoryApi;
+import com.inventory.control.web.system.adapters.in.web.dto.request.CategoryRequest;
+import com.inventory.control.web.system.adapters.in.web.dto.response.CategoryResponse;
 import com.inventory.control.web.system.adapters.in.web.mapper.CategoryMapper;
+import com.inventory.control.web.system.domain.model.Category;
+import com.inventory.control.web.system.ports.in.category.GetCategoryUseCase;
+import com.inventory.control.web.system.ports.in.category.PostCategoryUseCase;
+import com.inventory.control.web.system.ports.in.category.UpdateCategoryUseCase;
+import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
@@ -13,23 +23,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.inventory.control.web.system.adapters.in.web.dto.request.CategoryRequest;
-import com.inventory.control.web.system.adapters.in.web.dto.response.CategoryResponse;
-import com.inventory.control.web.system.domain.model.Category;
-import com.inventory.control.web.system.ports.in.category.GetCategoryUseCase;
-import com.inventory.control.web.system.ports.in.category.PostCategoryUseCase;
-import com.inventory.control.web.system.ports.in.category.UpdateCategoryUseCase;
-
-import jakarta.validation.Valid;
-
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/api/v1/categories")
-public class CategoryController {
+public class CategoryController implements CategoryApi {
 
     private static final Logger log = LoggerFactory.getLogger(CategoryController.class);
 
@@ -51,11 +49,10 @@ public class CategoryController {
 
     /**
      * @CacheEvict limpa a memória RAM de forma reativa.
-     *             Quando alguém cadastrar uma nova categoria, nós forçamos o BFF a
-     *             limpar o cache
-     *             para que a próxima listagem busque o dado atualizado direto do
-     *             backend.
+     * Quando alguém cadastrar uma nova categoria, forçamos o BFF a limpar o cache
+     * para que a próxima listagem busque o dado atualizado direto do backend.
      */
+    @Override
     @CacheEvict(value = "categories", allEntries = true)
     @PostMapping("/save")
     public ResponseEntity<CategoryResponse> createCategory(@RequestBody @Valid CategoryRequest request) {
@@ -67,6 +64,8 @@ public class CategoryController {
         return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toCategoryResponse(category));
     }
 
+    @Override
+    @CacheEvict(value = "categories", allEntries = true)
     @PutMapping("/update/{id}")
     public ResponseEntity<CategoryResponse> updateCategory(
             @PathVariable String id,
@@ -82,10 +81,10 @@ public class CategoryController {
 
     /**
      * @Cacheable intercepta a chamada.
-     *            Se a chave "categories" já existir na memória, ele pula a execução
-     *            do método
-     *            (não chama o Feign) e devolve a lista direto da RAM do BFF.
+     * Se a chave "categories" já existir na memória, ele pula a execução do método
+     * (não chama o Feign) e devolve a lista direto da RAM do BFF.
      */
+    @Override
     @GetMapping
     @Cacheable(value = "categories")
     public ResponseEntity<List<CategoryResponse>> getAllCategories() {
@@ -97,6 +96,7 @@ public class CategoryController {
         return ResponseEntity.ok(mapper.toCategoryResponseList(categories));
     }
 
+    @Override
     @GetMapping("/{id}")
     public ResponseEntity<CategoryResponse> getCategoryById(@PathVariable String id) {
         log.info("Requisição recebida para buscar categoria por ID: {}", id);
