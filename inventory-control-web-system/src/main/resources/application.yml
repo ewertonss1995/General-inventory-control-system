@@ -9,6 +9,17 @@ application:
     auth-service:
       url: ${AUTH_SERVICE_URL:http://localhost:8082}
 
+# Swagger/OpenAPI
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+    doc-expansion: none
+  packages-to-scan: com.inventory.control.web.system.adapters.in
+
 # 📊 Observabilidade
 management:
   endpoints:

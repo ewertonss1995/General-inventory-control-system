@@ -1,7 +1,7 @@
 package com.inventory.control.system.adapters.in.web;
 
 import com.inventory.control.system.adapters.in.web.mapper.CategoryMapper;
-
+import com.inventory.control.system.adapters.in.web.api.CategoryApi;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,9 +28,9 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/v1/categories")
-public class CategoryController {
+public class CategoryController implements CategoryApi {
 
-    private static final Logger log = LoggerFactory.getLogger(CategoryController.class);
+private static final Logger log = LoggerFactory.getLogger(CategoryController.class);
 
     private final CategoryMapper mapper;
     private final CreateCategoryUseCase createCategoryUseCase;
@@ -38,16 +38,17 @@ public class CategoryController {
     private final UpdateCategoryUseCase updateCategoryUseCase;
 
     public CategoryController(
-        CategoryMapper mapper,
-        CreateCategoryUseCase createCategoryUseCase, 
-        GetCategoryUseCase getCategoryUseCase,
-        UpdateCategoryUseCase updateCategoryUseCase) {
-            this.mapper = mapper;
-                this.createCategoryUseCase = createCategoryUseCase;
-                this.getCategoryUseCase = getCategoryUseCase;
-                this.updateCategoryUseCase = updateCategoryUseCase;
+            CategoryMapper mapper,
+            CreateCategoryUseCase createCategoryUseCase, 
+            GetCategoryUseCase getCategoryUseCase,
+            UpdateCategoryUseCase updateCategoryUseCase) {
+        this.mapper = mapper;
+        this.createCategoryUseCase = createCategoryUseCase;
+        this.getCategoryUseCase = getCategoryUseCase;
+        this.updateCategoryUseCase = updateCategoryUseCase;
     }
 
+    @Override
     @PostMapping("/save")
     public ResponseEntity<CategoryResponse> createCategory(@RequestBody @Valid CategoryRequest request) {
         log.info("Requisição recebida para criar categoria: {}", request.name());
@@ -58,6 +59,7 @@ public class CategoryController {
         return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toCategoryResponse(category));
     }
 
+    @Override
     @PutMapping("/update/{id}")
     public ResponseEntity<CategoryResponse> updateCategory(
             @PathVariable String id,
@@ -65,22 +67,24 @@ public class CategoryController {
 
         log.info("Requisição recebida para atualizar categoria com ID: {}", id);
 
-        Category category =  updateCategoryUseCase.execute(id, mapper.toCategory(request));
+        Category category = updateCategoryUseCase.execute(id, mapper.toCategory(request));
 
         log.info("Categoria com ID: {} atualizada com sucesso.", id);
         return ResponseEntity.ok(mapper.toCategoryResponse(category));
     }
 
+    @Override
     @GetMapping
     public ResponseEntity<List<CategoryResponse>> getAllCategories() {
         log.info("Requisição recebida para listar todas as categorias.");
 
         List<Category> categories = getCategoryUseCase.findAll();
-                
+
         log.info("Busca realizada com sucesso. Total de categorias encontradas: {}", categories.size());
         return ResponseEntity.ok(mapper.toCategoryResponseList(categories));
     }
 
+    @Override
     @GetMapping("/{id}")
     public ResponseEntity<CategoryResponse> getCategoryById(@PathVariable String id) {
         log.info("Requisição recebida para buscar categoria por ID: {}", id);
