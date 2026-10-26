@@ -10,6 +10,25 @@ module "security" {
   project_name = var.project_name
 }
 
+module "api_gateway" {
+  source       = "./modules/api_gateway"
+  project_name = var.project_name
+}
+
+module "load_balancer" {
+  source               = "./modules/loadbalancer"
+  project_name         = var.project_name
+  private_subnet_ids   = module.network.private_subnets
+  alb_security_group_id = [module.security.alb_sg_id]
+}
+
+module "eks" {
+  source                = "./modules/eks"
+  project_name          = var.project_name
+  private_subnet_ids    = module.network.private_subnets
+  eks_security_group_id = module.security.eks_sg_id
+}
+
 module "database" {
   source               = "./modules/rds"
   project_name         = var.project_name
