@@ -9,6 +9,7 @@ import com.inventory.control.web.system.ports.in.authenticate.RegisterUserUseCas
 import com.inventory.control.web.system.ports.in.category.GetCategoryUseCase;
 import com.inventory.control.web.system.ports.in.category.PostCategoryUseCase;
 import com.inventory.control.web.system.ports.in.category.UpdateCategoryUseCase;
+import com.inventory.control.web.system.ports.in.product.ProductCsvProducerUseCase;
 import com.inventory.control.web.system.domain.service.product.PostProductService;
 import com.inventory.control.web.system.domain.service.product.GetProductService;
 import com.inventory.control.web.system.domain.service.product.UpdateProductService;
@@ -18,6 +19,8 @@ import com.inventory.control.web.system.domain.service.authenticate.RegisterUser
 import com.inventory.control.web.system.domain.service.category.GetCategoryService;
 import com.inventory.control.web.system.domain.service.category.PostCategoryService;
 import com.inventory.control.web.system.domain.service.category.UpdateCategoryService;
+import com.inventory.control.web.system.domain.service.kafka.ProductCsvProducerService;
+import com.inventory.control.web.system.ports.out.EventPublisherPort;
 import com.inventory.control.web.system.ports.out.CategoryFeignPort;
 import com.inventory.control.web.system.ports.out.ProductFeignPort;
 import com.inventory.control.web.system.ports.out.AuthenticateFeignPort;
@@ -73,5 +76,10 @@ public class BeanConfig {
     @Bean
     public UpdateCategoryUseCase updateCategoryUseCase(CategoryFeignPort categoryFeignPort) {
         return new UpdateCategoryService(categoryFeignPort);
+    }
+
+    @Bean
+    public ProductCsvProducerUseCase productCsvProducerUseCase(EventPublisherPort eventPublisherPort) {
+        return new ProductCsvProducerService(eventPublisherPort);
     }
 }

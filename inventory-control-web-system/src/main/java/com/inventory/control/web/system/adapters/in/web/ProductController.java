@@ -13,6 +13,9 @@ import com.inventory.control.web.system.ports.in.product.GetProductUseCase;
 import com.inventory.control.web.system.ports.in.product.PostProductUseCase;
 import com.inventory.control.web.system.ports.in.product.UpdateProductUseCase;
 import com.inventory.control.web.system.ports.in.product.UpdateStockUseCase;
+import com.inventory.control.web.system.ports.in.product.ProductCsvProducerUseCase;
+import com.inventory.control.web.system.ports.out.ProductReaderPort;
+import org.springframework.web.bind.annotation.RequestParam;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +29,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import com.inventory.control.web.system.ports.out.ProductReaderPort;
 
 import java.util.List;
 
@@ -40,18 +45,24 @@ public class ProductController implements ProductApi {
     private final PostProductUseCase postProductUseCase;
     private final UpdateProductUseCase updateProductUseCase;
     private final UpdateStockUseCase updateStockUseCase;
+    private final ProductCsvProducerUseCase ProductCsvProducerUseCase;
+    private final ProductReaderPort productReaderPort;
 
     public ProductController(
             ProductMapper mapper,
             GetProductUseCase getProductUseCase,
             PostProductUseCase postProductUseCase,
             UpdateProductUseCase updateProductUseCase,
-            UpdateStockUseCase updateStockUseCase) {
+            UpdateStockUseCase updateStockUseCase, 
+            ProductCsvProducerUseCase ProductCsvProducerUseCase, 
+            ProductReaderPort productReaderPort) {
         this.mapper = mapper;
         this.getProductUseCase = getProductUseCase;
         this.postProductUseCase = postProductUseCase;
         this.updateProductUseCase = updateProductUseCase;
         this.updateStockUseCase = updateStockUseCase;
+        this.ProductCsvProducerUseCase = ProductCsvProducerUseCase;
+        this.productReaderPort = productReaderPort;
     }
 
     @Override
@@ -117,5 +128,14 @@ public class ProductController implements ProductApi {
                 updatedStock.getNewQuantity());
 
         return ResponseEntity.ok(mapper.toUpdateStockResponse(updatedStock));
+    }
+
+    @PostMapping("/upload-csv")
+    public ResponseEntity<Void> uploadCsv(@RequestParam("file") MultipartFile file) {
+        log.info("Requisição recebida para upload de arquivo CSV: {}", file.getOriginalFilename());
+        List<Product> products = productReaderPort.parseCsv(file);
+        ProductCsvProducerUseCase.publishProducts(products);
+        log.info("Arquivo CSV processado e produtos publicados com sucesso.");
+        return ResponseEntity.accepted().build();
     }
 }
