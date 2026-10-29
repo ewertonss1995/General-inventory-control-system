@@ -8,6 +8,8 @@ application:
       url: ${INVENTORY_CONTROL_SYSTEM_URL:http://localhost:8081}
     auth-service:
       url: ${AUTH_SERVICE_URL:http://localhost:8082}
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
 
 # Swagger/OpenAPI
 springdoc:
@@ -46,3 +48,15 @@ logging:
       
 jwt:
   public-key-path: classpath:certs/app.pub 
+
+csv:
+  product:
+    required-headers:
+      - sku
+      - name
+      - description
+      - price
+      - quantity
+      - category_id
+      - category_name
+      - category_description

@@ -8,6 +8,7 @@ public record ProductMessage(
         String description,
         BigDecimal price,
         Integer quantity,
+        String categoryId,
         String categoryName,
         String categoryDescription
 ) {}

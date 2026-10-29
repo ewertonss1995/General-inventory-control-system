@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 )
 public interface CsvProductMapper {
 
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "category", expression = "java(mapCategory(dto))")
     @Mapping(target = "price", expression = "java(new BigDecimal(dto.price()))")
     @Mapping(target = "quantity", expression = "java(Integer.parseInt(dto.quantity()))")
@@ -21,6 +22,7 @@ public interface CsvProductMapper {
 
     default Category mapCategory(CsvProductDto dto) {
         return new Category(
+                dto.categoryId(),
                 dto.categoryName(),
                 dto.categoryDescription()
         );

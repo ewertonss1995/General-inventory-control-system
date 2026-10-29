@@ -6,6 +6,7 @@ public record CsvProductDto(
         String description,
         String price,
         String quantity,
+        String categoryId,
         String categoryName,
         String categoryDescription
 ) {}
