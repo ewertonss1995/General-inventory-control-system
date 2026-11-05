@@ -16,6 +16,10 @@ import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -27,59 +31,82 @@ import java.util.List;
 
 @Component
 public class CsvProductReaderAdapter implements ProductReaderPort {
+    
+    private static final Logger log = LoggerFactory.getLogger(CsvProductReaderAdapter.class);
 
     private final CsvProductMapper csvProductMapper;
     private final CsvProductProperties csvProductProperties;
+    private final MeterRegistry meterRegistry;
 
-    public CsvProductReaderAdapter(CsvProductMapper csvProductMapper, CsvProductProperties csvProductProperties) {
+    public CsvProductReaderAdapter(CsvProductMapper csvProductMapper, CsvProductProperties csvProductProperties, MeterRegistry meterRegistry) {
         this.csvProductMapper = csvProductMapper;
         this.csvProductProperties = csvProductProperties;
+        this.meterRegistry = meterRegistry;
     }
 
-@Override
+    @Override
     public List<Product> parseCsv(MultipartFile file) {
-        validateFileType(file);
+        String fileName = file != null ? file.getOriginalFilename() : "unknown";
 
-        List<Product> products = new ArrayList<>();
+        return Timer.builder("csv.reader.time")
+                .description("Tempo de processamento e parsing de arquivos CSV")
+                .tag("layer", "adapter_out")
+                .tag("target", "csv_parser")
+                .register(meterRegistry)
+                .record(() -> {
+                    log.info("Iniciando validação e parsing do arquivo CSV: {}", fileName);
+                    validateFileType(file);
 
-        CSVFormat csvFormat = CSVFormat.DEFAULT
-                .builder()
-                .setHeader()
-                .setSkipHeaderRecord(true)
-                .setIgnoreHeaderCase(true)
-                .setTrim(true)
-                .build();
+                    List<Product> products = new ArrayList<>();
 
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
-             CSVParser csvParser = csvFormat.parse(reader)) {
+                    CSVFormat csvFormat = CSVFormat.DEFAULT
+                            .builder()
+                            .setHeader()
+                            .setSkipHeaderRecord(true)
+                            .setIgnoreHeaderCase(true)
+                            .setTrim(true)
+                            .build();
 
-            validateHeaders(csvParser.getHeaderMap());
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
+                         CSVParser csvParser = csvFormat.parse(reader)) {
 
-            for (CSVRecord record : csvParser) {
-                long lineNumber = record.getRecordNumber() + 1;
+                        validateHeaders(csvParser.getHeaderMap());
 
-                validateRowContent(record, lineNumber);
+                        for (CSVRecord record : csvParser) {
+                            long lineNumber = record.getRecordNumber() + 1;
 
-                CsvProductDto dto = new CsvProductDto(
-                        record.get("sku"),
-                        record.get("name"),
-                        record.get("description"),
-                        record.get("price"),
-                        record.get("quantity"),
-                        record.get("category_id"),
-                        record.get("category_name"),
-                        record.get("category_description")
-                );
+                            validateRowContent(record, lineNumber);
 
-                products.add(csvProductMapper.toDomain(dto));
-            }
-        } catch (InvalidCsvHeaderException | InvalidCsvRowContentException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new CsvValidationException("Falha ao processar e ler o arquivo CSV de produtos", e);
-        }
+                            CsvProductDto dto = new CsvProductDto(
+                                    record.get("sku"),
+                                    record.get("name"),
+                                    record.get("description"),
+                                    record.get("price"),
+                                    record.get("quantity"),
+                                    record.get("category_id"),
+                                    record.get("category_name"),
+                                    record.get("category_description")
+                            );
 
-        return products;
+                            products.add(csvProductMapper.toDomain(dto));
+                        }
+                    } catch (RuntimeException ex) { 
+                        recordFailure(ex.getClass().getSimpleName());
+                        log.error("Falha de validação ao processar arquivo CSV [{}]: {}", fileName, ex.getMessage());
+                        throw ex;
+                    } catch (Exception ex) {
+                        recordFailure(ex.getClass().getSimpleName());
+                        log.error("Falha de I/O ao processar arquivo CSV [{}]: {}", fileName, ex.getMessage());
+                        throw new CsvValidationException("Falha ao processar e ler o arquivo CSV de produtos", ex);
+                    }
+
+                    meterRegistry.counter("csv.reader.success",
+                            "layer", "adapter_out",
+                            "target", "csv_parser").increment();
+
+                    log.info("Arquivo CSV processado com sucesso. Total de produtos extraídos: {} do arquivo: {}", products.size(), fileName);
+                    return products;
+                });
     }
 
     private void validateFileType(MultipartFile file) {
@@ -168,5 +195,12 @@ public class CsvProductReaderAdapter implements ProductReaderPort {
         if (StringUtils.isBlank(categoryName)) {
             throw new InvalidCsvRowContentException(lineNumber, "O campo 'category_name' é obrigatório.");
         }
+    }
+
+    private void recordFailure(String errorType) {
+        meterRegistry.counter("csv.reader.failures",
+                "layer", "adapter_out",
+                "target", "csv_parser",
+                "error_type", errorType).increment();
     }
 }
