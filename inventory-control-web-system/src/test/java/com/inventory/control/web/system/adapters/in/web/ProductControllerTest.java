@@ -14,6 +14,8 @@ import com.inventory.control.web.system.ports.in.product.GetProductUseCase;
 import com.inventory.control.web.system.ports.in.product.PostProductUseCase;
 import com.inventory.control.web.system.ports.in.product.UpdateProductUseCase;
 import com.inventory.control.web.system.ports.in.product.UpdateStockUseCase;
+import com.inventory.control.web.system.ports.in.product.ProductCsvProducerUseCase;
+import com.inventory.control.web.system.ports.out.ProductReaderPort;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -21,6 +23,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.mock.web.MockMultipartFile;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -45,6 +48,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -75,6 +79,12 @@ class ProductControllerTest {
 
     @MockBean
     private UpdateStockUseCase updateStockUseCase;
+
+    @MockBean
+    private ProductCsvProducerUseCase productCsvProducerUseCase;
+
+    @MockBean
+    private ProductReaderPort productReaderPort;
 
     @Test
     void shouldCreateProductAndReturn201Created() throws Exception {
@@ -211,5 +221,38 @@ class ProductControllerTest {
                 .andExpect(status().isBadRequest());
 
         verify(updateStockUseCase, never()).execute(anyString(), any());
+    }
+
+@Test
+    void shouldUploadCsvAndReturn202Accepted() throws Exception {
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "products_200_sucess.csv",
+                "text/csv",
+                ("sku,name,description,price,quantity,category_id,category_name,category_description\n" +
+                 "PROD-0001,Teclado Mecânico V1,Teclado mecânico RGB switch blue - Modelo 1,1954.80,149,6ac64e9407097c6a7b1219aa,Eletrônicos,Equipamentos eletrônicos e gadgets").getBytes()
+        );
+
+        List<Product> products = List.of(createProductDomain());
+
+        when(productReaderPort.parseCsv(any())).thenReturn(products);
+
+        mockMvc.perform(multipart(BASE_URL + "/upload-csv")
+                        .file(file)
+                        .with(csrf()))
+                .andExpect(status().isAccepted());
+
+        verify(productReaderPort).parseCsv(any());
+        verify(productCsvProducerUseCase).publishProducts(products);
+    }
+
+    @Test
+    void shouldReturn4xxWhenUploadCsvFileIsMissing() throws Exception {
+        mockMvc.perform(multipart(BASE_URL + "/upload-csv")
+                        .with(csrf()))
+                .andExpect(status().isBadRequest());
+
+        verify(productReaderPort, never()).parseCsv(any());
+        verify(productCsvProducerUseCase, never()).publishProducts(any());
     }
 }
