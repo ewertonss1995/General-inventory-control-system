@@ -120,7 +120,19 @@ O fluxo de atualização de saldo é uma operação sensível e protegida por re
 4. O BFF encaminha a atualização para o backend de estoque.
 5. O backend responde com novo saldo e informações da movimentação.
 
-### 5. Observabilidade e monitoramento
+### 5. Importação em lote via CSV
+
+O fluxo de atualização em lote de produtos também é tratado como uma operação assíncrona de integração, com validação rigorosa antes da publicação do evento:
+
+1. O cliente envia `POST /api/v1/products/upload-csv` com um arquivo multipart no formato CSV.
+2. O controller recebe a requisição e delega a leitura do arquivo ao `ProductReaderPort`, que dispara a validação de tipo e conteúdo do arquivo.
+3. O adaptador `CsvProductReaderAdapter` valida se o arquivo não é nulo, se a extensão é `.csv`, se o MIME type é compatível e se o cabeçalho contém todos os campos obrigatórios configurados em `application.yml`.
+4. Cada linha validada é convertida em um modelo de domínio `Product` e depois em `ProductMessage`; nesse ponto, o `ProductCsvProducerService` reforça as regras de negócio, como SKU obrigatório e categoria válida antes de publicar o evento.
+5. O `KafkaEventPublisherAdapter` envia a mensagem para o tópico `inventory-csv-import-topic` usando `KafkaTemplate`, registrando métricas de sucesso e falha com Micrometer e protegendo o processo com tratamento de exceções específicas de CSV e negócio.
+
+Esse fluxo garante que o sistema só publique mensagens válidas para o downstream, evitando registros incompletos ou inconsistentes no processo de importação em massa.
+
+### 6. Observabilidade e monitoramento
 
 A aplicação expõe endpoints de monitoramento e métricas usando Spring Actuator e Micrometer:
 
@@ -152,6 +164,7 @@ Traces são emitidos com OpenTelemetry e podem ser enviados para um collector OT
 
 - SpringDoc OpenAPI / Swagger UI
 - DTOs e mapeamento com MapStruct
+- Apache Commons CSV para leitura e validação de arquivos em lote
 
 ### Infraestrutura / observabilidade
 
@@ -159,12 +172,14 @@ Traces são emitidos com OpenTelemetry e podem ser enviados para um collector OT
 - Micrometer Tracing
 - OpenTelemetry OTLP
 - Prometheus export
+- Spring Kafka para publicação de eventos em tópicos assíncronos
 
 ### Comunicação com serviços externos
 
 - OpenFeign para integração síncrona com:
   - serviço de autenticação
   - serviço de inventory/core do sistema
+- Kafka para processamento assíncrono de importações em lote de produtos via tópico `inventory-csv-import-topic`
 
 ---
 
@@ -220,6 +235,7 @@ Principais módulos implementados:
 | Método | Endpoint | Descrição | Autenticação |
 | --- | --- | --- | --- |
 | `POST` | `/api/v1/products/save` | Criação de produto | Requer role |
+| `POST` | `/api/v1/products/upload-csv` | Importação em lote de produtos via CSV | Requer role |
 | `PUT` | `/api/v1/products/update/{sku}` | Atualização de produto | Requer role |
 | `GET` | `/api/v1/products` | Listagem de produtos | Requer role |
 | `GET` | `/api/v1/products/{sku}` | Busca por SKU | Requer role |
