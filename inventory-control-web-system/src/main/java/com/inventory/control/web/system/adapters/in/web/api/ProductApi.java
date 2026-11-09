@@ -21,6 +21,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -87,6 +89,7 @@ public interface ProductApi {
     })
     ResponseEntity<SaveProductResponse> createProduct(@RequestBody @Valid ProductRequest request);
 
+
     @Operation(
         summary = "Atualiza os dados de um produto",
         description = "Atualiza as informações cadastrais de um produto localizado pelo SKU."
@@ -121,6 +124,7 @@ public interface ProductApi {
             @Parameter(description = "SKU do produto a ser atualizado", example = "PRD-TECL-001")
             @PathVariable String sku,
             @RequestBody @Valid ProductRequest request);
+            
 
     @Operation(
         summary = "Lista todos os produtos",
@@ -137,6 +141,7 @@ public interface ProductApi {
         )
     })
     ResponseEntity<List<ProductResponse>> getAllProducts();
+
 
     @Operation(
         summary = "Busca produto por SKU",
@@ -163,6 +168,7 @@ public interface ProductApi {
     ResponseEntity<ProductResponse> getProductBySku(
             @Parameter(description = "SKU único do produto", example = "PRD-TECL-001")
             @PathVariable String sku);
+
 
     @Operation(
         summary = "Atualiza o saldo de estoque do produto",
@@ -198,4 +204,60 @@ public interface ProductApi {
             @Parameter(description = "SKU do produto que sofrerá alteração de estoque", example = "PRD-TECL-001")
             @PathVariable String sku,
             @RequestBody @Valid UpdateStockRequest request);
+
+       @Operation(
+        summary = "Realiza o upload assíncrono de produtos via arquivo CSV",
+        description = "Recebe um arquivo CSV contendo os produtos, valida extensão, cabeçalhos, conteúdo linha a linha e publica de forma assíncrona para processamento posterior."
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "202",
+            description = "Arquivo CSV aceito com sucesso e processamento/publicação iniciados"
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Erro de validação (arquivo vazio, faltando o parâmetro 'file', tipo/extensão inválida, cabeçalho incorreto, linha malformada ou violação de regra de negócio)",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON_VALUE,
+                schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(
+                    name = "ErroCsvInvalido",
+                    summary = "Exemplo de erro de validação no CSV",
+                    value = """
+                        {
+                          "status": 400,
+                          "error": "Bad Request",
+                          "message": "O conteúdo da linha do arquivo CSV é inválido. Verifique o formato permitido: O campo 'price' deve ser um valor maior que zero na linha 4.",
+                          "path": "/api/v1/products/upload-csv",
+                          "timestamp": "2026-11-09T16:30:00Z"
+                        }
+                        """
+                )
+            )
+        ),
+        @ApiResponse(
+            responseCode = "413",
+            description = "O arquivo enviado excede o tamanho máximo permitido configurado no servidor",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON_VALUE,
+                schema = @Schema(implementation = ErrorResponse.class)
+            )
+        ),
+        @ApiResponse(
+            responseCode = "500",
+            description = "Erro interno no servidor ao processar o arquivo CSV ou falha de mensageria no broker Kafka",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON_VALUE,
+                schema = @Schema(implementation = ErrorResponse.class)
+            )
+        )
+    })
+    ResponseEntity<Void> uploadCsv(
+            @Parameter(
+                description = "Arquivo contendo os dados dos produtos no formato CSV",
+                required = true,
+                content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)
+            )
+            @RequestParam("file") MultipartFile file
+    );
 }

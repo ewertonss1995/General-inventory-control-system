@@ -130,6 +130,7 @@ public class ProductController implements ProductApi {
         return ResponseEntity.ok(mapper.toUpdateStockResponse(updatedStock));
     }
 
+    @Override
     @PostMapping("/upload-csv")
     public ResponseEntity<Void> uploadCsv(@RequestParam("file") MultipartFile file) {
         log.info("Requisição recebida para upload de arquivo CSV: {}", file.getOriginalFilename());
